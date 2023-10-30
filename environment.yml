@@ -1,0 +1,18 @@
+name: ReSync
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - mne-bids
+  - python
+  - pandas
+  - numpy
+  - scipy
+  - matplotlib
+  - openpyxl
+  - jupyter
+  - pip
+  - pip:
+    - pymatreader
+    - mne
+    - -e .
