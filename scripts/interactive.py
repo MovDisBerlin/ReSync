@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-import functions.utils as utils
+import scripts.utils as utils
 
 
 def interaction(timescale, data):

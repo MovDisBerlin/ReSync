@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import json
-import functions.config as cfg
+#import scripts.config as cfg
 
 # Function to open TMSi data
 
@@ -83,6 +83,39 @@ def _load_TMSi_artefact_channel(
 	)
 
 	return BIP_channel, external_file, external_rec_ch_names, sf_external
+
+
+
+def _load_LFP_rec(sub_ID, session, condition, task, run):
+	project_path = os.getcwd()
+	os.chdir("C:\\Users\\Juliette\\Research\\Projects\\PyPerceive\\code")
+	from PerceiveImport.classes import (
+		main_class, modality_class, metadata_class,
+		session_class, condition_class, task_class,
+		contact_class, run_class
+	)
+	import PerceiveImport.methods.load_rawfile as load_rawfile
+	import PerceiveImport.methods.find_folders as find_folders
+	import PerceiveImport.methods.metadata_helpers as metaHelpers
+
+	#reset the proper working directory for the analysis
+	os.chdir(project_path)
+
+	sub = main_class.PerceiveData(
+	sub = sub_ID, 
+	incl_modalities=['streaming'],
+	incl_session = [f'{session}'],
+	incl_condition =[f'{condition}'],
+	incl_task = [f'{task}'],
+	# incl_contact = ["RingL", "SegmInterR", "SegmIntraR"],
+	import_json=False,
+	warn_for_metaNaNs=False,
+	allow_NaNs_in_metadata=False
+	)
+
+	LFP_rec = sub.streaming.fu24m.m0s0.rest.run1.data
+
+	return LFP_rec
 
 
 

@@ -6,11 +6,11 @@ import os
 import json
 
 #import custom-made functions
-import functions.utils as utils
-import functions.find_artefacts as artefact
-import functions.plotting as plot
-import functions.crop as crop
-import functions.find_packet_loss as pkl
+import scripts.utils as utils
+import scripts.find_artefacts as artefact
+import scripts.plotting as plot
+import scripts.crop as crop
+import scripts.find_packet_loss as pkl
 
 ## set font sizes and other parameters for the figures
 SMALL_SIZE = 12
