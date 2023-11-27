@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import sys
 import json
 #import scripts.config as cfg
 
@@ -88,7 +89,8 @@ def _load_TMSi_artefact_channel(
 
 def _load_LFP_rec(sub_ID, session, condition, task, run):
 	project_path = os.getcwd()
-	os.chdir("C:\\Users\\Juliette\\Research\\Projects\\PyPerceive\\code")
+	pyPerceive_path = os.chdir("C:\\Users\\Juliette\\Research\\Projects\\PyPerceive\\code")
+	sys.path.append(pyPerceive_path)
 	from PerceiveImport.classes import (
 		main_class, modality_class, metadata_class,
 		session_class, condition_class, task_class,
@@ -100,6 +102,7 @@ def _load_LFP_rec(sub_ID, session, condition, task, run):
 
 	#reset the proper working directory for the analysis
 	os.chdir(project_path)
+	os.getcwd()
 
 	sub = main_class.PerceiveData(
 	sub = sub_ID, 

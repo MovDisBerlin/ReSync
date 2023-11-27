@@ -1,4 +1,4 @@
-name: ReSync
+name: resync
 channels:
   - conda-forge
   - defaults
