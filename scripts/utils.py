@@ -34,10 +34,10 @@ def _define_folders():
 
 parameters = {}
 
-def _update_and_save_params(key, value, sub_ID):
+def _update_and_save_params(key, value, sub_ID, saving_path):
     parameters[key] = value
     parameter_filename = ('parameters_' + str(sub_ID) + '.json')
-    json_file_path = os.path.join('results', parameter_filename)
+    json_file_path = os.path.join(saving_path, parameter_filename)
     with open(json_file_path, 'w') as json_file:
         json.dump(parameters, json_file, indent=4)
 

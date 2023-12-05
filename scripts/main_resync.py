@@ -6,18 +6,12 @@ import os
 import json
 
 #import custom-made functions
-from utils import *
+#from utils import *
 from utils import _convert_index_to_time, _convert_time_to_index, _filtering
 from find_artefacts import *
 from plotting import *
 from crop import *
 from find_packet_loss import *
-
-#import scripts.utils as utils
-#import scripts.find_artefacts as artefact
-#import scripts.plotting as plot
-#import scripts.crop as crop
-#import scripts.find_packet_loss as pkl
 
 ## set font sizes and other parameters for the figures
 SMALL_SIZE = 12
@@ -47,8 +41,9 @@ def run_resync(
     BIP_channel, 
     external_rec_ch_names,
     sf_external,
+    saving_path,
     real_art_time_LFP = 0,
-    SHOW_FIGURES = True,
+    SHOW_FIGURES = True
 ):
 
     """
@@ -107,7 +102,6 @@ def run_resync(
         #if not os.path.isdir(saving_path):
             #os.makedirs(saving_path)
 
-    saving_path = 'results'
 
     # Generate timescales:
     LFP_timescale_s = np.arange(

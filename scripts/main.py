@@ -1,5 +1,6 @@
 from loading_data import _load_mat_file, _load_data_lfp, _load_TMSi_artefact_channel
 from tmsi_poly5reader import Poly5Reader
+import os
 from os.path import join
 import json
 from utils import _update_and_save_params
@@ -16,17 +17,20 @@ def main(
 	AUTOMATIC=False
 	):
 
+	#  Set saving path
+	saving_path = join("results", sub_ID)
+	if not os.path.isdir(saving_path):
+		os.makedirs(saving_path)
+	
 	#  Loading datasets
-	dataset_lfp= _load_mat_file(sub_ID, fname_lfp)
-	LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP = _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp)
+	dataset_lfp= _load_mat_file(sub_ID, fname_lfp, saving_path)
+	LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP = _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path)
 	source_path = "sourcedata"
 	TMSi_data = Poly5Reader(join(source_path, fname_external)) 
-	BIP_channel, external_file, external_rec_ch_names, sf_external = _load_TMSi_artefact_channel(sub_ID, TMSi_data, fname_external, AUTOMATIC)
+	BIP_channel, external_file, external_rec_ch_names, sf_external = _load_TMSi_artefact_channel(sub_ID, TMSi_data, fname_external, AUTOMATIC, saving_path)
 
 	#  Process/align recordings
-	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP, external_file, BIP_channel, external_rec_ch_names, sf_external, SHOW_FIGURES = True)
-
-
+	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP, external_file, BIP_channel, external_rec_ch_names, sf_external, saving_path, SHOW_FIGURES = True)
 
 
 if __name__ == '__main__':
