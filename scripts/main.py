@@ -23,8 +23,10 @@ def main(
 		os.makedirs(saving_path)
 	
 	#  Loading datasets
+	##  LFP
 	dataset_lfp= _load_mat_file(sub_ID, fname_lfp, saving_path)
 	LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP = _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path)
+	##  External
 	source_path = "sourcedata"
 	TMSi_data = Poly5Reader(join(source_path, fname_external)) 
 	BIP_channel, external_file, external_rec_ch_names, sf_external = _load_TMSi_artefact_channel(sub_ID, TMSi_data, fname_external, AUTOMATIC, saving_path)

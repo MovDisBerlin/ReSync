@@ -7,7 +7,7 @@ import json
 
 #import custom-made functions
 #from utils import *
-from utils import _convert_index_to_time, _convert_time_to_index, _filtering
+from utils import _convert_index_to_time, _convert_time_to_index, _filtering, _get_input_y_n
 from find_artefacts import *
 from plotting import *
 from crop import *
@@ -345,36 +345,47 @@ def run_resync(
     else: 
         plt.close()
 
-    ###  SAVE CROPPED RECORDINGS ###
-    # Save intracranial recording:
-    LFP_df_offset.to_csv(
-        saving_path 
-        + '\\Intracerebral_LFP_' 
-        + str(sub_ID)
-        + '_' 
-        + str(sf_LFP) 
-        + 'Hz.csv',
-        index=False
-    ) 
+    AUTOMATIC_PROCESSING_GOOD = False
 
-    # Save external recording:
-    external_df_offset.to_csv(
-        saving_path 
-        + '\\External_data_' 
-        + str(sub_ID)
-        + '_' 
-        + str(sf_external) 
-        + 'Hz.csv',
-        index=False
-    )
+    artefact_correct = _get_input_y_n("Are artefacts properly selected or is manual adjustment necessary? ")
+    if artefact_correct == 'y':
+        AUTOMATIC_PROCESSING_GOOD = True
     
-    print(
-        'Alignment performed ! \n' 
-        'Please check carefully in all figures that the samples selected \n'
-        'as start of the artefact are correct, and if they are not you can either\n'
-        'a. try with the other kernel, or '
-        'b. select manually the sample where the artefact starts and re-run the function in the next notebook cell.'
-    )
+    if AUTOMATIC_PROCESSING_GOOD:
+        ###  SAVE CROPPED RECORDINGS ###
+        # Save intracranial recording:
+        LFP_df_offset.to_csv(
+            saving_path 
+            + '\\Intracerebral_LFP_' 
+            + str(sub_ID)
+            + '_' 
+            + str(sf_LFP) 
+            + 'Hz.csv',
+            index=False
+        ) 
+
+        # Save external recording:
+        external_df_offset.to_csv(
+            saving_path 
+            + '\\External_data_' 
+            + str(sub_ID)
+            + '_' 
+            + str(sf_external) 
+            + 'Hz.csv',
+            index=False
+        )
+
+        print(
+            'Alignment performed ! \n' 
+            'Please check carefully in all figures that the samples selected \n'
+            'as start of the artefact are correct, and if they are not you can either\n'
+            'a. try with the other kernel, or '
+            'b. select manually the sample where the artefact starts and re-run the function in the next notebook cell.'
+        )
+
+
+    #else: ##### STILL NEEDS TO BE WRITTEN !!
+
 
     return LFP_df_offset, external_df_offset
 
