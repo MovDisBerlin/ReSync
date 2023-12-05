@@ -10,6 +10,7 @@ import numpy as np
 import operator
 
 
+
 def _define_folders():
 
     """
@@ -30,6 +31,15 @@ def _define_folders():
 
     return saving_path
 
+
+parameters = {}
+
+def _update_and_save_params(key, value, sub_ID):
+    parameters[key] = value
+    parameter_filename = ('parameters_' + str(sub_ID) + '.json')
+    json_file_path = os.path.join('results', parameter_filename)
+    with open(json_file_path, 'w') as json_file:
+        json.dump(parameters, json_file, indent=4)
 
 
 ### FUNCTIONS FOR CONVERSION time/index ###

@@ -1,19 +1,14 @@
-from loading_data import _load_LFP_rec, _set_lfp_data, _load_TMSi_artefact_channel
+from loading_data import _load_mat_file,_load_lfp_rec, _load_data_lfp
 from tmsi_poly5reader import Poly5Reader
+import json
+from utils import _update_and_save_params
 #from scripts.phase_analysis import phase_spiking
 #from scripts.utils import _get_brain_areas, _load_data
 
+def main(sub_ID='Sub019 24MFU M0S0 rest', fname_lfp="sub-20210415PStn_ses-2023040408103277_run-BrainSense20230404081800.mat", ch_idx_lfp=0, fname_external="sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5", ch_idx_external="BIP 02"):
+	dataset_lfp= _load_mat_file(sub_ID, fname_lfp)
+	LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP =_load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp)
 
-def main(sub_ID="024", session="fu24m", condition="m0s0", task="rest", run= "run1"):
-    LFP_rec = _load_LFP_rec(sub_ID, session, condition, task, run)
-    (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = _set_lfp_data(LFP_rec)
-
-    TMSi_data = Poly5Reader()  # open TMSi data from poly5
-    # extract necessary objects for further analysis
-    (BIP_channel,
-    external_file,
-    external_rec_ch_names,
-    sf_external) = _load_TMSi_artefact_channel(TMSi_data) 
 
 
 

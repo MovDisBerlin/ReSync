@@ -1,8 +1,68 @@
+from utils import _update_and_save_params
 import numpy as np
 import os
 import sys
 import json
+from scipy.io import loadmat
+from mne.io import read_raw_fieldtrip
+from os.path import join
+#import pymatreader
 #import scripts.config as cfg
+
+
+def _load_mat_file(sub_ID, filename: str):
+    """"
+    Reads (perceived) .mat-file in FieldTrip
+    structure using mne-function
+    
+    Input:
+        - sub: str code of sub
+        - filename: str of only .mat-filename
+    
+    Returns:
+        - data: mne-object of .mat file
+    """
+
+    # Error if filename doesn´t end with .mat
+    assert filename[-4:] == '.mat', (
+        f'filename no .mat INCORRECT extension: {filename}'
+    )
+
+    # find the path to the raw_perceive folder of a subject
+    source_path = "sourcedata"
+
+    _update_and_save_params('SUBJECT_ID', sub_ID, sub_ID)
+    _update_and_save_params('FNAME_LFP', filename, sub_ID)
+
+
+    data = read_raw_fieldtrip(
+        join(source_path, filename),
+        info={}, # add info here
+        data_name='data',  # name of heading dict/ variable of original MATLAB object
+		)
+    
+    return data
+
+
+# extract variables from LFP recording:
+def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp):
+
+	LFP_array = dataset_lfp.get_data()
+	ch_index = ch_idx_lfp
+	lfp_sig = dataset_lfp.get_data()[ch_index]
+	LFP_rec_ch_names = dataset_lfp.ch_names
+	sf_LFP = int(dataset_lfp.info["sfreq"])
+
+	n_chan = len(dataset_lfp.ch_names)
+	time_duration_LFP = (dataset_lfp.n_times/dataset_lfp.info['sfreq']).astype(float)
+
+	_update_and_save_params('CH_IDX_LFP', ch_index, sub_ID)
+	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID)
+	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID)
+
+
+	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
+
 
 # Function to open TMSi data
 
@@ -87,69 +147,17 @@ def _load_TMSi_artefact_channel(
 
 
 
-def _load_LFP_rec(sub_ID, session, condition, task, run):
-	project_path = os.getcwd()
-	pyPerceive_path = os.chdir("C:\\Users\\Juliette\\Research\\Projects\\PyPerceive\\code")
-	sys.path.append(pyPerceive_path)
-	from PerceiveImport.classes import (
-		main_class, modality_class, metadata_class,
-		session_class, condition_class, task_class,
-		contact_class, run_class
-	)
-	import PerceiveImport.methods.load_rawfile as load_rawfile
-	import PerceiveImport.methods.find_folders as find_folders
-	import PerceiveImport.methods.metadata_helpers as metaHelpers
+def _load_lfp_rec(fname_lfp):
+    source_path = "sourcedata"
+    lfp_data_path = os.path.join(source_path, fname_lfp)
+    lfp_data = read_raw(lfp_data_path)
 
-	#reset the proper working directory for the analysis
-	os.chdir(project_path)
-	os.getcwd()
+    #lfp_data = loadmat(lfp_data_path)
+    _update_and_save_params("FNAME_LFP", fname_lfp)
 
-	sub = main_class.PerceiveData(
-	sub = sub_ID, 
-	incl_modalities=['streaming'],
-	incl_session = [f'{session}'],
-	incl_condition =[f'{condition}'],
-	incl_task = [f'{task}'],
-	# incl_contact = ["RingL", "SegmInterR", "SegmIntraR"],
-	import_json=False,
-	warn_for_metaNaNs=False,
-	allow_NaNs_in_metadata=False
-	)
-
-	LFP_rec = sub.streaming.fu24m.m0s0.rest.run1.data
-
-	return LFP_rec
+    return lfp_data
 
 
-
-# extract variables from LFP recording:
-def _set_lfp_data(LFP_rec):
-
-	#import settings
-	json_path = os.path.join(os.getcwd(), 'config')
-	json_filename = 'config.json'
-	with open(os.path.join(json_path, json_filename), 'r') as f:
-		loaded_dict =  json.load(f)
-
-	LFP_array = LFP_rec.get_data()
-	ch_index = loaded_dict['LFP_CH_INDEX']
-	lfp_sig = LFP_rec.get_data()[ch_index]
-	LFP_rec_ch_names = LFP_rec.ch_names
-	sf_LFP = int(LFP_rec.info["sfreq"])
-
-	n_chan = len(LFP_rec.ch_names)
-	time_duration_LFP = (LFP_rec.n_times/LFP_rec.info['sfreq']).astype(float)
-	print(     
-		f'The data object has:\n\t{LFP_rec.n_times} time samples,'      
-		f'\n\tand a sample frequency of {LFP_rec.info["sfreq"]} Hz'      
-		f'\n\twith a recording duration of {time_duration_LFP} seconds.'      
-		f'\n\t{n_chan} channels were labeled as \n{LFP_rec.ch_names}.'
-	)
-	print(
-		f'The channel containing artefacts has index {ch_index} and is named {LFP_rec.ch_names[ch_index]}'
-	)
-
-	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 
 
 def _is_channel_in_list(
