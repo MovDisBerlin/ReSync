@@ -42,6 +42,16 @@ def _update_and_save_params(key, value, sub_ID):
         json.dump(parameters, json_file, indent=4)
 
 
+
+def _is_channel_in_list(
+		channel_array, 
+		desired_channel_name
+):
+    if desired_channel_name.lower() in (channel.lower() for channel in channel_array):
+        return True
+    else:
+        return False
+
 ### FUNCTIONS FOR CONVERSION time/index ###
 
 # Conversion between index and timestamps

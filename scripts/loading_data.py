@@ -1,4 +1,4 @@
-from utils import _update_and_save_params
+from utils import _update_and_save_params, _is_channel_in_list
 import numpy as np
 import os
 import sys
@@ -6,9 +6,9 @@ import json
 from scipy.io import loadmat
 from mne.io import read_raw_fieldtrip
 from os.path import join
-#import pymatreader
 #import scripts.config as cfg
 
+#### LFP DATASET ####
 
 def _load_mat_file(sub_ID, filename: str):
     """"
@@ -59,15 +59,19 @@ def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp):
 	_update_and_save_params('CH_IDX_LFP', ch_index, sub_ID)
 	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID)
 	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID)
+	_update_and_save_params('sf_LFP', sf_LFP, sub_ID)	
 
 
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 
 
-# Function to open TMSi data
+#### External data recorder dataset ####
 
 def _load_TMSi_artefact_channel(
-    TMSi_data
+	sub_ID,
+    TMSi_data,
+	fname_external,
+	AUTOMATIC: bool
 ):
     
 	"""
@@ -92,10 +96,10 @@ def _load_TMSi_artefact_channel(
 	"""
 
 	#import settings
-	json_path = os.path.join(os.getcwd(), 'config')
-	json_filename = 'config.json'  # dont forget json extension
-	with open(os.path.join(json_path, json_filename), 'r') as f:
-		loaded_dict =  json.load(f)
+	#json_path = os.path.join(os.getcwd(), 'config')
+	#json_filename = 'config.json'  # dont forget json extension
+	#with open(os.path.join(json_path, json_filename), 'r') as f:
+		#loaded_dict =  json.load(f)
 
 	# Conversion of .Poly5 to MNE raw array
 	toMNE = True
@@ -105,66 +109,53 @@ def _load_TMSi_artefact_channel(
 	time_duration_TMSi_s = (TMSi_rec.n_times/TMSi_rec.info['sfreq']).astype(float)
 	sf_external = int(TMSi_rec.info['sfreq'])
 
-	if loaded_dict['AUTOMATIC']:
+	_update_and_save_params('FNAME_EXTERNAL', fname_external, sub_ID)
+	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, sub_ID)	
+	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, sub_ID)
+	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID)	
+
+	if AUTOMATIC :
 		# recorded with TMSi SAGA, electrode BIP 01
 		if sf_external in {4000, 4096, 512} and _is_channel_in_list(external_rec_ch_names, 'BIP 01'):
-			loaded_dict['CH_NAME_BIP'] = 'BIP 01' 
 			ch_index = TMSi_rec.ch_names.index('BIP 01')
+			_update_and_save_params('CH_NAME_EXTERNAL', 'BIP 01', sub_ID)				
+			_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID)	
 		# recorded with TMSi Porti, electrode Bip25 
 		elif sf_external == 2048 and _is_channel_in_list(external_rec_ch_names, 'Bip25'):
-			loaded_dict['CH_NAME_BIP'] = 'Bip25' 
 			ch_index = TMSi_rec.ch_names.index('Bip25')
+			_update_and_save_params('CH_NAME_EXTERNAL', 'Bip25', sub_ID)				
+			_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID)
 		else:
 			raise ValueError (
-				f'Data recorder or electrode unknown, please set automatic as False' 
-				f'and change CH_NAME_BIP directly in json file. Choose a channel in' 
-				f'the following list:  {external_rec_ch_names}'
+				f'Data recorder or electrode unknown, please set AUTOMATIC as False' 
+				f'Choose a channel in the following list:  {external_rec_ch_names}'
 			)
 	else:
-		ch_index = TMSi_rec.ch_names.index(loaded_dict['CH_NAME_BIP'])
+		ch_name = input("Enter name of external channel containing sync artefacts")
+		ch_index = TMSi_rec.ch_names.index(ch_name)
+		_update_and_save_params('CH_NAME_EXTERNAL', ch_name, sub_ID)		
+		_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID)
 
 	BIP_channel = TMSi_rec.get_data()[ch_index]
-	loaded_dict['BIP_CH_INDEX'] = ch_index
 	external_file = TMSi_rec.get_data()
 
 	# save dict as JSON, 'w' stands for write
-	with open(os.path.join(json_path, json_filename), 'w') as f:
-			json.dump(loaded_dict, f, indent=4)
+	#with open(os.path.join(json_path, json_filename), 'w') as f:
+			#json.dump(loaded_dict, f, indent=4)
 	
-	print(     
-		f'The data object has:\n\t{TMSi_rec.n_times} time samples,'      
-		f'\n\tand a sample frequency of {TMSi_rec.info["sfreq"]} Hz'      
-		f'\n\twith a recording duration of {time_duration_TMSi_s} seconds.'      
-		f'\n\t{n_chan} channels were labeled as \n{TMSi_rec.ch_names}.'
-	)
+	#print(     
+		#f'The data object has:\n\t{TMSi_rec.n_times} time samples,'      
+		#f'\n\tand a sample frequency of {TMSi_rec.info["sfreq"]} Hz'      
+		#f'\n\twith a recording duration of {time_duration_TMSi_s} seconds.'      
+		#f'\n\t{n_chan} channels were labeled as \n{TMSi_rec.ch_names}.'
+	#)
 	
-	print(
-		f'The channel used to align datas is the channel named {TMSi_rec.ch_names[ch_index]} ' 
-		f'and has index {ch_index}'
-	)
+	#print(
+		#f'The channel used to align datas is the channel named {TMSi_rec.ch_names[ch_index]} ' 
+		#f'and has index {ch_index}'
+	#)
 
 	return BIP_channel, external_file, external_rec_ch_names, sf_external
 
 
 
-def _load_lfp_rec(fname_lfp):
-    source_path = "sourcedata"
-    lfp_data_path = os.path.join(source_path, fname_lfp)
-    lfp_data = read_raw(lfp_data_path)
-
-    #lfp_data = loadmat(lfp_data_path)
-    _update_and_save_params("FNAME_LFP", fname_lfp)
-
-    return lfp_data
-
-
-
-
-def _is_channel_in_list(
-		channel_array, 
-		desired_channel_name
-):
-    if desired_channel_name.lower() in (channel.lower() for channel in channel_array):
-        return True
-    else:
-        return False
