@@ -155,7 +155,7 @@ def _load_TMSi_artefact_channel(
 		#f'and has index {ch_index}'
 	#)
 
-	return BIP_channel, external_file, external_rec_ch_names, sf_external
+	return BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index
 
 
 
