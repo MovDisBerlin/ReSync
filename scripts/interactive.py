@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-import scripts.utils as utils
+from utils import _get_input_y_n
 
 
 def interaction(timescale, data):
@@ -28,14 +28,14 @@ def interaction(timescale, data):
     plt.pause(20)
     condition_met = False
 
-    input_y_or_n = utils._get_input_y_n("Artefacts found?")
+    input_y_or_n = _get_input_y_n("Artefacts found?")
 
     while not condition_met: # this loops every 10 seconds until user answers "y" 
         if input_y_or_n == "y":   # if user has found the artefact sample and puts "y" then it will proceed to next step
             condition_met=True
         else:
             plt.pause(10)    #else if the user answers "n", 10 more seconds are given to select the artefact sample
-            input_y_or_n = utils._get_input_y_n("Artefacts found?")
+            input_y_or_n = _get_input_y_n("Artefacts found?")
 
 
     artifact_x = [x_list[0] for x_list in pos] # list of all clicked x values

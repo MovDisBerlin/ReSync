@@ -7,11 +7,12 @@ import json
 
 #import custom-made functions
 #from utils import *
-from utils import _convert_index_to_time, _convert_time_to_index, _filtering, _get_input_y_n
+from utils import _convert_index_to_time, _convert_time_to_index, _filtering, _get_input_y_n, _update_and_save_params
 from find_artefacts import *
 from plotting import *
 from crop import *
 from find_packet_loss import *
+from interactive import select_sample
 
 ## set font sizes and other parameters for the figures
 SMALL_SIZE = 12
@@ -253,40 +254,6 @@ def run_resync(
         sf_external
         )
 
-
-    # PLOT 5 : plot the artefact adjusted by user in the intracerebral channel:
-    if real_art_time_LFP != 0 :
-        plot_channel(
-            sub=sub_ID, 
-            timescale=LFP_timescale_s, 
-            data=lfp_sig, 
-            color='darkorange',
-            scatter=True
-        )
-        plt.ylabel('Intracerebral LFP channel (µV)')
-        plt.xlim(real_art_time_LFP-0.1, real_art_time_LFP+0.3)
-        plt.axvline(
-            x=real_art_time_LFP, 
-            ymin=min(lfp_sig), 
-            ymax=max(lfp_sig), 
-            color='black', 
-            linestyle='dashed', 
-            alpha=.3
-        )
-
-        plt.gcf()
-        plt.savefig(
-            saving_path 
-            + '\\Fig5-Intracerebral channel - first artefact detected with correction by user - kernel ' 
-            + str(kernel) 
-            + '.png', 
-            bbox_inches='tight'
-        )
-        if SHOW_FIGURES: 
-            plt.show(block=False)
-        else: 
-            plt.close()
-
     # PLOT 6 : plot the external channel with its artefacts detected:
     plot_channel(
         sub=sub_ID, 
@@ -384,7 +351,82 @@ def run_resync(
         )
 
 
-    #else: ##### STILL NEEDS TO BE WRITTEN !!
+    else: 
+        closest_value_lfp = select_sample(lfp_sig, sf_LFP)
+        _update_and_save_params('REAL_INDEX_LFP_CORRECTED', 'yes', sub_ID, saving_path)
+        _update_and_save_params('REAL_INDEX_LFP_VALUE', closest_value_lfp, sub_ID, saving_path)
+        # crop intracerebral and external recordings 1 second before first artefact
+        (LFP_df_offset, external_df_offset) = crop_rec(
+            LFP_array, external_file, art_time_LFP, 
+            art_time_BIP, LFP_rec_ch_names, external_rec_ch_names, 
+            real_art_time_LFP=closest_value_lfp, sf_LFP=sf_LFP, sf_external=sf_external)
+        
+        # PLOT 5 : plot the artefact adjusted by user in the intracerebral channel:
+        if closest_value_lfp != 0 :
+            plot_channel(
+                sub=sub_ID, 
+                timescale=LFP_timescale_s, 
+                data=lfp_sig, 
+                color='darkorange',
+                scatter=True
+            )
+            plt.ylabel('Intracerebral LFP channel (µV)')
+            plt.xlim(closest_value_lfp-0.1, closest_value_lfp+0.3)
+            plt.axvline(
+                x=closest_value_lfp, 
+                ymin=min(lfp_sig), 
+                ymax=max(lfp_sig), 
+                color='black', 
+                linestyle='dashed', 
+                alpha=.3
+            )
+
+            plt.gcf()
+            plt.savefig(
+                saving_path 
+                + '\\Fig5-Intracerebral channel - first artefact detected with correction by user - kernel ' 
+                + str(kernel) 
+                + '.png', 
+                bbox_inches='tight'
+            )
+            if SHOW_FIGURES: 
+                plt.show(block=False)
+            else: 
+                plt.close()
+        
+        AUTOMATIC_PROCESSING_GOOD = False
+
+        artefact_correct = _get_input_y_n("Are artefacts properly selected or is manual adjustment necessary? ")
+        if artefact_correct == 'y':
+            AUTOMATIC_PROCESSING_GOOD = True
+        
+        if AUTOMATIC_PROCESSING_GOOD:
+            ###  SAVE CROPPED RECORDINGS ###
+            # Save intracranial recording:
+            LFP_df_offset.to_csv(
+                saving_path 
+                + '\\Intracerebral_LFP_' 
+                + str(sub_ID)
+                + '_' 
+                + str(sf_LFP) 
+                + 'Hz.csv',
+                index=False
+            ) 
+
+            # Save external recording:
+            external_df_offset.to_csv(
+                saving_path 
+                + '\\External_data_' 
+                + str(sub_ID)
+                + '_' 
+                + str(sf_external) 
+                + 'Hz.csv',
+                index=False
+            )
+
+            print(
+                'Alignment performed !'
+            )
 
 
     return LFP_df_offset, external_df_offset

@@ -6,7 +6,6 @@ import json
 from scipy.io import loadmat
 from mne.io import read_raw_fieldtrip
 from os.path import join
-#import scripts.config as cfg
 
 #### LFP DATASET ####
 
