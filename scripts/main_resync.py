@@ -124,11 +124,11 @@ def run_resync(
         color='darkorange', 
         savingpath=saving_path
     )
-    if SHOW_FIGURES: 
-        plt.show(block=False)
-    else: 
-        plt.close()
-
+    #if SHOW_FIGURES: 
+        #plt.show(block=False)
+    #else: 
+        #plt.close()
+    plt.close()
 
 
     filtered_external = _filtering(BIP_channel) # apply a highpass filter at 1Hz to the external bipolar channel (detrending)
@@ -141,11 +141,11 @@ def run_resync(
         color='darkcyan',
         savingpath=saving_path
     )
-    if SHOW_FIGURES: 
-        plt.show(block=False)
-    else: 
-        plt.close()
-
+    #if SHOW_FIGURES: 
+        #plt.show(block=False)
+    #else: 
+        #plt.close()
+    plt.close()
 
 
     ### DETECT ARTEFACTS ###

@@ -217,7 +217,7 @@ def plot_LFP_external(
     #ax2.set_xlim(0,len(LFP_channel_offset)/sf_LFP) 
     ax1.plot(LFP_timescale_offset_s,LFP_channel_offset,color='darkorange',zorder=1, linewidth=0.3)
     ax2 = ax1.twinx()
-    ax2.plot(external_timescale_offset_s,filtered_external_offset, color='darkcyan',zorder=1, linewidth=0.05)
+    ax2.plot(external_timescale_offset_s,filtered_external_offset, color='darkcyan',zorder=1, linewidth=0.1)
     ax2.set_ylabel('External bipolar channel (mV)')
     fig.savefig(saving_path + '\\Fig8-Intracerebral and external recordings aligned.png',bbox_inches='tight')
     if SHOW_FIGURES: plt.show()
