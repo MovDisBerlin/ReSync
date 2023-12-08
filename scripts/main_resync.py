@@ -343,18 +343,14 @@ def run_resync(
         )
 
         print(
-            'Alignment performed ! \n' 
-            'Please check carefully in all figures that the samples selected \n'
-            'as start of the artefact are correct, and if they are not you can either\n'
-            'a. try with the other kernel, or '
-            'b. select manually the sample where the artefact starts and re-run the function in the next notebook cell.'
+            'Alignment performed !' 
         )
 
 
     else: 
         closest_value_lfp = select_sample(lfp_sig, sf_LFP)
-        _update_and_save_params('REAL_INDEX_LFP_CORRECTED', 'yes', sub_ID, saving_path)
-        _update_and_save_params('REAL_INDEX_LFP_VALUE', closest_value_lfp, sub_ID, saving_path)
+        _update_and_save_params('REAL_ART_TIME_LFP_CORRECTED', 'yes', sub_ID, saving_path)
+        _update_and_save_params('REAL_ART_TIME_LFP_VALUE', closest_value_lfp, sub_ID, saving_path)
         # crop intracerebral and external recordings 1 second before first artefact
         (LFP_df_offset, external_df_offset) = crop_rec(
             LFP_array, external_file, art_time_LFP, 
