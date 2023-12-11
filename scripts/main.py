@@ -15,6 +15,7 @@ def main(
 	ch_idx_lfp=0, 
 	fname_external="sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5", 
 	kernel = '2',
+	saving_format = 'mat',
 	AUTOMATIC=False
 	):
 
@@ -33,10 +34,13 @@ def main(
 	BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index_external = _load_TMSi_artefact_channel(sub_ID, TMSi_data, fname_external, AUTOMATIC, saving_path)
 
 	#  Process/align recordings
-	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP, external_file, BIP_channel, external_rec_ch_names, sf_external, saving_path, SHOW_FIGURES = True)
+	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP, external_file, BIP_channel, external_rec_ch_names, sf_external, saving_path, saving_format, SHOW_FIGURES = True)
 
-	# plot the two recordings aligned
+	#  Plot the two recordings aligned
 	plot_LFP_external(sub_ID, LFP_df_offset, external_df_offset, sf_LFP, sf_external, ch_idx_lfp, ch_index_external, saving_path, SHOW_FIGURES = True)
+
+	#  check timeshift:
+	
 
 
 

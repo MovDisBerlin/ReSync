@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import json
+import pickle
+from scipy.io import savemat
 
 #import custom-made functions
 #from utils import *
@@ -43,6 +45,7 @@ def run_resync(
     external_rec_ch_names,
     sf_external,
     saving_path,
+    saving_format,
     real_art_time_LFP = 0,
     SHOW_FIGURES = True
 ):
@@ -81,27 +84,8 @@ def run_resync(
             channels, cropped one second before the first artefact
     """
 
-    # import settings
-    #json_path = os.path.join(os.getcwd(), 'config')
-    #json_filename = 'config.json'  # dont forget json extension
-    #with open(os.path.join(json_path, json_filename), 'r') as f:
-        #loaded_dict =  json.load(f)
 
-    # check that the subject ID has been entered properly in the config file:
-    #if (loaded_dict['SUBJECT_ID'] is None 
-            #or loaded_dict['SUBJECT_ID'] == ""):
-        #raise ValueError('Please fill in the SUBJECT_ID in the config file as a str')
-
-    # set saving path
-    #if not loaded_dict['SAVING_PATH']:
-        #saving_path = utils._define_folders()
-    #else:
-        #saving_path = os.path.join(
-            #os.path.normpath(loaded_dict['SAVING_PATH']),
-            #loaded_dict['SUBJECT_ID']
-        #)
-        #if not os.path.isdir(saving_path):
-            #os.makedirs(saving_path)
+    assert saving_format in ['csv','eeg','mat','pickle'], 'saving_format incorrect. Choose in: csv, eeg, mat, pickle'
 
 
     # Generate timescales:
@@ -319,32 +303,36 @@ def run_resync(
         AUTOMATIC_PROCESSING_GOOD = True
     
     if AUTOMATIC_PROCESSING_GOOD:
+        _update_and_save_params('SAVING_FORMAT', saving_format, sub_ID, saving_path)
+        LFP_df_offset['sf_LFP'] = sf_LFP
+        external_df_offset['sf_external'] = sf_external
         ###  SAVE CROPPED RECORDINGS ###
-        # Save intracranial recording:
-        LFP_df_offset.to_csv(
-            saving_path 
-            + '\\Intracerebral_LFP_' 
-            + str(sub_ID)
-            + '_' 
-            + str(sf_LFP) 
-            + 'Hz.csv',
-            index=False
-        ) 
+        if saving_format == 'csv':
+            LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
+            external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
 
-        # Save external recording:
-        external_df_offset.to_csv(
-            saving_path 
-            + '\\External_data_' 
-            + str(sub_ID)
-            + '_' 
-            + str(sf_external) 
-            + 'Hz.csv',
-            index=False
-        )
+        if saving_format == 'pickle':
+            LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
+            # Save the dataset to a pickle file
+            with open(LFP_filename, 'wb') as file:
+                pickle.dump(LFP_df_offset, file)
+            with open(external_filename, 'wb') as file:
+                pickle.dump(external_df_offset, file)            
 
-        print(
-            'Alignment performed !' 
-        )
+        if saving_format == 'mat':
+            LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
+            LFP_data_to_save = LFP_df_offset.to_dict(orient='list')
+            #LFP_data_to_save['sf_LFP'] = LFP_df_offset['sf_LFP'].values.item()
+            external_data_to_save = external_df_offset.to_dict(orient='list')
+            #external_data_to_save['sf_external'] = external_df_offset['f_external'].values.item()
+            savemat (LFP_filename, LFP_data_to_save)
+            savemat (external_filename, external_data_to_save)
+
+        
+
+        print('Alignment performed !')
 
 
     else: 
