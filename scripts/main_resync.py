@@ -6,6 +6,7 @@ import os
 import json
 import pickle
 from scipy.io import savemat
+import pyedflib
 
 #import custom-made functions
 #from utils import *
@@ -85,7 +86,7 @@ def run_resync(
     """
 
 
-    assert saving_format in ['csv','eeg','mat','pickle'], 'saving_format incorrect. Choose in: csv, eeg, mat, pickle'
+    assert saving_format in ['csv','edf','mat','pickle'], 'saving_format incorrect. Choose in: csv, eeg, mat, pickle'
 
 
     # Generate timescales:
@@ -304,14 +305,17 @@ def run_resync(
     
     if AUTOMATIC_PROCESSING_GOOD:
         _update_and_save_params('SAVING_FORMAT', saving_format, sub_ID, saving_path)
-        LFP_df_offset['sf_LFP'] = sf_LFP
-        external_df_offset['sf_external'] = sf_external
+
         ###  SAVE CROPPED RECORDINGS ###
         if saving_format == 'csv':
+            LFP_df_offset['sf_LFP'] = sf_LFP
+            external_df_offset['sf_external'] = sf_external
             LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
             external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
 
         if saving_format == 'pickle':
+            LFP_df_offset['sf_LFP'] = sf_LFP
+            external_df_offset['sf_external'] = sf_external
             LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
             external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
             # Save the dataset to a pickle file
@@ -323,14 +327,38 @@ def run_resync(
         if saving_format == 'mat':
             LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
             external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-            LFP_data_to_save = LFP_df_offset.to_dict(orient='list')
-            #LFP_data_to_save['sf_LFP'] = LFP_df_offset['sf_LFP'].values.item()
-            external_data_to_save = external_df_offset.to_dict(orient='list')
-            #external_data_to_save['sf_external'] = external_df_offset['f_external'].values.item()
-            savemat (LFP_filename, LFP_data_to_save)
-            savemat (external_filename, external_data_to_save)
+            savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
 
-        
+        """ that part is not working yet:
+        if saving_format == 'edf':
+            LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.edf')
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.edf')     
+
+            # Extract relevant information from the DataFrame
+            LFP_data = LFP_df_offset.iloc[:, :-1].to_numpy()  # Exclude the last column (sampling frequency)
+            LFP_sampling_frequency = np.array([sf_LFP])
+            external_data = external_df_offset.iloc[:, :-1].to_numpy()  # Exclude the last column (sampling frequency)
+            external_sampling_frequency = np.array([sf_external])
+
+            # Create an EDF file
+            with pyedflib.EdfWriter(LFP_filename, len(LFP_data), file_type=pyedflib.FILETYPE_EDFPLUS) as edf_writer:
+                for i, channel_name in enumerate(LFP_df_offset.columns[:-1]):  # Exclude the last column
+                    edf_writer.setSignalHeader(
+                        i, {'label': channel_name, 'dimension': 'uV', 'sample_rate': LFP_sampling_frequency,
+                            'physical_max': np.max(LFP_data[:, i]), 'physical_min': np.min(LFP_data[:, i]),
+                            'transducer': 'None', 'prefilter': 'None'}
+                    )
+                edf_writer.writeSamples(LFP_data.T.tolist())  # Transpose data for correct writing
+            with pyedflib.EdfWriter(external_filename, len(external_data), file_type=pyedflib.FILETYPE_EDFPLUS) as edf_writer:
+                for i, channel_name in enumerate(external_df_offset.columns[:-1]):  # Exclude the last column
+                    edf_writer.setSignalHeader(
+                        i, {'label': channel_name, 'dimension': 'uV', 'sample_rate': external_sampling_frequency,
+                            'physical_max': np.max(external_data[:, i]), 'physical_min': np.min(external_data[:, i]),
+                            'transducer': 'None', 'prefilter': 'None'}
+                    )
+                edf_writer.writeSamples(external_data.T.tolist())  # Transpose data for correct writing
+        """
 
         print('Alignment performed !')
 

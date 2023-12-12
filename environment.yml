@@ -15,4 +15,5 @@ dependencies:
   - pip:
     - pymatreader
     - mne
+    - pyedflib
     - -e .
