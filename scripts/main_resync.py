@@ -87,7 +87,7 @@ def run_resync(
     """
 
 
-    assert saving_format in ['csv','edf','mat','pickle'], 'saving_format incorrect. Choose in: csv, eeg, mat, pickle'
+    assert saving_format in ['csv','mat','pickle'], 'saving_format incorrect. Choose in: csv, mat, pickle'
 
 
     # Generate timescales:
@@ -331,19 +331,6 @@ def run_resync(
             savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
             savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
 
-   
-       # THIS PART DOESN'T WORK YET:
-        if saving_format == 'edf':
-            LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.edf')
-            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.edf')     
-            # write an edf file
-            channel_names_lfp = LFP_df_offset.columns.tolist()
-            channel_names_external = external_df_offset.columns.tolist()
-            signal_headers_lfp = highlevel.make_signal_headers(channel_names_lfp, dimension= 'uV', sample_frequency=sf_LFP, physical_min=-10000, physical_max=100000)
-            signal_headers_external = highlevel.make_signal_headers(channel_names_external, dimension= 'mV', sample_frequency=sf_external)
-            highlevel.write_edf(LFP_filename, LFP_df_offset.T.values , signal_headers_lfp)
-            highlevel.write_edf(external_filename, external_df_offset.T.values , signal_headers_external)
-       
 
         print('Alignment performed !')
 
@@ -400,30 +387,34 @@ def run_resync(
         if AUTOMATIC_PROCESSING_GOOD:
             ###  SAVE CROPPED RECORDINGS ###
             # Save intracranial recording:
-            LFP_df_offset.to_csv(
-                saving_path 
-                + '\\Intracerebral_LFP_' 
-                + str(sub_ID)
-                + '_' 
-                + str(sf_LFP) 
-                + 'Hz.csv',
-                index=False
-            ) 
+            _update_and_save_params('SAVING_FORMAT', saving_format, sub_ID, saving_path)
 
-            # Save external recording:
-            external_df_offset.to_csv(
-                saving_path 
-                + '\\External_data_' 
-                + str(sub_ID)
-                + '_' 
-                + str(sf_external) 
-                + 'Hz.csv',
-                index=False
-            )
+            ###  SAVE CROPPED RECORDINGS ###
+            if saving_format == 'csv':
+                LFP_df_offset['sf_LFP'] = sf_LFP
+                external_df_offset['sf_external'] = sf_external
+                LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
+                external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
 
-            print(
-                'Alignment performed !'
-            )
+            if saving_format == 'pickle':
+                LFP_df_offset['sf_LFP'] = sf_LFP
+                external_df_offset['sf_external'] = sf_external
+                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
+                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
+                # Save the dataset to a pickle file
+                with open(LFP_filename, 'wb') as file:
+                    pickle.dump(LFP_df_offset, file)
+                with open(external_filename, 'wb') as file:
+                    pickle.dump(external_df_offset, file)            
+
+            if saving_format == 'mat':
+                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
+                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
+                savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+                savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+
+
+        print('Alignment performed !')
 
 
     return LFP_df_offset, external_df_offset
