@@ -1,12 +1,14 @@
-from loading_data import _load_mat_file, _load_data_lfp, _load_TMSi_artefact_channel
+from loading_data import _load_mat_file, _load_data_lfp, _load_TMSi_artefact_channel, _load_sourceJSON
 from plotting import plot_LFP_external
 from timeshift import check_timeshift
+from utils import _get_user_input, _update_and_save_params
 from tmsi_poly5reader import Poly5Reader
 import os
 from os.path import join
 #import json
 #from utils import _update_and_save_params
 from main_resync import run_resync
+from packet_loss import check_packet_loss
 
 #from scripts.phase_analysis import phase_spiking
 #from scripts.utils import _get_brain_areas, _load_data
@@ -18,7 +20,11 @@ def main(
 	fname_external="sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5", 
 	kernel = '2',
 	saving_format = 'mat',
-	AUTOMATIC=False
+	json_filename = 'Report_Json_Session_Report_20230404T131412_ANOM.json',
+	AUTOMATIC=False,
+	CHECK_FOR_TIMESHIFT=False,
+	CHECK_FOR_PACKET_LOSS=False,
+	SHOW_FIGURES=True
 	):
 
 	#  Set saving path
@@ -46,10 +52,17 @@ def main(
 
 	#  Plot the two recordings aligned
 	plot_LFP_external(sub_ID, LFP_df_offset, external_df_offset, sf_LFP, sf_external, 
-				   ch_idx_lfp, ch_index_external, saving_path, SHOW_FIGURES = True)
+				   ch_idx_lfp, ch_index_external, saving_path, SHOW_FIGURES)
 
-	#  check timeshift:
-	check_timeshift(sub_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, SHOW_FIGURES=True)
+	#  OPTIONAL : check timeshift:
+	if CHECK_FOR_TIMESHIFT:
+		check_timeshift(sub_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, SHOW_FIGURES)
+
+	# OPTIONAL : check for packet loss:
+	if CHECK_FOR_PACKET_LOSS:
+		_update_and_save_params('JSON_FILE', json_filename, sub_ID, saving_path)
+		json_object = _load_sourceJSON(json_filename)
+		check_packet_loss(json_object)
 
 
 

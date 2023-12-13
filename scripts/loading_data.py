@@ -5,9 +5,32 @@ import sys
 import json
 from scipy.io import loadmat
 from mne.io import read_raw_fieldtrip
-from os.path import join
+from os.path import join, exists
 
 #### LFP DATASET ####
+
+def _load_sourceJSON(json_filename: str):
+
+    """
+    Reads source JSON file 
+
+    Input:
+        - subject = str, e.g. "024"
+        - fname = str of filename, e.g. "Report_Json_Session_Report_20221205T134700.json"
+
+    Returns: 
+        - data: json.loads() loaded JSON file
+
+    """
+
+    # find the path to the folder of a subject
+    source_path = "sourcedata"
+
+    with open(join(source_path, json_filename), 'r') as f:
+        json_object = json.loads(f.read())
+
+    return json_object
+
 
 def _load_mat_file(sub_ID, filename: str, saving_path):
     """"

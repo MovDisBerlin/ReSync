@@ -3,11 +3,9 @@ from os import listdir
 from mne.io import read_raw_fieldtrip
 import json
 import numpy as np
+    
 
-
-
-
-def load_sourceJSON(sub: str, filename: str):
+def load_sourceJSON_bis(sub: str, filename: str):
 
     """
     Reads source JSON file 
@@ -25,7 +23,7 @@ def load_sourceJSON(sub: str, filename: str):
     # Error if sub str is not exactly 3 letters e.g. 024
     assert len(sub) == 3, f'Subject string ({sub}) INCORRECT' 
     
-    # Error if filename doesn´t end with .mat
+    # Error if filename doesn´t end with .json
     assert filename[-5:] == '.json', (
         f'filename no .json INCORRECT extension: {filename}'
     )
@@ -49,7 +47,10 @@ def load_sourceJSON(sub: str, filename: str):
     
 
     return json_object
-    
+
+
+
+
 
 def convert_list_string_floats(
     string_list

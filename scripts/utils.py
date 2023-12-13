@@ -142,6 +142,20 @@ def _get_input_y_n(message: str) -> str:
 
     return user_input
 
+def _get_user_input(message: str) -> str:
+
+    """Get user input."""
+
+    while True:
+
+        user_input = input(f"{message}? ")
+
+        assert user_input[-5:] == '.json', (
+        f'filename no .json INCORRECT extension: {user_input}'
+    )
+
+    return user_input
+
 
 def _filtering(
         BIP_channel
