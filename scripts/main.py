@@ -1,7 +1,7 @@
 from loading_data import _load_mat_file, _load_data_lfp, _load_TMSi_artefact_channel, _load_sourceJSON
 from plotting import plot_LFP_external
 from timeshift import check_timeshift
-from utils import _get_user_input, _update_and_save_params
+from utils import _update_and_save_params
 from tmsi_poly5reader import Poly5Reader
 import os
 from os.path import join
@@ -14,13 +14,14 @@ from packet_loss import check_packet_loss
 #from scripts.utils import _get_brain_areas, _load_data
 
 def main(
-	sub_ID="Sub019 24MFU M0S0 rest", 
-	fname_lfp="sub-20210415PStn_ses-2023040408103277_run-BrainSense20230404081800.mat", 
+	sub_ID='Sub019 24MFU M0S0 rest', 
+	fname_lfp='sub-20210415PStn_ses-2023040408103277_run-BrainSense20230404081800.mat', 
 	ch_idx_lfp=0, 
-	fname_external="sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5", 
+	fname_external='sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5', 
 	kernel = '2',
 	saving_format = 'mat',
 	json_filename = 'Report_Json_Session_Report_20230404T131412_ANOM.json',
+	CROP_BOTH=True,
 	AUTOMATIC=False,
 	CHECK_FOR_TIMESHIFT=False,
 	CHECK_FOR_PACKET_LOSS=False,
@@ -48,7 +49,7 @@ def main(
 	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, 
 												LFP_rec_ch_names, sf_LFP, external_file, BIP_channel, 
 												external_rec_ch_names, sf_external, saving_path, 
-												saving_format, SHOW_FIGURES = False)
+												saving_format, CROP_BOTH, SHOW_FIGURES = False)
 
 	#  Plot the two recordings aligned
 	plot_LFP_external(sub_ID, LFP_df_offset, external_df_offset, sf_LFP, sf_external, 
