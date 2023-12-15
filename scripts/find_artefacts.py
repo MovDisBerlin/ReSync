@@ -3,15 +3,13 @@ from scipy.signal import find_peaks
 from itertools import compress
 import os
 import json
-
+from utils import _calculate_mean
 
 # Detection of artefacts in TMSi
 
 def find_external_sync_artefact(
     data: np.ndarray, 
-    sf_external: int,
-    ignore_first_seconds_external=None, 
-    consider_first_seconds_external=None
+    sf_external: int
 ):
 
     """ 
@@ -44,43 +42,32 @@ def find_external_sync_artefact(
 
 
     #import settings
-    json_path = os.path.join(os.getcwd(), 'config')
-    json_filename = 'config.json'  # dont forget json extension
-    with open(os.path.join(json_path, json_filename), 'r') as f:
-        loaded_dict =  json.load(f)
+    #json_path = os.path.join(os.getcwd(), 'config')
+    #json_filename = 'config.json'  # dont forget json extension
+    #with open(os.path.join(json_path, json_filename), 'r') as f:
+       # loaded_dict =  json.load(f)
 
     #initialize variables (lists and state)
     index_artefact_start_external = []
     stimON = False
 
-    #if not loaded_dict['thresh_external']:
-    #        thresh_BIP = -0.001     #default threshold, works with TMSi SAGA sampling at 4000Hz 
+    #if sf_external in {4000, 4096}:
+        #loaded_dict['THRESH_EXTERNAL'] = -0.001
+        #thresh_BIP = -0.001
+    #elif sf_external == 2048:
+        #loaded_dict['THRESH_EXTERNAL'] = -2000
+        #thresh_BIP = -2000
+    #elif sf_external == 512:
+        #loaded_dict['THRESH_EXTERNAL'] = -0.0005
+        #thresh_BIP = -0.0005
     #else:
-    #    thresh_BIP = loaded_dict['thresh_external']
-
-    if sf_external in {4000, 4096}:
-        loaded_dict['THRESH_EXTERNAL'] = -0.001
-        thresh_BIP = -0.001
-    elif sf_external == 2048:
-        loaded_dict['THRESH_EXTERNAL'] = -2000
-        thresh_BIP = -2000
-    elif sf_external == 512:
-        loaded_dict['THRESH_EXTERNAL'] = -0.0005
-        thresh_BIP = -0.0005
-    else:
-        raise ValueError (
-            f'Data recorder or electrode unknown, please determine threshold visually' 
-            f'and adapt' 
-        )
+        #raise ValueError (
+            #f'Data recorder or electrode unknown, please determine threshold visually' 
+            #f'and adapt' 
+        #)
 
     start_index = 0
     stop_index = len(data)-2
-
-    if ignore_first_seconds_external:
-        start_index = ignore_first_seconds_external*sf_external
-
-    if consider_first_seconds_external:
-        stop_index = consider_first_seconds_external*sf_external
 
     # check polarity of artefacts before detection:
     # to be properly detected in external channel, artefacts have to look like a downward deflection 
@@ -89,6 +76,10 @@ def find_external_sync_artefact(
     if abs(max(data)) > abs(min(data)):
         print('external signal is reversed')
         data = data * -1
+
+    # define thresh_BIP as a value half of the minimal value
+    thresh_BIP = min(data)/2
+    print (thresh_BIP)
 
     #start looking at each value one by one and append the timepoint to the list depending on the state and if thresh_BIP is crossed
     for q in range(start_index,stop_index):
@@ -113,25 +104,6 @@ def find_external_sync_artefact(
                 q = q + 1
         else:
             q = q + 1
-
-    if consider_first_seconds_external:
-        for q in range(len(data) - stop_index, len(data) - 2):
-            if (not stimON
-                    and (data[q] <= thresh_BIP) 
-                    and (data[q] < data[q + 1]) 
-                    and (data[q] < data[q - 1])):
-                index_artefact_start_external.append(q)
-                stimON = True
-                q = q + 1
-            if (stimON 
-                    and (data[q] <= thresh_BIP) 
-                    and (data[q] < data[q + 1]) 
-                    and (data[q] < data[q - 1])):
-                if (all(data[(q + 2):(q + int(0.5*sf_external))] > thresh_BIP)):
-                    stimON = False
-                    q = q + 1
-            else:
-                q = q + 1
 
 
     return index_artefact_start_external

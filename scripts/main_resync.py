@@ -216,9 +216,7 @@ def run_resync(
     # find artefacts in external bipolar channel:
     art_idx_BIP = find_external_sync_artefact(
         data=filtered_external, 
-        sf_external=sf_external,
-        ignore_first_seconds_external=None, 
-        consider_first_seconds_external=None
+        sf_external=sf_external
     )
     
     

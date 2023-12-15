@@ -168,3 +168,16 @@ def _filtering(
     filteredHighPass = scipy.signal.filtfilt(b, a, BIP_channel)
 
     return filteredHighPass
+
+
+def _calculate_mean(signal, sampling_rate, duration_seconds):
+    # Calculate the number of samples in the specified duration
+    num_samples = int(sampling_rate * duration_seconds)
+
+    # Extract the first N samples
+    signal_subset = signal[:num_samples]
+
+    # Calculate the mean
+    mean_value = sum(signal_subset) / num_samples
+
+    return mean_value
