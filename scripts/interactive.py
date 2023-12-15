@@ -9,10 +9,10 @@ def interaction(timescale, data):
 
     fig, ax = plt.subplots()
     ax.scatter(timescale, data)
-    ax.set_title('Click on the plot to select points, 20 seconds are provided.\n'
-                 'If the sample was not selected in these 20s, \n'
-                 'answer n to the user input window and \n'
-                 'you will be given 10 more seconds')
+    ax.set_title('Click on the plot to select the sample \n' 
+                 'where the artefact starts. You can use the zoom,\n'
+                 'as long as the last click before answering y \n'
+                 'is performed on the proper sample')
 
 
     def onclick(event):
@@ -25,7 +25,7 @@ def interaction(timescale, data):
     plt.subplots_adjust(wspace=0, hspace=0)
 
     plt.show(block=False)
-    plt.pause(20)
+    #plt.pause(20)
     condition_met = False
 
     input_y_or_n = _get_input_y_n("Artefacts found?")
@@ -34,7 +34,7 @@ def interaction(timescale, data):
         if input_y_or_n == "y":   # if user has found the artefact sample and puts "y" then it will proceed to next step
             condition_met=True
         else:
-            plt.pause(10)    #else if the user answers "n", 10 more seconds are given to select the artefact sample
+            #plt.pause(10)    #else if the user answers "n", 10 more seconds are given to select the artefact sample
             input_y_or_n = _get_input_y_n("Artefacts found?")
 
 

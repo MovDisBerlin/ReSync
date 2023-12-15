@@ -56,7 +56,6 @@ def find_external_sync_artefact(
 
     # define thresh_BIP as a value half of the minimal value
     thresh_BIP = min(data)/2
-    print (thresh_BIP)
 
     #start looking at each value one by one and append the timepoint to the list depending on the state and if thresh_BIP is crossed
     for q in range(start_index,stop_index):
