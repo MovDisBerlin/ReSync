@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from utils import _filtering
 from interactive import select_sample
-
+from utils import _update_and_save_params
 
 def check_timeshift(
         sub_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, SHOW_FIGURES
@@ -40,7 +40,9 @@ def check_timeshift(
 
     timeshift_ms = (last_artefact_external_x - last_artefact_lfp_x)*1000
 
-    print(f'The timeshift at the last artefact is of {timeshift_ms:.2f} ms after a recording duration of {last_artefact_external_x:.2f} s.')
+    _update_and_save_params("TIMESHIFT", timeshift_ms, sub_ID, saving_path)
+    _update_and_save_params("REC DURATION FOR TIMESHIFT", last_artefact_external_x, sub_ID, saving_path)
+    #print(f'The timeshift at the last artefact is of {timeshift_ms:.2f} ms after a recording duration of {last_artefact_external_x:.2f} s.')
 
     if abs(timeshift_ms) > 100:
         print('WARNING: the timeshift is unusually high, consider checking for packet loss in LFP data.')
@@ -65,7 +67,7 @@ def check_timeshift(
     ax1.text(0.05, 0.85, s='delay intra/exter: ' + str(round(timeshift_ms, 2)) + 'ms', fontsize=14, transform=ax1.transAxes)
        
     plt.gcf()
-    fig.savefig(saving_path + '\\Fig8-Timeshift_Intracerebral and external recordings aligned_last artefact.png', bbox_inches='tight', dpi=1200)
+    fig.savefig(saving_path + '\\FigA-Timeshift_Intracerebral and external recordings aligned_last artefact.png', bbox_inches='tight', dpi=1200)
 
     if SHOW_FIGURES: 
         plt.show(block=False)
