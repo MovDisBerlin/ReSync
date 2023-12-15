@@ -3,7 +3,6 @@ from scipy.signal import find_peaks
 from itertools import compress
 import os
 import json
-from utils import _calculate_mean
 
 # Detection of artefacts in TMSi
 
@@ -40,31 +39,9 @@ def find_external_sync_artefact(
 
     """
 
-
-    #import settings
-    #json_path = os.path.join(os.getcwd(), 'config')
-    #json_filename = 'config.json'  # dont forget json extension
-    #with open(os.path.join(json_path, json_filename), 'r') as f:
-       # loaded_dict =  json.load(f)
-
     #initialize variables (lists and state)
     index_artefact_start_external = []
     stimON = False
-
-    #if sf_external in {4000, 4096}:
-        #loaded_dict['THRESH_EXTERNAL'] = -0.001
-        #thresh_BIP = -0.001
-    #elif sf_external == 2048:
-        #loaded_dict['THRESH_EXTERNAL'] = -2000
-        #thresh_BIP = -2000
-    #elif sf_external == 512:
-        #loaded_dict['THRESH_EXTERNAL'] = -0.0005
-        #thresh_BIP = -0.0005
-    #else:
-        #raise ValueError (
-            #f'Data recorder or electrode unknown, please determine threshold visually' 
-            #f'and adapt' 
-        #)
 
     start_index = 0
     stop_index = len(data)-2
@@ -147,12 +124,6 @@ def find_LFP_sync_artefact(
     Returns:
         - stim_idx: a list with all stim-artefact starts. 
     """
-    #import settings
-    json_path = os.path.join(os.getcwd(), 'config')
-    json_filename = 'config.json'  # dont forget json extension
-    with open(os.path.join(json_path, json_filename), 'r') as f:
-        loaded_dict =  json.load(f)
-
     
     signal_inverted = False  # defaults false
 

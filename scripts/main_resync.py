@@ -7,12 +7,10 @@ import os
 import json
 import pickle
 from scipy.io import savemat
-import pyedflib
-from pyedflib import highlevel
 
 #import custom-made functions
 #from utils import *
-from utils import _convert_index_to_time, _convert_time_to_index, _filtering, _get_input_y_n, _update_and_save_params
+from utils import _convert_index_to_time, _filtering, _get_input_y_n, _update_and_save_params
 from find_artefacts import *
 from plotting import *
 from sync import crop_rec, align_external_on_LFP
@@ -111,10 +109,6 @@ def run_resync(
         color='darkorange', 
         savingpath=saving_path
     )
-    #if SHOW_FIGURES: 
-        #plt.show(block=False)
-    #else: 
-        #plt.close()
     plt.close()
 
 
@@ -128,10 +122,6 @@ def run_resync(
         color='darkcyan',
         savingpath=saving_path
     )
-    #if SHOW_FIGURES: 
-        #plt.show(block=False)
-    #else: 
-        #plt.close()
     plt.close()
 
 
@@ -322,7 +312,11 @@ def run_resync(
 
     else: 
         closest_value_lfp = select_sample(lfp_sig, sf_LFP)
+        # calculate sample_shift: 
+        sample_shift = int(abs(closest_value_lfp-art_time_LFP[0])*sf_LFP)
+        _update_and_save_params('ART_TIME_LFP_AUTOMATIC', art_time_LFP[0], sub_ID, saving_path)
         _update_and_save_params('REAL_ART_TIME_LFP_CORRECTED', 'yes', sub_ID, saving_path)
+        _update_and_save_params('SAMPLE_SHIFT', sample_shift, sub_ID, saving_path)
         _update_and_save_params('REAL_ART_TIME_LFP_VALUE', closest_value_lfp, sub_ID, saving_path)
                 
         # PLOT 5 : plot the artefact adjusted by user in the intracerebral channel:

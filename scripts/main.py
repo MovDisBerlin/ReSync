@@ -14,7 +14,7 @@ from packet_loss import check_packet_loss
 #from scripts.utils import _get_brain_areas, _load_data
 
 def main(
-	sub_ID='Sub036 18MFU M0S0', 
+	sub_ID='Sub019 24MFU M0S0 rest', 
 	fname_lfp='sub-20210415PStn_ses-2023040408103277_run-BrainSense20230404081800.mat', 
 	ch_idx_lfp=0, 
 	fname_external='sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5', 

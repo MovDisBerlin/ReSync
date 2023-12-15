@@ -118,12 +118,6 @@ def _load_TMSi_artefact_channel(
 		- sf_external (int): sampling frequency of external recording
 	"""
 
-	#import settings
-	#json_path = os.path.join(os.getcwd(), 'config')
-	#json_filename = 'config.json'  # dont forget json extension
-	#with open(os.path.join(json_path, json_filename), 'r') as f:
-		#loaded_dict =  json.load(f)
-
 	# Conversion of .Poly5 to MNE raw array
 	toMNE = True
 	TMSi_rec = TMSi_data.read_data_MNE()
@@ -162,21 +156,6 @@ def _load_TMSi_artefact_channel(
 	BIP_channel = TMSi_rec.get_data()[ch_index]
 	external_file = TMSi_rec.get_data()
 
-	# save dict as JSON, 'w' stands for write
-	#with open(os.path.join(json_path, json_filename), 'w') as f:
-			#json.dump(loaded_dict, f, indent=4)
-	
-	#print(     
-		#f'The data object has:\n\t{TMSi_rec.n_times} time samples,'      
-		#f'\n\tand a sample frequency of {TMSi_rec.info["sfreq"]} Hz'      
-		#f'\n\twith a recording duration of {time_duration_TMSi_s} seconds.'      
-		#f'\n\t{n_chan} channels were labeled as \n{TMSi_rec.ch_names}.'
-	#)
-	
-	#print(
-		#f'The channel used to align datas is the channel named {TMSi_rec.ch_names[ch_index]} ' 
-		#f'and has index {ch_index}'
-	#)
 
 	return BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index
 
