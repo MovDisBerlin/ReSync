@@ -93,7 +93,7 @@ def _load_TMSi_artefact_channel(
 	sub_ID,
     TMSi_data,
 	fname_external,
-	AUTOMATIC: bool,
+	BIP_ch_name,
 	saving_path
 ):
     
@@ -130,29 +130,10 @@ def _load_TMSi_artefact_channel(
 	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, sub_ID, saving_path)	
 	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, sub_ID, saving_path)
 	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
-
-	if AUTOMATIC :
-		# recorded with TMSi SAGA, electrode BIP 01
-		if sf_external in {4000, 4096, 512} and _is_channel_in_list(external_rec_ch_names, 'BIP 01'):
-			ch_index = TMSi_rec.ch_names.index('BIP 01')
-			_update_and_save_params('CH_NAME_EXTERNAL', 'BIP 01', sub_ID, saving_path)				
-			_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID, saving_path)	
-		# recorded with TMSi Porti, electrode Bip25 
-		elif sf_external == 2048 and _is_channel_in_list(external_rec_ch_names, 'Bip25'):
-			ch_index = TMSi_rec.ch_names.index('Bip25')
-			_update_and_save_params('CH_NAME_EXTERNAL', 'Bip25', sub_ID, saving_path)				
-			_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID, saving_path)
-		else:
-			raise ValueError (
-				f'Data recorder or electrode unknown, please set AUTOMATIC as False' 
-				f'Choose a channel in the following list:  {external_rec_ch_names}'
-			)
-	else:
-		ch_name = input("Enter name of external channel containing sync artefacts: ")
-		ch_index = TMSi_rec.ch_names.index(ch_name)
-		_update_and_save_params('CH_NAME_EXTERNAL', ch_name, sub_ID, saving_path)		
-		_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID, saving_path)
-
+      
+	ch_index = TMSi_rec.ch_names.index(BIP_ch_name)
+	_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID, saving_path)
+	
 	BIP_channel = TMSi_rec.get_data()[ch_index]
 	external_file = TMSi_rec.get_data()
 

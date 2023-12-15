@@ -14,16 +14,16 @@ from packet_loss import check_packet_loss
 #from scripts.utils import _get_brain_areas, _load_data
 
 def main(
-	sub_ID='Sub019 24MFU M0S0 rest', 
-	fname_lfp='sub-20210415PStn_ses-2023040408103277_run-BrainSense20230404081800.mat', 
+	sub_ID='sub036 18MFU M0S0', 
+	fname_lfp='sub-20220127PStn_ses-2023080107101376_run-BrainSense20230801080800.mat', 
 	ch_idx_lfp=0, 
-	fname_external='sub019_24mfu_M0S0_BrStr_Rest-20230404T101235.DATA.Poly5', 
+	fname_external='sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5',
+	BIP_ch_name = 'Bip25', 
 	kernel = '2',
 	saving_format = 'mat',
 	json_filename = 'Report_Json_Session_Report_20230404T131412_ANOM.json',
 	CROP_BOTH=False,
-	AUTOMATIC=False,
-	CHECK_FOR_TIMESHIFT=False,
+	CHECK_FOR_TIMESHIFT=True,
 	CHECK_FOR_PACKET_LOSS=False,
 	SHOW_FIGURES=True
 	):
@@ -43,7 +43,7 @@ def main(
 	TMSi_data = Poly5Reader(join(source_path, fname_external)) 
 	(BIP_channel, external_file, external_rec_ch_names, 
   sf_external, ch_index_external)= _load_TMSi_artefact_channel(sub_ID, TMSi_data, 
-															  fname_external, AUTOMATIC, saving_path)
+															  fname_external, BIP_ch_name, saving_path)
 
 	#  Process/align recordings
 	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, 
