@@ -21,7 +21,7 @@ def main(
 	kernel = '2',
 	saving_format = 'mat',
 	json_filename = 'Report_Json_Session_Report_20230404T131412_ANOM.json',
-	CROP_BOTH=True,
+	CROP_BOTH=False,
 	AUTOMATIC=False,
 	CHECK_FOR_TIMESHIFT=False,
 	CHECK_FOR_PACKET_LOSS=False,
@@ -42,7 +42,7 @@ def main(
 	source_path = "sourcedata"
 	TMSi_data = Poly5Reader(join(source_path, fname_external)) 
 	(BIP_channel, external_file, external_rec_ch_names, 
-  sf_external, ch_index_external)=_load_TMSi_artefact_channel(sub_ID, TMSi_data, 
+  sf_external, ch_index_external)= _load_TMSi_artefact_channel(sub_ID, TMSi_data, 
 															  fname_external, AUTOMATIC, saving_path)
 
 	#  Process/align recordings
@@ -64,7 +64,6 @@ def main(
 		_update_and_save_params('JSON_FILE', json_filename, sub_ID, saving_path)
 		json_object = _load_sourceJSON(json_filename)
 		check_packet_loss(json_object)
-
 
 
 if __name__ == '__main__':

@@ -293,8 +293,6 @@ def run_resync(
         AUTOMATIC_PROCESSING_GOOD = True
     
     if AUTOMATIC_PROCESSING_GOOD:
-        _update_and_save_params('SAVING_FORMAT', saving_format, sub_ID, saving_path)
-
         if CROP_BOTH:
             # crop intracerebral and external recordings 1 second before first artefact
             (LFP_df_offset, 
@@ -310,36 +308,11 @@ def run_resync(
                 real_art_time_LFP=0
                 )
 
-            ###  SAVE CROPPED RECORDINGS ###
-            if saving_format == 'csv':
-                LFP_df_offset['sf_LFP'] = sf_LFP
-                external_df_offset['sf_external'] = sf_external
-                LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
-                external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
-
-            if saving_format == 'pickle':
-                LFP_df_offset['sf_LFP'] = sf_LFP
-                external_df_offset['sf_external'] = sf_external
-                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
-                # Save the dataset to a pickle file
-                with open(LFP_filename, 'wb') as file:
-                    pickle.dump(LFP_df_offset, file)
-                with open(external_filename, 'wb') as file:
-                    pickle.dump(external_df_offset, file)            
-
-            if saving_format == 'mat':
-                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-                savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-                savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-
-            print('Alignment performed, both recordings were cropped and saved 1s before first artefact !')
-
 
         else:
             # only crop beginning and end of external recording to match LFP recording:
-            external_df_offset = align_external_on_LFP(LFP_array, 
+            (LFP_df_offset, 
+            external_df_offset) = align_external_on_LFP(LFP_array, 
                 external_file, 
                 art_time_LFP, 
                 art_time_BIP,  
@@ -347,33 +320,6 @@ def run_resync(
                 sf_LFP,
                 sf_external,
                 real_art_time_LFP=0)
-            
-            ###  SAVE CROPPED RECORDINGS ###
-            if saving_format == 'csv':
-                LFP_df_offset['sf_LFP'] = sf_LFP
-                external_df_offset['sf_external'] = sf_external
-                LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
-                external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
-
-            if saving_format == 'pickle':
-                LFP_df_offset['sf_LFP'] = sf_LFP
-                external_df_offset['sf_external'] = sf_external
-                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
-                # Save the dataset to a pickle file
-                with open(LFP_filename, 'wb') as file:
-                    pickle.dump(LFP_df_offset, file)
-                with open(external_filename, 'wb') as file:
-                    pickle.dump(external_df_offset, file)            
-
-            if saving_format == 'mat':
-                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-                savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-                savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-
-
-            print('Alignment performed, only external recording as been cropped to match LFP recording !')
 
 
     else: 
@@ -413,9 +359,6 @@ def run_resync(
                 plt.show(block=False)
             else: 
                 plt.close()
-        
-
-        _update_and_save_params('SAVING_FORMAT', saving_format, sub_ID, saving_path)
 
         if CROP_BOTH:
             # crop intracerebral and external recordings 1 second before first artefact
@@ -432,36 +375,10 @@ def run_resync(
                 real_art_time_LFP=closest_value_lfp
                 )
 
-            ###  SAVE CROPPED RECORDINGS ###
-            if saving_format == 'csv':
-                LFP_df_offset['sf_LFP'] = sf_LFP
-                external_df_offset['sf_external'] = sf_external
-                LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
-                external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
-
-            if saving_format == 'pickle':
-                LFP_df_offset['sf_LFP'] = sf_LFP
-                external_df_offset['sf_external'] = sf_external
-                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
-                # Save the dataset to a pickle file
-                with open(LFP_filename, 'wb') as file:
-                    pickle.dump(LFP_df_offset, file)
-                with open(external_filename, 'wb') as file:
-                    pickle.dump(external_df_offset, file)            
-
-            if saving_format == 'mat':
-                LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-                savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-                savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-
-            print('Alignment performed, both recordings were cropped and saved 1s before first artefact !')
-
-
         else:
             # only crop beginning and end of external recording to match LFP recording:
-            external_df_offset = align_external_on_LFP(LFP_array, 
+            (LFP_df_offset, 
+            external_df_offset) = align_external_on_LFP(LFP_array, 
                 external_file, 
                 art_time_LFP, 
                 art_time_BIP,  
@@ -469,27 +386,53 @@ def run_resync(
                 sf_LFP,
                 sf_external,
                 real_art_time_LFP=closest_value_lfp)
-            
-            LFP_df_offset = pd.DataFrame(LFP_array)
+        
+    ###  SAVE CROPPED RECORDINGS ###  
+    _update_and_save_params('SAVING_FORMAT', saving_format, sub_ID, saving_path) 
 
-            ###  SAVE CROPPED RECORDINGS ###
-            if saving_format == 'csv':
-                external_df_offset['sf_external'] = sf_external
-                external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
+    if CROP_BOTH:
+        if saving_format == 'csv':
+            LFP_df_offset['sf_LFP'] = sf_LFP
+            external_df_offset['sf_external'] = sf_external
+            LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
+            external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
 
-            if saving_format == 'pickle':
-                external_df_offset['sf_external'] = sf_external
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
-                # Save the dataset to a pickle file
-                with open(external_filename, 'wb') as file:
-                    pickle.dump(external_df_offset, file)            
+        if saving_format == 'pickle':
+            LFP_df_offset['sf_LFP'] = sf_LFP
+            external_df_offset['sf_external'] = sf_external
+            LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.pkl')
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
+            # Save the dataset to a pickle file
+            with open(LFP_filename, 'wb') as file:
+                pickle.dump(LFP_df_offset, file)
+            with open(external_filename, 'wb') as file:
+                pickle.dump(external_df_offset, file)            
 
-            if saving_format == 'mat':
-                external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-                savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+        if saving_format == 'mat':
+            LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
+            savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
 
-            print('Alignment performed, only external recording as been cropped to match LFP recording !')
+        print('Alignment performed, both recordings were cropped and saved 1s before first artefact !')
 
+    else:
+        if saving_format == 'csv':
+            external_df_offset['sf_external'] = sf_external
+            external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
+
+        if saving_format == 'pickle':
+            external_df_offset['sf_external'] = sf_external
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.pkl')
+            # Save the dataset to a pickle file
+            with open(external_filename, 'wb') as file:
+                pickle.dump(external_df_offset, file)            
+
+        if saving_format == 'mat':
+            external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
+            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+
+        print('Alignment performed, only external recording as been cropped to match LFP recording !')
 
 
     return LFP_df_offset, external_df_offset

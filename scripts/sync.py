@@ -121,10 +121,9 @@ def align_external_on_LFP(
     elif real_art_time_LFP != 0:
         time_start_LFP = real_art_time_LFP
 
-
     # find the timestamp in the external recording corresponding to the start of LFP recording :
     time_start_external = art_time_BIP[0] - time_start_LFP
-    index_start_external = time_start_external * sf_external
+    index_start_external = time_start_external*sf_external
 
     # Crop beginning of external recordings to match with the beginning of the LFP recording:
     external_df = pd.DataFrame(external_file) # convert np.ndarray to dataframe
@@ -134,7 +133,9 @@ def align_external_on_LFP(
     external_df_offset = external_df_offset.reset_index(drop=True) # reset indexes
 
     # check duration and crop external recording if longer:
-    LFP_rec_duration = len(LFP_array)/sf_LFP
+    LFP_df = pd.DataFrame(LFP_array)
+    LFP_df2 = pd.DataFrame.transpose(LFP_df) # invert rows and columns
+    LFP_rec_duration = len(LFP_df2)/sf_LFP
     external_rec_duration = len(external_df_offset)/sf_external
 
     if external_rec_duration > LFP_rec_duration:
@@ -142,10 +143,11 @@ def align_external_on_LFP(
         index_stop_external = rec_duration*sf_external
         external_df_offset2 = external_df_offset.truncate(after=index_stop_external-1)
 
+    else: 
+        external_df_offset2 = external_df_offset
 
     # rename properly columns in external cropped recording:
     external_df_offset2.columns = external_rec_ch_names
     external_df_offset2 = external_df_offset2.reset_index(drop=True)
 
-    
-    return external_df_offset2
+    return LFP_df2, external_df_offset2
