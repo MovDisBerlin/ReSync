@@ -2,9 +2,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import os
-import json
 import pickle
 from scipy.io import savemat
 
@@ -388,8 +385,10 @@ def run_resync(
         if saving_format == 'csv':
             LFP_df_offset['sf_LFP'] = sf_LFP
             external_df_offset['sf_external'] = sf_external
-            LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.csv', index=False) 
-            external_df_offset.to_csv(saving_path + '\\External_data_' + str(sub_ID) + '.csv', index=False)
+            LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' + str(sub_ID) 
+                                 + '.csv', index=False) 
+            external_df_offset.to_csv(saving_path + '\\External_data_' 
+                                      + str(sub_ID) + '.csv', index=False)
 
         if saving_format == 'pickle':
             LFP_df_offset['sf_LFP'] = sf_LFP
@@ -405,8 +404,12 @@ def run_resync(
         if saving_format == 'mat':
             LFP_filename = (saving_path + '\\Intracerebral_LFP_' + str(sub_ID) + '.mat')
             external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-            savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 'label': np.array(LFP_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
-            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+            savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 
+                                   'label': np.array(LFP_df_offset.columns.tolist(), 
+                                                     dtype=object).reshape(-1,1)})
+            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 
+                                        'label': np.array(external_df_offset.columns.tolist(), 
+                                                          dtype=object).reshape(-1,1)})
 
         print('Alignment performed, both recordings were cropped and saved 1s before first artefact !')
 
@@ -424,7 +427,9 @@ def run_resync(
 
         if saving_format == 'mat':
             external_filename = (saving_path + '\\External_data_' + str(sub_ID) + '.mat')
-            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 'label': np.array(external_df_offset.columns.tolist(), dtype=object).reshape(-1,1)})
+            savemat(external_filename, {'data': external_df_offset.T, 'fsample': sf_external, 
+                                        'label': np.array(external_df_offset.columns.tolist(), 
+                                                          dtype=object).reshape(-1,1)})
 
         print('Alignment performed, only external recording as been cropped to match LFP recording !')
 

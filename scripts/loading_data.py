@@ -1,11 +1,7 @@
-from utils import _update_and_save_params, _is_channel_in_list
-import numpy as np
-import os
-import sys
+from utils import _update_and_save_params
 import json
-from scipy.io import loadmat
 from mne.io import read_raw_fieldtrip
-from os.path import join, exists
+from os.path import join
 
 #### LFP DATASET ####
 

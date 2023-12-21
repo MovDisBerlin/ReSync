@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-#plt.switch_backend('agg')
 from matplotlib.pyplot import figure
 import mne
 
@@ -192,7 +190,8 @@ def plot_channel(
 from utils import _filtering
 
 def plot_LFP_external(
-        sub_ID, LFP_df_offset, external_df_offset, sf_LFP, sf_external, ch_idx_lfp, ch_index_external, saving_path, SHOW_FIGURES = True
+        sub_ID, LFP_df_offset, external_df_offset, sf_LFP, sf_external, ch_idx_lfp, 
+        ch_index_external, saving_path, SHOW_FIGURES = True
 ):
     # Reselect artefact channels in the aligned (= cropped) files
     if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)

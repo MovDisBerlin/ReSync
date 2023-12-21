@@ -20,7 +20,7 @@ def _define_folders():
 
     #import settings
     json_path = os.path.join(os.getcwd(), 'config')
-    json_filename = 'config.json'  # dont forget json extension
+    json_filename = 'config.json'
     with open(os.path.join(json_path, json_filename), 'r') as f:
         loaded_dict =  json.load(f)
 
@@ -141,6 +141,7 @@ def _get_input_y_n(message: str) -> str:
         )
 
     return user_input
+
 
 def _get_user_input(message: str) -> str:
 
