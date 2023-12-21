@@ -281,6 +281,8 @@ def run_resync(
         AUTOMATIC_PROCESSING_GOOD = True
     
     if AUTOMATIC_PROCESSING_GOOD:
+        _update_and_save_params('ART_TIME_LFP_AUTOMATIC', art_time_LFP[0], sub_ID, saving_path)
+        _update_and_save_params('REAL_ART_TIME_LFP_CORRECTED', 'no', sub_ID, saving_path)
         if CROP_BOTH:
             # crop intracerebral and external recordings 1 second before first artefact
             (LFP_df_offset, 
