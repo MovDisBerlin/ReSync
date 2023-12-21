@@ -29,30 +29,35 @@ def main_batch(
 
     # Loop for all recording sessions present in the file provided, analyze one by one:
     for index, row in df.iterrows():
+        done = row['done']
+        if done == 'yes':
+            continue
         session_ID = row['session_ID']
         fname_lfp = row['fname_lfp']
         fname_external = row['fname_external']
         ch_idx_lfp = row['ch_idx_LFP']
+        print(ch_idx_lfp)
+        print(type(ch_idx_lfp))
         BIP_ch_name = row['BIP_ch_name']
-
+        
         if pd.isna(session_ID):
-            print(f"Skipping analysis for row {index + 1} because session_ID is empty.")
+            print(f"Skipping analysis for row {index + 2} because session_ID is empty.")
             continue
 
         if pd.isna(fname_lfp):
-            print(f"Skipping analysis for row {index + 1} because fname_lfp is empty.")
+            print(f"Skipping analysis for row {index + 2} because fname_lfp is empty.")
             continue        
         
         if pd.isna(fname_external):
-            print(f"Skipping analysis for row {index + 1} because fname_external is empty.")
+            print(f"Skipping analysis for row {index + 2} because fname_external is empty.")
             continue        
 
         if pd.isna(ch_idx_lfp):
-            print(f"Skipping analysis for row {index + 1} because ch_idx_lfp is empty.")
+            print(f"Skipping analysis for row {index + 2} because ch_idx_lfp is empty.")
             continue        
 
         if pd.isna(BIP_ch_name):
-            print(f"Skipping analysis for row {index + 1} because BIP_ch_name is empty.")
+            print(f"Skipping analysis for row {index + 2} because BIP_ch_name is empty.")
             continue        
 
         #  Set saving path

@@ -57,7 +57,7 @@ def find_external_sync_artefact(
 
     # define thresh_BIP as a value half of the minimal value
     difference = _calculate_difference(data, sf_external)
-    thresh_BIP = -4*difference
+    thresh_BIP = -1.5*difference
 
     #start looking at each value one by one and append the timepoint to the list depending on the state and if thresh_BIP is crossed
     for q in range(start_index,stop_index):
@@ -69,10 +69,10 @@ def find_external_sync_artefact(
                 index_artefact_start_external.append(q)
                 stimON = True
                 q = q + 1
-            elif q < 0.2*sf_external:
-                print ('External recording started with stim already ON. Ignoring first artefact')
-                stimON = True
-                q = q + 1
+            #elif q < 0.2*sf_external:
+                #print ('External recording started with stim already ON. Ignoring first artefact')
+                #stimON = True
+                #q = q + 1
         if (stimON
                 and (data[q] <= thresh_BIP) 
                 and (data[q] < data[q + 1]) 

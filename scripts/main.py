@@ -14,14 +14,14 @@ from packet_loss import check_packet_loss
 #from scripts.utils import _get_brain_areas, _load_data
 
 def main(
-	sub_ID='sub036 18MFU M0S0', 
-	fname_lfp='sub-20220127PStn_ses-2023080107101376_run-BrainSense20230801080800.mat', 
+	sub_ID='sub024 24MFU M0S0', 
+	fname_lfp='sub-20210615PStn_ses-2023082207151459_run-BrainSense20230822081400.mat', 
 	ch_idx_lfp=0, 
-	fname_external='sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5',
-	BIP_ch_name = 'Bip25', 
+	fname_external='Sub_024_12MFU_M0S0_BrStr_restTap-20230822T100723.DATA.Poly5',
+	BIP_ch_name = 'BIP 01', 
 	kernel = '2',
 	saving_format = 'mat',
-	json_filename = 'Report_Json_Session_Report_20230404T131412_ANOM.json',
+	json_filename = 'Report_Json_Session_Report_20230822T130201.json',
 	CROP_BOTH=False,
 	CHECK_FOR_TIMESHIFT=True,
 	CHECK_FOR_PACKET_LOSS=False,
