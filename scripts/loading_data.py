@@ -69,16 +69,17 @@ def _load_mat_file(sub_ID, filename: str, saving_path):
 # extract variables from LFP recording:
 def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path):
 
+	if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
+
 	LFP_array = dataset_lfp.get_data()
-	ch_index = ch_idx_lfp
-	lfp_sig = dataset_lfp.get_data()[ch_index]
+	lfp_sig = dataset_lfp.get_data()[ch_idx_lfp]
 	LFP_rec_ch_names = dataset_lfp.ch_names
 	sf_LFP = int(dataset_lfp.info["sfreq"])
 
 	n_chan = len(dataset_lfp.ch_names)
 	time_duration_LFP = (dataset_lfp.n_times/dataset_lfp.info['sfreq']).astype(float)
 
-	_update_and_save_params('CH_IDX_LFP', ch_index, sub_ID, saving_path)
+	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
 	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, saving_path)
 	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, saving_path)
 	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	

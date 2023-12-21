@@ -195,6 +195,8 @@ def plot_LFP_external(
         sub_ID, LFP_df_offset, external_df_offset, sf_LFP, sf_external, ch_idx_lfp, ch_index_external, saving_path, SHOW_FIGURES = True
 ):
     # Reselect artefact channels in the aligned (= cropped) files
+    if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
+
     LFP_channel_offset = LFP_df_offset.iloc[:,ch_idx_lfp].to_numpy()  
     BIP_channel_offset = external_df_offset.iloc[:,ch_index_external].to_numpy() 
 
