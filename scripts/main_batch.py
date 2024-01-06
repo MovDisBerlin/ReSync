@@ -2,6 +2,7 @@ from loading_data import (_load_mat_file, _load_data_lfp, _load_TMSi_artefact_ch
                           _load_sourceJSON)
 from plotting import plot_LFP_external
 from timeshift import check_timeshift
+from ecg_plot import ecg
 from utils import _update_and_save_params
 from tmsi_poly5reader import Poly5Reader
 import os
@@ -81,6 +82,7 @@ def main_batch(
 
         #  OPTIONAL
         if CHECK_FOR_TIMESHIFT:
+            print('Starting timeshift analysis...')
             check_timeshift(session_ID, LFP_df_offset, sf_LFP, 
                             external_df_offset, sf_external, saving_path, SHOW_FIGURES)
 
@@ -89,6 +91,9 @@ def main_batch(
             _update_and_save_params('JSON_FILE', fname_json, session_ID, saving_path)
             json_object = _load_sourceJSON(fname_json)
             check_packet_loss(json_object)
+
+        # OPTIONAL : plot cardiac artifact:
+        ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, xmin= 0, xmax= 1.2, SHOW_FIGURES=True)
 
 
 

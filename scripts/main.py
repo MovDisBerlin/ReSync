@@ -8,15 +8,16 @@ import os
 from os.path import join
 from main_resync import run_resync
 from packet_loss import check_packet_loss
+from ecg_plot import ecg
 
 def main(
-	sub_ID='sub024 24MFU M0S0', 
-	fname_lfp='sub-20210615PStn_ses-2023082207151459_run-BrainSense20230822081400.mat', 
-	ch_idx_lfp=0, 
-	fname_external='Sub_024_12MFU_M0S0_BrStr_restTap-20230822T100723.DATA.Poly5',
-	BIP_ch_name = 'BIP 01', 
+	sub_ID='sub036 18MFU M0S0', 
+	fname_lfp='sub-20220127PStn_ses-2023080107101376_run-BrainSense20230801080800.mat', 
+	ch_idx_lfp=0,
+	fname_external='sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5',
+	BIP_ch_name = 'Bip25', 
 	kernel = '2',
-	saving_format = 'mat',
+	saving_format = 'csv',
 	json_filename = 'Report_Json_Session_Report_20230822T130201.json',
 	CROP_BOTH=False,
 	CHECK_FOR_TIMESHIFT=True,
@@ -51,6 +52,7 @@ def main(
 
 	#  OPTIONAL : check timeshift:
 	if CHECK_FOR_TIMESHIFT:
+		print('Starting timeshift analysis...')
 		check_timeshift(sub_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, SHOW_FIGURES)
 
 	# OPTIONAL : check for packet loss:
@@ -58,6 +60,9 @@ def main(
 		_update_and_save_params('JSON_FILE', json_filename, sub_ID, saving_path)
 		json_object = _load_sourceJSON(json_filename)
 		check_packet_loss(json_object)
+
+	# OPTIONAL : plot cardiac artifact:
+	ecg(sub_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, xmin= 0.25, xmax= 0.36, SHOW_FIGURES=True)
 
 
 if __name__ == '__main__':

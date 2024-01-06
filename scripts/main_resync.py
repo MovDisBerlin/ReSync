@@ -124,7 +124,80 @@ def run_resync(
 
     ### DETECT ARTEFACTS ###
 
+    # find artefacts in external bipolar channel:
+    art_idx_BIP = find_external_sync_artefact(
+        data=filtered_external, 
+        sf_external=sf_external
+    )
+    
+    
+    art_time_BIP = _convert_index_to_time(
+        art_idx=art_idx_BIP, 
+        sf=sf_external
+    )
+
+    # PLOT 6 : plot the external channel with its artefacts detected:
+    plot_channel(
+        sub=sub_ID, 
+        timescale=external_timescale_s, 
+        data=filtered_external, 
+        color='darkcyan',
+        scatter=False
+    )
+    plt.ylabel('Artefact channel BIP (mV)')
+    for xline in art_time_BIP:
+        plt.axvline(
+            x=xline, 
+            color='black', 
+            linestyle='dashed', 
+            alpha=.3
+        )
+    plt.gcf()
+    plt.savefig(
+        saving_path 
+        + '\\Fig6-External bipolar channel with artefacts detected.png',
+        bbox_inches='tight'
+    )
+    if SHOW_FIGURES: 
+        plt.show(block=False)
+    else: 
+        plt.close()
+
+    # PLOT 7 : plot the first artefact detected in external channel for verification of sample choice:
+    plot_channel(
+        sub=sub_ID, 
+        timescale=external_timescale_s, 
+        data=filtered_external, 
+        color='darkcyan',
+        scatter=True
+    )
+    plt.ylabel('Artefact channel BIP - Voltage (mV)')
+    plt.xlim(
+        art_time_BIP[0]-(60/sf_external),
+        art_time_BIP[0]+(60/sf_external)
+    )
+    for xline in art_time_BIP:
+        plt.axvline(
+            x=xline, 
+            color='black', 
+            linestyle='dashed', 
+            alpha=.3
+        )
+    plt.gcf()
+    plt.savefig(
+        saving_path 
+        + '\\Fig7-External bipolar channel - first artefact detected.png',
+        bbox_inches='tight'
+    )   
+    if SHOW_FIGURES: 
+        plt.show(block=False)
+    else: 
+        plt.close()
+
+
+
     # find artefacts in intracerebral channel
+    kernel = '2' # default kernel
     art_idx_LFP = find_LFP_sync_artefact(
         lfp_data=lfp_sig,
         sf_LFP=sf_LFP,
@@ -200,86 +273,102 @@ def run_resync(
     else: 
         plt.close()
 
-    # find artefacts in external bipolar channel:
-    art_idx_BIP = find_external_sync_artefact(
-        data=filtered_external, 
-        sf_external=sf_external
-    )
     
-    
-    art_time_BIP = _convert_index_to_time(
-        art_idx=art_idx_BIP, 
-        sf=sf_external
-    )
-
-    # PLOT 6 : plot the external channel with its artefacts detected:
-    plot_channel(
-        sub=sub_ID, 
-        timescale=external_timescale_s, 
-        data=filtered_external, 
-        color='darkcyan',
-        scatter=False
-    )
-    plt.ylabel('Artefact channel BIP (mV)')
-    for xline in art_time_BIP:
-        plt.axvline(
-            x=xline, 
-            color='black', 
-            linestyle='dashed', 
-            alpha=.3
-        )
-    plt.gcf()
-    plt.savefig(
-        saving_path 
-        + '\\Fig6-External bipolar channel with artefacts detected.png',
-        bbox_inches='tight'
-    )
-    if SHOW_FIGURES: 
-        plt.show(block=False)
-    else: 
-        plt.close()
-
-    # PLOT 7 : plot the first artefact detected in external channel for verification of sample choice:
-    plot_channel(
-        sub=sub_ID, 
-        timescale=external_timescale_s, 
-        data=filtered_external, 
-        color='darkcyan',
-        scatter=True
-    )
-    plt.ylabel('Artefact channel BIP - Voltage (mV)')
-    plt.xlim(
-        art_time_BIP[0]-(60/sf_external),
-        art_time_BIP[0]+(60/sf_external)
-    )
-    for xline in art_time_BIP:
-        plt.axvline(
-            x=xline, 
-            color='black', 
-            linestyle='dashed', 
-            alpha=.3
-        )
-    plt.gcf()
-    plt.savefig(
-        saving_path 
-        + '\\Fig7-External bipolar channel - first artefact detected.png',
-        bbox_inches='tight'
-    )   
-    if SHOW_FIGURES: 
-        plt.show(block=False)
-    else: 
-        plt.close()
-
-
     AUTOMATIC_PROCESSING_GOOD = False
 
     artefact_correct = _get_input_y_n("Are artefacts properly selected ? ")
     if artefact_correct == 'y':
         AUTOMATIC_PROCESSING_GOOD = True
+
+    else:
+        print('Now trying with kernel 1')
+        kernel = '1'
+        # find artefacts in intracerebral channel
+        art_idx_LFP = find_LFP_sync_artefact(
+            lfp_data=lfp_sig,
+            sf_LFP=sf_LFP,
+            use_kernel=kernel, 
+            consider_first_seconds_LFP=None
+        )
+
+        art_time_LFP = _convert_index_to_time(
+            art_idx=art_idx_LFP,
+            sf=sf_LFP
+        ) 
+
+        # PLOT 3 : plot the intracerebral channel with its artefacts detected:
+        plot_channel(
+            sub=sub_ID, 
+            timescale=LFP_timescale_s, 
+            data=lfp_sig,
+            color='darkorange',
+            scatter=False
+        )
+        plt.ylabel('Intracerebral LFP channel (µV)')
+        for xline in art_time_LFP:
+            plt.axvline(
+                x=xline, 
+                ymin=min(lfp_sig), 
+                ymax=max(lfp_sig), 
+                color='black', 
+                linestyle='dashed',
+                alpha=.3
+            )
+        plt.gcf()
+        plt.savefig(
+            saving_path 
+            + '\\Fig3-Intracerebral channel with artefacts detected - kernel ' 
+            + str(kernel) 
+            + '.png',
+            bbox_inches='tight'
+        )
+        if SHOW_FIGURES: 
+            plt.show(block=False)
+        else: 
+            plt.close()
+        
+
+        # PLOT 4 : plot the first artefact detected in intracerebral channel for verification of sample choice:
+        plot_channel(
+            sub=sub_ID, 
+            timescale=LFP_timescale_s, 
+            data=lfp_sig, 
+            color='darkorange',
+            scatter=True
+        )
+        plt.ylabel('Intracerebral LFP channel (µV)')
+        plt.xlim(art_time_LFP[0]-0.1, art_time_LFP[0]+0.3)
+        for xline in art_time_LFP:
+            plt.axvline(
+                x=xline, 
+                ymin=min(lfp_sig), 
+                ymax=max(lfp_sig), 
+                color='black', 
+                linestyle='dashed', 
+                alpha=.3
+            )
+        plt.gcf()
+        plt.savefig(saving_path 
+                    + '\\Fig4-Intracerebral channel - first artefact detected - kernel ' 
+                    + str(kernel) 
+                    + '.png', 
+                    bbox_inches='tight'
+        )
+        if SHOW_FIGURES: 
+            plt.show(block=False)
+        else: 
+            plt.close()
+
+        artefact_correct = _get_input_y_n("Are artefacts properly selected ? ")
+        if artefact_correct == 'y':
+            AUTOMATIC_PROCESSING_GOOD = True
     
     if AUTOMATIC_PROCESSING_GOOD:
         _update_and_save_params('ART_TIME_LFP_AUTOMATIC', art_time_LFP[0], sub_ID, saving_path)
+        _update_and_save_params('KERNEL', kernel, sub_ID, saving_path)
         _update_and_save_params('REAL_ART_TIME_LFP_CORRECTED', 'no', sub_ID, saving_path)
+        _update_and_save_params('SAMPLE_SHIFT', 'none', sub_ID, saving_path)
+        _update_and_save_params('REAL_ART_TIME_LFP_VALUE', 'same', sub_ID, saving_path)
         if CROP_BOTH:
             # crop intracerebral and external recordings 1 second before first artefact
             (LFP_df_offset, 
@@ -310,6 +399,9 @@ def run_resync(
 
 
     else: 
+        print(f'Automatic detection of intracranial artifacts failed, use manual method./n'
+              'In the pop up window, zoom on the first artifact until you can select properly /n'
+              'the last sample before the deflexion, click on it and close the window.')
         closest_value_lfp = select_sample(lfp_sig, sf_LFP)
         # calculate sample_shift: 
         sample_shift = int(abs(closest_value_lfp-art_time_LFP[0])*sf_LFP)
