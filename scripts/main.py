@@ -16,7 +16,6 @@ def main(
 	ch_idx_lfp=0,
 	fname_external='sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5',
 	BIP_ch_name = 'Bip25', 
-	kernel = '2',
 	saving_format = 'csv',
 	json_filename = 'Report_Json_Session_Report_20230822T130201.json',
 	CROP_BOTH=False,
@@ -43,7 +42,7 @@ def main(
 															  fname_external, BIP_ch_name, saving_path)
 
 	#  Sync recording sessions
-	LFP_df_offset, external_df_offset = run_resync(sub_ID, kernel, LFP_array, lfp_sig, 
+	LFP_df_offset, external_df_offset = run_resync(sub_ID, LFP_array, lfp_sig, 
 												LFP_rec_ch_names, sf_LFP, external_file, BIP_channel, 
 												external_rec_ch_names, sf_external, saving_path, 
 												saving_format, CROP_BOTH, SHOW_FIGURES = True)

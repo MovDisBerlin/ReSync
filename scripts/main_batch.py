@@ -13,7 +13,6 @@ from packet_loss import check_packet_loss
 
 def main_batch(
         excel_fname = 'recording_information.xlsx',
-        kernel = '2',
         saving_format = 'csv',
         CROP_BOTH = False,
         CHECK_FOR_TIMESHIFT = False,
@@ -72,7 +71,7 @@ def main_batch(
                                                           BIP_ch_name, saving_path)
 
         #  Sync recording sessions
-        (LFP_df_offset, external_df_offset) = run_resync(session_ID, kernel, LFP_array, lfp_sig, 
+        (LFP_df_offset, external_df_offset) = run_resync(session_ID, LFP_array, lfp_sig, 
                                                          LFP_rec_ch_names, sf_LFP, external_file, 
                                                          BIP_channel, external_rec_ch_names, sf_external, 
                                                          saving_path, saving_format, CROP_BOTH, 

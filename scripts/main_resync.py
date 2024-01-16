@@ -33,7 +33,6 @@ matplotlib.rcParams['ps.fonttype'] = 42
 
 def run_resync(
     sub_ID,
-    kernel,
     LFP_array, 
     lfp_sig, 
     LFP_rec_ch_names, 
