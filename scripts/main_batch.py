@@ -14,9 +14,9 @@ from packet_loss import check_packet_loss
 def main_batch(
         excel_fname = 'recording_information.xlsx',
         kernel = '2',
-        saving_format = 'mat',
+        saving_format = 'csv',
         CROP_BOTH = False,
-        CHECK_FOR_TIMESHIFT = True,
+        CHECK_FOR_TIMESHIFT = False,
         CHECK_FOR_PACKET_LOSS = False,
         SHOW_FIGURES = True
 ):
@@ -93,7 +93,7 @@ def main_batch(
             check_packet_loss(json_object)
 
         # OPTIONAL : plot cardiac artifact:
-        ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, xmin= 0, xmax= 1.2, SHOW_FIGURES=True)
+        #ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external, saving_path, xmin= 0, xmax= 1.2, SHOW_FIGURES=True)
 
 
 
