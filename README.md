@@ -13,10 +13,10 @@ This repo is structured as follows:
 │   ├── interactive
 │   ├── loading_data
 │   ├── main_batch
-│   ├── main_resync
 │   ├── main
 │   ├── packet_loss
 │   ├── plotting
+│   ├── resync_function
 │   ├── sync
 │   ├── timeshift
 │   ├── tmsi_poly5reader

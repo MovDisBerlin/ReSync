@@ -6,7 +6,7 @@ from utils import _update_and_save_params
 from tmsi_poly5reader import Poly5Reader
 import os
 from os.path import join
-from main_resync import run_resync
+from resync_function import run_resync
 from packet_loss import check_packet_loss
 from ecg_plot import ecg
 

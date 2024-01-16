@@ -8,7 +8,7 @@ from tmsi_poly5reader import Poly5Reader
 import os
 import pandas as pd
 from os.path import join
-from main_resync import run_resync
+from resync_function import run_resync
 from packet_loss import check_packet_loss
 
 def main_batch(
