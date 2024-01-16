@@ -35,7 +35,9 @@ def check_timeshift(
     # detrend external recording with high-pass filter before processing:
     filtered_external_offset = _filtering(BIP_channel_offset)
 
+    print ('Select the sample corresponding to the last artifact in the intracranial recording')
     last_artefact_lfp_x = select_sample(LFP_channel_offset, sf_LFP)
+    print ('Select the sample corresponding to the last artifact in the external recording')
     last_artefact_external_x = select_sample(filtered_external_offset, sf_external) 
 
     timeshift_ms = (last_artefact_external_x - last_artefact_lfp_x)*1000
