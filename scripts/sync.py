@@ -58,7 +58,9 @@ def crop_rec(
 
 
     LFP_df = pd.DataFrame(LFP_array) # convert np.ndarray to dataframe
+    print(len(LFP_df))
     LFP_df_transposed = pd.DataFrame.transpose(LFP_df) # invert rows and columns
+    print(len(LFP_df_transposed))
 
     LFP_df_offset = LFP_df_transposed.truncate(before=index_start_LFP) # remove all rows before first artefact
     LFP_df_offset = LFP_df_offset.reset_index(drop=True) # reset indexes
@@ -91,6 +93,9 @@ def crop_rec(
         index_stop_external = rec_duration*sf_external
         external_df_offset2 = external_df_offset.truncate(after=index_stop_external-1)
         LFP_df_offset2 = LFP_df_offset
+    else: 
+        LFP_df_offset2 = LFP_df_offset
+        external_df_offset2 = external_df_offset    
 
 
     # rename properly columns in both cropped recordings:
@@ -147,5 +152,7 @@ def align_external_on_LFP(
     # rename properly columns in external cropped recording:
     external_df_offset2.columns = external_rec_ch_names
     external_df_offset2 = external_df_offset2.reset_index(drop=True)
+
+    #LFP_df2.columns = LFP_rec_ch_names
 
     return LFP_df2, external_df_offset2

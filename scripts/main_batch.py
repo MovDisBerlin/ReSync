@@ -1,5 +1,5 @@
 from loading_data import (_load_mat_file, _load_data_lfp, _load_TMSi_artefact_channel, 
-                          _load_sourceJSON)
+                          _load_sourceJSON, _load_intracranial_csv_file, _load_external_csv_file)
 from plotting import plot_LFP_external
 from timeshift import check_timeshift
 from ecg_plot import ecg
@@ -32,8 +32,7 @@ def main_batch(
         fname_lfp = row['fname_lfp']
         fname_external = row['fname_external']
         ch_idx_lfp = row['ch_idx_LFP']
-        print(ch_idx_lfp)
-        print(type(ch_idx_lfp))
+        if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
         BIP_ch_name = row['BIP_ch_name']
         
         if pd.isna(session_ID):
@@ -56,20 +55,29 @@ def main_batch(
         saving_path = join("results", session_ID)
         if not os.path.isdir(saving_path):
             os.makedirs(saving_path)
-        
-        #  Load datasets
-            ##  LFP (here Percept datas preprocessed in Matlab with Perceive toolbox)
-        dataset_lfp = _load_mat_file(session_ID, fname_lfp, saving_path)
-        (LFP_array, lfp_sig, 
-         LFP_rec_ch_names, sf_LFP) = _load_data_lfp(session_ID, dataset_lfp, ch_idx_lfp, 
-                                                    saving_path)
-            ##  External data recorder
-        source_path = "sourcedata"
-        TMSi_data = Poly5Reader(join(source_path, fname_external))
-        (BIP_channel, external_file, external_rec_ch_names, sf_external, 
-         ch_index_external) = _load_TMSi_artefact_channel(session_ID, TMSi_data, fname_external, 
-                                                          BIP_ch_name, saving_path)
 
+        #  Set source path
+        source_path = "sourcedata"
+
+        #  Loading datasets
+            ##  LFP (here Percept datas preprocessed in Matlab with Perceive toolbox)
+        if fname_lfp.endswith('.mat'):
+            dataset_lfp= _load_mat_file(session_ID, fname_lfp, saving_path)
+            LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP = _load_data_lfp(session_ID, dataset_lfp, 
+                                                                    ch_idx_lfp, saving_path)
+        if fname_lfp.endswith('.csv'):
+            LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP =_load_intracranial_csv_file(session_ID, fname_lfp, ch_idx_lfp, saving_path)
+
+
+            ##  External data recorder
+        if fname_external.endswith('.Poly5'):
+            TMSi_data = Poly5Reader(join(source_path, fname_external)) 
+            (BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index_external)= _load_TMSi_artefact_channel(session_ID, TMSi_data, 
+                                                                    fname_external, BIP_ch_name, saving_path)
+        if fname_external.endswith('.csv'):
+            (BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index_external) = _load_external_csv_file(session_ID, fname_external, BIP_ch_name, saving_path)
+
+        
         #  Sync recording sessions
         (LFP_df_offset, external_df_offset) = run_resync(session_ID, LFP_array, lfp_sig, 
                                                          LFP_rec_ch_names, sf_LFP, external_file, 

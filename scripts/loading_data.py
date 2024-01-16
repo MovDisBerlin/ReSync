@@ -1,5 +1,6 @@
 from utils import _update_and_save_params
 import json
+import pandas as pd
 from mne.io import read_raw_fieldtrip
 from os.path import join
 
@@ -61,6 +62,60 @@ def _load_mat_file(sub_ID, filename: str, saving_path):
     
     return data
 
+
+def _load_intracranial_csv_file(sub_ID, filename, ch_idx_lfp, saving_path):
+	source_path = "sourcedata"
+
+	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
+	_update_and_save_params('FNAME_LFP', filename, sub_ID, saving_path)
+	sf_LFP = int(filename[filename.find('Hz')-3:filename.find('Hz')])
+	# load a csv file :
+	dataset_lfp = pd.read_csv(join(source_path, filename))
+	# convert to array :
+	LFP_array = dataset_lfp.to_numpy()
+	# transpose array:
+	LFP_array = LFP_array.transpose()
+	# store the first column of dataset_lfp in an array called lfp_sig:
+	lfp_sig = LFP_array[ch_idx_lfp,:]
+	LFP_rec_ch_names = list(dataset_lfp.columns)
+
+	time_duration_LFP = (len(lfp_sig)/sf_LFP)
+
+	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
+	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, saving_path)
+	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, saving_path)
+	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	
+	
+	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
+
+
+
+def _load_external_csv_file(sub_ID, filename, BIP_ch_name, saving_path):
+	source_path = "sourcedata"
+	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
+	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
+	sf_external = int(filename[filename.find('Hz')-4:filename.find('Hz')])
+	# load a csv file :
+	dataset_external = pd.read_csv(join(source_path, filename))
+	external_file = dataset_external.to_numpy()
+	external_file = external_file.transpose()
+	external_rec_ch_names = list(dataset_external.columns)
+	ch_index_external = external_rec_ch_names.index(BIP_ch_name)
+	BIP_channel = external_file[ch_index_external,:]
+
+	time_duration_TMSi_s = (len(BIP_channel)/sf_external)
+
+	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
+	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, sub_ID, saving_path)	
+	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, sub_ID, saving_path)
+	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
+	_update_and_save_params('CH_IDX_EXTERNAL', ch_index_external, sub_ID, saving_path)
+
+	return BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index_external
+
+
+
+      
 
 # extract variables from LFP recording:
 def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path):

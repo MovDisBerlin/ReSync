@@ -93,7 +93,7 @@ def find_external_sync_artefact(
 def find_LFP_sync_artefact(
     lfp_data: np.ndarray,
     sf_LFP,
-    use_kernel: str = '1',
+    use_kernel: str,
     consider_first_seconds_LFP=None,
 ):
     """
