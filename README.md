@@ -9,7 +9,7 @@ This repo is structured as follows:
 .
 ├── results
 ├── scripts
-│   ├── find_artefacts
+│   ├── find_artifacts
 │   ├── interactive
 │   ├── loading_data
 │   ├── main_batch
