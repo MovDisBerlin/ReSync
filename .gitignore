@@ -2,6 +2,8 @@
 sourcedata/*
 results/*
 
+
+!results/README.md
 !sourcedata/README.md
 !sourcedata/recording_information.xlsx
 !sourcedata/External_data_dataset1_4096Hz.csv
