@@ -29,17 +29,16 @@ This repo is structured as follows:
 └── setup.py
 
 
-```
-```environment.yml`` contains all the packages and their version needed to run the ReSync algorithm.
-```main``` and ```main_batch``` are the two main scripts that can be used to synchronize recordings.
-```main``` is used to synchronize only two recordings from one session. 
-```main_batch``` can be used to automatize the synchronization of multiple sessions. To use ```main_batch```, the file recording_information.xlsx present in the sourcedata folder must be completed previously.
+```environment.yml``` contains all the packages and their version needed to run the ReSync algorithm.
+```main``` and ```main_batch``` are the two main scripts that can be used to synchronize recordings:
+*```main``` is used to synchronize only two recordings from one session.
+*```main_batch``` can be used to automatize the synchronization of multiple sessions. To use ```main_batch```, the file recording_information.xlsx present in the sourcedata folder must be completed previously.
 ```sourcedata``` contains 2 example datasets to try the toolbox and have a look at the output: each dataset contains one intracerebral channel and one external channel, both with stimulation artifacts. NOTE: These example datasets were generated and saved as .csv files. Expected datasets from real recordings are usually .mat for intracerebral recordings and .Poly5 for external recordings. 
 To obtain these formats:
-    - we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
-    - we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain .mat files. To do so, there are two possibilities:
-        - the open source “Perceive” toolbox (https://github.com/neuromodulation/perceive) for MATLAB
-        - COMING SOON: the open source "DBScope" toolbox (https://github.com/NCN-Lab/DBScope) for MATLAB
+*we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
+*we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain .mat files. To do so, there are two possibilities:
+    - the open source “Perceive” toolbox (https://github.com/neuromodulation/perceive) for MATLAB
+    - COMING SOON: the open source "DBScope" toolbox (https://github.com/NCN-Lab/DBScope) for MATLAB
 
 ## Getting Started
 
