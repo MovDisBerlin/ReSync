@@ -3,51 +3,25 @@ from os import listdir
 from mne.io import read_raw_fieldtrip
 import json
 import numpy as np
+
     
+def check_packet_loss(
+        json_object
+):
 
-def load_sourceJSON_bis(sub: str, filename: str):
+    prc_data_codes = {
+        'signal_test': 'CalibrationTests',
+        'streaming': 'BrainSenseTimeDomain',
+        'survey': 'LfpMontageTimeDomain',
+        'indef_streaming': 'IndefiniteStreaming'
+    }
 
-    """
-    Reads source JSON file 
+    mod = 'streaming'
+    list_of_streamings = json_object[prc_data_codes[mod]]
 
-    Input:
-        - subject = str, e.g. "024"
-        - fname = str of filename, e.g. "Report_Json_Session_Report_20221205T134700.json"
-
-    Returns: 
-        - data: json.loads() loaded JSON file
-
-    """
-
-    # Error check: 
-    # Error if sub str is not exactly 3 letters e.g. 024
-    assert len(sub) == 3, f'Subject string ({sub}) INCORRECT' 
-    
-    # Error if filename doesn´t end with .json
-    assert filename[-5:] == '.json', (
-        f'filename no .json INCORRECT extension: {filename}'
-    )
-
-
-    # find the path to the folder with raw JSONs of a subject
-    datapath = "C:\\Users\\Juliette\\OneDrive - Charité - Universitätsmedizin Berlin\\Percept_Data_structured\\sourcedata"
-    json_path = join(datapath, f'sub-{sub}') # same path as to perceive files, all in sourcedata folder
-
-    if exists(join(json_path, filename)):
-        with open(join(json_path, filename), 'r') as f:
-            json_object = json.loads(f.read())
-    
-    elif exists(join(json_path, 'raw_jsons', filename)):
-        with open(join(json_path,'raw_jsons', filename), 'r') as f:
-            json_object = json.loads(f.read())
-    
-    else:
-        raise ValueError(f'JSON file ({filename}) not found '
-                         f'in {json_path}, and "raw_jsons" folder')
-    
-
-    return json_object
-
+    for i_dat, dat in enumerate(list_of_streamings):
+        print(i_dat)
+        new_lfp = check_missings_in_lfp(dat)
 
 
 
@@ -76,26 +50,3 @@ def check_missings_in_lfp (dat):
         print('No LFP data missing based on timestamp '
                 'differences between data-packets')
         
-
-
-
-
-def check_packet_loss(
-        json_object
-):
-
-    prc_data_codes = {
-        'signal_test': 'CalibrationTests',
-        'streaming': 'BrainSenseTimeDomain',
-        'survey': 'LfpMontageTimeDomain',
-        'indef_streaming': 'IndefiniteStreaming'
-    }
-
-    mod = 'streaming'
-    list_of_streamings = json_object[prc_data_codes[mod]]
-
-    for i_dat, dat in enumerate(list_of_streamings):
-        print(i_dat)
-        new_lfp = check_missings_in_lfp(dat)
-
-

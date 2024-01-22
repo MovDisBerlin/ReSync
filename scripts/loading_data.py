@@ -1,22 +1,22 @@
-from utils import _update_and_save_params
 import json
 import pandas as pd
 from mne.io import read_raw_fieldtrip
 from os.path import join
+
+from utils import _update_and_save_params
 
 #### LFP DATASET ####
 
 def _load_sourceJSON(json_filename: str):
 
     """
-    Reads source JSON file 
+    Reads source JSON file  
 
     Input:
-        - subject = str, e.g. "024"
-        - fname = str of filename, e.g. "Report_Json_Session_Report_20221205T134700.json"
+        - fname: str of JSON filename
 
     Returns: 
-        - data: json.loads() loaded JSON file
+        - json_object: loaded JSON file
 
     """
 
@@ -29,14 +29,17 @@ def _load_sourceJSON(json_filename: str):
     return json_object
 
 
-def _load_mat_file(sub_ID, filename: str, saving_path):
+def _load_mat_file(
+		sub_ID: str, 
+		filename: str, 
+		saving_path: str):
     """"
-    Reads (perceived) .mat-file in FieldTrip
-    structure using mne-function
+    Reads .mat-file in FieldTrip structure using mne-function
     
     Input:
-        - sub: str code of sub
+        - sub_ID: str 
         - filename: str of only .mat-filename
+		- saving_path: str of path to save the parameters
     
     Returns:
         - data: mne-object of .mat file
@@ -63,7 +66,13 @@ def _load_mat_file(sub_ID, filename: str, saving_path):
     return data
 
 
-def _load_intracranial_csv_file(sub_ID, filename, ch_idx_lfp, saving_path):
+def _load_intracranial_csv_file(
+		sub_ID: str, 
+		filename: str, 
+		ch_idx_lfp: int, 
+		saving_path: str
+		):
+	
 	source_path = "sourcedata"
 
 	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
@@ -82,15 +91,23 @@ def _load_intracranial_csv_file(sub_ID, filename, ch_idx_lfp, saving_path):
 	time_duration_LFP = (len(lfp_sig)/sf_LFP)
 
 	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
-	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, saving_path)
-	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, saving_path)
+	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, 
+						 saving_path)
+	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, 
+						 saving_path)
 	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	
 	
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 
 
 
-def _load_external_csv_file(sub_ID, filename, BIP_ch_name, saving_path):
+def _load_external_csv_file(
+		sub_ID: str, 
+		filename: str, 
+		BIP_ch_name: str, 
+		saving_path: str
+		):
+	
 	source_path = "sourcedata"
 	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
 	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
@@ -106,19 +123,28 @@ def _load_external_csv_file(sub_ID, filename, BIP_ch_name, saving_path):
 	time_duration_TMSi_s = (len(BIP_channel)/sf_external)
 
 	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
-	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, sub_ID, saving_path)	
-	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, sub_ID, saving_path)
+	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, 
+						 sub_ID, saving_path)	
+	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, 
+						 sub_ID, saving_path)
 	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
-	_update_and_save_params('CH_IDX_EXTERNAL', ch_index_external, sub_ID, saving_path)
+	_update_and_save_params('CH_IDX_EXTERNAL', ch_index_external, sub_ID, 
+						 saving_path)
 
-	return BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index_external
+	return (BIP_channel, external_file, external_rec_ch_names, sf_external, 
+		 ch_index_external)
 
 
 
       
 
 # extract variables from LFP recording:
-def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path):
+def _load_data_lfp(
+		sub_ID: str, 
+		dataset_lfp, 
+		ch_idx_lfp, 
+		saving_path: str
+		):
 
 	if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
 
@@ -131,8 +157,10 @@ def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path):
 	time_duration_LFP = (dataset_lfp.n_times/dataset_lfp.info['sfreq']).astype(float)
 
 	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
-	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, saving_path)
-	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, saving_path)
+	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, 
+						 saving_path)
+	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, 
+						 saving_path)
 	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	
 
 
@@ -141,33 +169,41 @@ def _load_data_lfp(sub_ID, dataset_lfp, ch_idx_lfp, saving_path):
 
 #### External data recorder dataset ####
 
-def _load_TMSi_artefact_channel(
-	sub_ID,
+def _load_TMSi_artifact_channel(
+	sub_ID: str,
     TMSi_data,
-	fname_external,
-	BIP_ch_name,
-	saving_path
+	fname_external: str,
+	BIP_ch_name: str,
+	saving_path: str
 ):
     
 	"""
-	Function that takes a poly5 object and returns in an array the channel 
-	which will be used for sync ("BIP 01" in our settings),	and in another 
-	array the timescale in milliseconds of the TMSi recording. It also prints 
-	information about the recording (duration, channels, sampling frequency,...)
-	
+	Takes a poly5 object containing all the external channels recorded.
+	It extracts the channel containing the artifacts, which will be used for 
+	synchronization (usually "BIP 01" in our settings). It also returns the
+	whole external recording (in an array), the names of all the channels 
+	recorded externally, the sampling frequency of the external recording and 
+	the index of the bipolar channel in the external recording.
+
 	Input:
-		- TMSi_data : TMSiFileFormats.file_readers.poly5reader.Poly5Reader
+		- sub_ID: str, subject ID
+		- TMSi_data: TMSiFileFormats.file_readers.poly5reader.Poly5Reader
+		- fname_external: str, name of the external recording session
+		- BIP_ch_name: str, name of the bipolar channel, containing the artifacts
+		- saving_path: str, path to save the parameters
 
 	Returns:
-		- TMSi_channel (np.ndarray with shape (y,)): the channel of the external 
+		- BIP_channel (np.ndarray with shape (y,)): the channel of the external 
             recording to be used for alignment (the one containing deep brain 
-            stimulation artefacts = the channel recorded with the bipolar 
+            stimulation artifacts = the channel recorded with the bipolar 
             electrode, y datapoints)
-        - TMSi_file (np.ndarray with shape: (x, y)): the external recording 
+        - external_file (np.ndarray with shape: (x, y)): the external recording 
             containing all recorded channels (x channels, y datapoints)
 		- external_rec_ch_names (list of x names): the names of all the channels 
             recorded externally
 		- sf_external (int): sampling frequency of external recording
+		- ch_index (int): index of the bipolar channel in the external recording 
+			(BIP_channel)
 	"""
 
 	# Conversion of .Poly5 to MNE raw array
@@ -179,8 +215,10 @@ def _load_TMSi_artefact_channel(
 	sf_external = int(TMSi_rec.info['sfreq'])
 
 	_update_and_save_params('FNAME_EXTERNAL', fname_external, sub_ID, saving_path)
-	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, sub_ID, saving_path)	
-	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, sub_ID, saving_path)
+	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, 
+						 sub_ID, saving_path)	
+	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, 
+						 sub_ID, saving_path)
 	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
       
 	ch_index = TMSi_rec.ch_names.index(BIP_ch_name)
@@ -190,7 +228,8 @@ def _load_TMSi_artefact_channel(
 	external_file = TMSi_rec.get_data()
 
 
-	return BIP_channel, external_file, external_rec_ch_names, sf_external, ch_index
+	return (BIP_channel, external_file, external_rec_ch_names, 
+		 sf_external, ch_index)
 
 
 

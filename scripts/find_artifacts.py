@@ -1,17 +1,19 @@
 import numpy as np
 from scipy.signal import find_peaks
 from itertools import compress
+
 from utils import _calculate_difference
 
-# Detection of artefacts in TMSi
 
-def find_external_sync_artefact(
+# Detection of artifacts in TMSi
+
+def find_external_sync_artifact(
     data: np.ndarray, 
     sf_external: int
 ):
 
     """ 
-    Function that finds artefacts caused by increasing/reducing 
+    Function that finds artifacts caused by increasing/reducing 
     stimulation from 0 to 1mA without ramp.
     For correct functioning, the external data recording should
     start in stim-off, and typically short pulses are given 
@@ -23,32 +25,29 @@ def find_external_sync_artefact(
     and offset around 0.
 
     Inputs:
-        - data: single external channel as np.ndarray (from bipolar electrode)
-        - sf_external (int): sampling frequency of external recording
-        - ignore_first_seconds_external : if given, the first n-seconds
-            will be ignored (back-up, in case recording was started with stim ON, 
-            or if there are huge artefacts in the beginning)
-        - consider_first_seconds_external : if given, only artefacts in
-            the first (and last) n-seconds are considered (in case the
-            recording is StimON, it ignores the other amplitude changes)
-    
+        - data: np.ndarray, single external channel (from bipolar electrode)
+        - sf_external: int, sampling frequency of external recording
     Returns:
-        - index_artefact_start_external : a list containing the indexes of each
-            artefact start detected. 
+        - index_artifact_start_external: list, containing the indexes of each
+            artifact start detected. 
 
     """
 
     #initialize variables (lists and state)
-    index_artefact_start_external = []
+    index_artifact_start_external = []
     stimON = False
 
     start_index = 0
     stop_index = len(data)-2
 
-    # check polarity of artefacts before detection:
-    # to be properly detected in external channel, artefacts have to look like a downward deflection 
-    # (they are more negative than positive). If for some reason the data recorder picks up
-    # the artefact as an upward deflection instead, then the signal has to be inverted before detecting artefacts.
+    #check polarity of artifacts before detection:
+    '''
+    To be properly detected in external channel, artifacts have to look 
+    like a downward deflection (they are more negative than positive). 
+    If for some reason the data recorder picks up the artifact as an upward 
+    deflection instead, then the signal has to be inverted before detecting 
+    artifacts.
+    '''
     if abs(max(data)) > abs(min(data)):
         print('external signal is reversed')
         data = data * -1
@@ -57,18 +56,19 @@ def find_external_sync_artefact(
     difference = _calculate_difference(data, sf_external)
     thresh_BIP = -1.5*difference
 
-    #start looking at each value one by one and append the timepoint to the list depending on the state and if thresh_BIP is crossed
+    # find indexes of artifacts
     for q in range(start_index,stop_index):
         if ((stimON == False) 
                 and (data[q] <= thresh_BIP) 
                 and (data[q] < data[q + 1]) 
                 and (data[q] < data[q - 1])):
             if q >= 0.2*sf_external:
-                index_artefact_start_external.append(q)
+                index_artifact_start_external.append(q)
                 stimON = True
                 q = q + 1
             #elif q < 0.2*sf_external:
-                #print ('External recording started with stim already ON. Ignoring first artefact')
+                #print ('External recording started with stim already ON. 
+                #Ignoring first artifact')
                 #stimON = True
                 #q = q + 1
         if (stimON
@@ -81,32 +81,29 @@ def find_external_sync_artefact(
         else:
             q = q + 1
 
-
-    return index_artefact_start_external
-
+    return index_artifact_start_external
 
 
 
+# Detection of artifacts in LFP
 
-# Detection of artefacts in LFP
-
-def find_LFP_sync_artefact(
+def find_LFP_sync_artifact(
     lfp_data: np.ndarray,
-    sf_LFP,
+    sf_LFP: int,
     use_kernel: str,
     consider_first_seconds_LFP=None,
 ):
     """
-    Function that finds artefacts caused by
+    Function that finds artifacts caused by
     augmenting-reducing stimulation from 0 to 1mA without ramp.
     For correct functioning, the LFP data should
     start in stim-off, and typically short pulses
     are given (without ramping).
     The function uses a kernel which mimics the stimulation-
-    artefact. This kernel is multiplied with time-series
+    artifact. This kernel is multiplied with time-series
     snippets of the same length. If the time-serie is
     similar to the kernel, the dot-product is high, and this
-    indicates a stim-artefact.
+    indicates a stim-artifact.
 
     Input:
         - lfp_data: single channel as np.ndarray (the function
@@ -117,11 +114,11 @@ def find_LFP_sync_artefact(
             kernel 1 is straight-forward and finds a steep decrease,
             kernel 2 mimics the steep decrease and slow recovery of the signal. 
             In our tests, kernel 2 was the best in 52.7% of the cases.
-        - consider_first_seconds_LFP: if given, only artefacts in the first
+        - consider_first_seconds_LFP: if given, only artifacts in the first
             (and last) n-seconds are considered
     
     Returns:
-        - stim_idx: a list with all stim-artefact starts. 
+        - stim_idx: a list with all stim-artifact starts. 
     """
     
     signal_inverted = False  # defaults false
@@ -139,7 +136,8 @@ def find_LFP_sync_artefact(
     # get dot-products between kernel and time-serie snippets
     res = []  # store results of dot-products
     for i in np.arange(0, len(lfp_data) - len(ker)):
-        res.append(ker @ lfp_data[i: i + len(ker)])  # calculate dot-product of vectors
+        res.append(ker @ lfp_data[i: i + len(ker)])  
+        # calculate dot-product of vectors
         # the dot-product result is high when the timeseries snippet
         # is very similar to the kernel
     res = np.array(res)  # convert list to array
@@ -168,10 +166,10 @@ def find_LFP_sync_artefact(
         # the first peak should be POSITIVE (this is for the dot-product results)
         # actual signal is first peak negative
         # if NEG peak before POS then signal is inverted
-        print('signal is inverted')
+        print('intracranial signal is inverted')
         signal_inverted = True
         #print(pos_idx[0], neg_idx[0])
-        # re-check inverted for difficult cases with small pos-lfp peak before negative stim-artefact
+        # re-check inverted for difficult cases with small pos-lfp peak before negative stim-artifact
         if (pos_idx[0] - neg_idx[0]) < 50:  # if first positive and negative are very close
             width_pos = 0
             r_i = pos_idx[0]
@@ -198,10 +196,10 @@ def find_LFP_sync_artefact(
 
     
 
-    # check warn if NO STIM artefacts are suspected
+    # check warn if NO STIM artifacts are suspected
     if len(stim_idx) > 20 and ratio_max_sd < 8:
         print('WARNING: probably the LFP signal did NOT'
-              ' contain any artefacts. Many incorrect timings'
+              ' contain any artifacts. Many incorrect timings'
               ' could be returned')
 
 
@@ -213,7 +211,7 @@ def find_LFP_sync_artefact(
         stim_idx = list(compress(stim_idx, sel))
 
 
-    # filter out inconsistencies in peak heights (assuming sync-stim-artefacts are stable)
+    # filter out inconsistencies in peak heights (assuming sync-stim-artifacts are stable)
     abs_heights = [max(abs(lfp_data[i - 5: i + 5])) for i in stim_idx]
     diff_median = np.array([abs(p - np.median(abs_heights)) for p in abs_heights])
     sel_idx = diff_median < (np.median(abs_heights)*.66)

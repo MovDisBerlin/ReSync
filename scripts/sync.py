@@ -8,78 +8,75 @@ def crop_rec(
     art_time_BIP: float,
     LFP_rec_ch_names: list,
     external_rec_ch_names: list,
-    sf_LFP: int,
-    sf_external: int,
+    sf_LFP,
+    sf_external,
     real_art_time_LFP: float
 ):
 
     """
     This function is used to crop the external recording and the
-    intracerebral recording one second before the first artefact
+    intracerebral recording one second before the first artifact
     detected. The end of the longest one of those two recordings
     is also cropped, to have the same duration for the two recordings.
-    The two cropped recordings are saved as .csv files.
 
     Inputs:
-        - LFP_array (np.ndarray with shape: (x, y)): the intracerebral recording 
-            containing all recorded channels (x channels, y datapoints)
-        - external_file (np.ndarray with shape: (x, y)): the external recording 
-            containing all recorded channels (x channels, y datapoints)
-        - art_time_LFP (float): the timepoint when the artefact starts in the intracerebral 
-            recording (found previously using the function find_LFP_sync_artefact)
-        - art_time_BIP (float): the timepoint when the artefact starts in the external 
-            recording (found previously using the function find_external_sync_artefact)
-        - LFP_rec_ch_names (list of x names): the names of all the channels 
-            recorded intracerebrally (to rename the cropped recording accordingly)
-        - external_rec_ch_names (list of x names): the names of all externally recorded channels 
-            (to rename the cropped recording accordingly)
-        - real_art_time_LFP (float): default 0, but can be changed in notebook via 
-            interactive plotting to adjust artefact detection
-        - sf_LFP (int): sampling frequency of intracranial recording
-        - sf_external (int): sampling frequency of external recording
-
+        - LFP_array: np.ndarray, the intracerebral recording containing all 
+        recorded channels
+        - external_file: np.ndarray, the external recording containing all 
+        recorded channels
+        - art_time_LFP: float, the timepoint when the artifact starts in the 
+        intracerebral recording
+        - art_time_BIP: float, the timepoint when the artifact starts in the 
+        external recording
+        - LFP_rec_ch_names: list, the names of all the channels recorded 
+        intracerebrally (to rename the cropped recording accordingly)
+        - external_rec_ch_names: list, the names of all externally recorded 
+        channels (to rename the cropped recording accordingly)
+        - sf_LFP: sampling frequency of intracranial recording
+        - sf_external: sampling frequency of external recording
+        - real_art_time_LFP: float
 
     Returns:
-        - LFP_df_offset2 (np.ndarray with shape: (x, y2)): the cropped intracerebral 
-            recording with all its recorded channels
-        - external_df_offset2 (np.ndarray with shape: (x, y2)): the cropped external 
-            recording with all its recorded channels
+        - LFP_df_offset2: np.ndarray, the cropped intracerebral recording with 
+        all its recorded channels, after synchronization with external recording
+        - external_df_offset2: np.ndarray, the cropped external recording with 
+        all its recorded channels, after synchronization with intracerebral recording
 
     """
 
-    # LFP #
-    # Crop beginning of LFP recording 1 second before first artefact:
+    ## Intracerebral ##
+    # Crop beginning of LFP recording 1 second before first artifact:
     if real_art_time_LFP == 0:
-        time_start_LFP_0 = art_time_LFP[0]-1 # 1s before first artefact
+        time_start_LFP_0 = art_time_LFP[0]-1 # 1s before first artifact
         index_start_LFP = time_start_LFP_0*(sf_LFP)
     elif real_art_time_LFP != 0:
-        time_start_LFP_0 = real_art_time_LFP-1 # 1s before first artefact
+        time_start_LFP_0 = real_art_time_LFP-1 # 1s before first artifact
         index_start_LFP = time_start_LFP_0*(sf_LFP)
 
 
     LFP_df = pd.DataFrame(LFP_array) # convert np.ndarray to dataframe
-    print(len(LFP_df))
     LFP_df_transposed = pd.DataFrame.transpose(LFP_df) # invert rows and columns
-    print(len(LFP_df_transposed))
 
-    LFP_df_offset = LFP_df_transposed.truncate(before=index_start_LFP) # remove all rows before first artefact
+    # remove all rows before first artifact
+    LFP_df_offset = LFP_df_transposed.truncate(before=index_start_LFP) 
     LFP_df_offset = LFP_df_offset.reset_index(drop=True) # reset indexes
 
 
-    ## TMSi ##
-    # Crop beginning of external recordings 1s before first artefact:
+    ## External ##
+    # Crop beginning of external recordings 1s before first artifact:
 
-    # find the index of the row corresponding to 1 second before first artefact
+    # find the index of the row corresponding to 1 second before first artifact
     time_start_external = (art_time_BIP[0])-1
     index_start_external = time_start_external*sf_external
 
     external_df = pd.DataFrame(external_file) # convert np.ndarray to dataframe
     external_df_transposed = pd.DataFrame.transpose(external_df) # invert rows and columns
-
-    external_df_offset = external_df_transposed.truncate(before=index_start_external) # remove all rows before first artefact
+    # remove all rows before first artifact
+    external_df_offset = external_df_transposed.truncate(before=index_start_external) 
     external_df_offset = external_df_offset.reset_index(drop=True) # reset indexes
 
-    #### Check which recording is the longest, and crop it to give it the same duration as the other one:
+    # Check which recording is the longest,
+    # crop it to give it the same duration as the other one:
     LFP_rec_duration = len(LFP_df_offset)/sf_LFP
     external_rec_duration = len(external_df_offset)/sf_external
 
@@ -119,6 +116,37 @@ def align_external_on_LFP(
     real_art_time_LFP: float
 ):
     
+
+    """
+    This function is used to crop ONLY the external recording so that it starts
+    at the same time than the intracerebral one. 
+    The end of the external recording is also cropped to match the duration of
+    the intracerebral one, if it's longer.
+
+    Inputs:
+        - LFP_array: np.ndarray, the intracerebral recording containing all 
+        recorded channels
+        - external_file: np.ndarray, the external recording containing all 
+        recorded channels
+        - art_time_LFP: float, the timepoint when the artifact starts in the 
+        intracerebral recording
+        - art_time_BIP: float, the timepoint when the artifact starts in the 
+        external recording
+        - external_rec_ch_names: list, the names of all externally recorded 
+        channels (to rename the cropped recording accordingly)
+        - sf_LFP: sampling frequency of intracranial recording
+        - sf_external: sampling frequency of external recording
+        - real_art_time_LFP: float
+
+    Returns:
+        - LFP_df2: np.ndarray, the intracerebral recording with all its recorded 
+        channels
+        - external_df_offset2: np.ndarray, the cropped external recording with 
+        all its recorded channels, after synchronization with intracerebral 
+        recording
+
+    """
+
     if real_art_time_LFP == 0:
         time_start_LFP = art_time_LFP[0]
     elif real_art_time_LFP != 0:
@@ -131,8 +159,8 @@ def align_external_on_LFP(
     # Crop beginning of external recordings to match with the beginning of the LFP recording:
     external_df = pd.DataFrame(external_file) # convert np.ndarray to dataframe
     external_df_transposed = pd.DataFrame.transpose(external_df) # invert rows and columns
-
-    external_df_offset = external_df_transposed.truncate(before=index_start_external) # remove all rows before first artefact
+    # remove all rows before first artifact
+    external_df_offset = external_df_transposed.truncate(before=index_start_external) 
     external_df_offset = external_df_offset.reset_index(drop=True) # reset indexes
 
     # check duration and crop external recording if longer:

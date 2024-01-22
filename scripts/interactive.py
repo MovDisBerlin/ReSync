@@ -3,14 +3,50 @@ import numpy as np
 
 from utils import _get_input_y_n
 
+def select_sample(
+        signal: np.ndarray, 
+        sf:int
+        ):
+    
+    """
+    This function allows the user to select a sample from a plot representing
+    the given signal with the sampling frequency provided.
+    The user can zoom in and out, and the last click before answering
+    y will be the selected sample.
+    """
 
-def interaction(timescale, data):
-    pos = [] # collecting the clicked x and y values for one channel group of stn at one session
+    signal_timescale_s = np.arange(0, (len(signal)/sf), (1/sf))
+    selected_x = interaction(signal_timescale_s, signal)
+
+    # Find the index of the closest value
+    closest_index = np.argmin(np.abs(signal_timescale_s - selected_x))
+
+    # Get the closest value
+    closest_value = signal_timescale_s[closest_index]
+
+    print(f"The closest value to {selected_x} is {closest_value}.")
+
+    return closest_value
+
+
+def interaction(
+        timescale: np.ndarray, 
+        data: np.ndarray
+        ):
+    
+    """
+    This function draws an interactive plot representing the given data with 
+    the timescale provided.The user can zoom in and out, and the last click 
+    before answering y will be the selected sample.
+    """
+
+    # collecting the clicked x and y values
+    pos = [] 
 
     fig, ax = plt.subplots()
-    ax.scatter(timescale, data)
+    ax.scatter(timescale, data, s=5, c='plum')
     ax.set_title('Click on the plot to select the sample \n' 
-                 'where the artefact starts. You can use the zoom,\n'
+                 'where the artifact starts. You can use the zoom,\n'
                  'as long as the last click before answering y \n'
                  'is performed on the proper sample')
 
@@ -27,30 +63,16 @@ def interaction(timescale, data):
     plt.show(block=False)
     condition_met = False
 
-    input_y_or_n = _get_input_y_n("Artefacts found?")
+    input_y_or_n = _get_input_y_n("Artifact found?")
 
-    while not condition_met: # this loops every 10 seconds until user answers "y" 
-        if input_y_or_n == "y":   # if user has found the artefact sample and puts "y" then it will proceed to next step
+    while not condition_met:  
+        if input_y_or_n == "y":   
             condition_met=True
         else:
-            input_y_or_n = _get_input_y_n("Artefacts found?")
+            input_y_or_n = _get_input_y_n("Artifact found?")
 
 
     artifact_x = [x_list[0] for x_list in pos] # list of all clicked x values
 
     return artifact_x[-1]
 
-
-def select_sample(signal, sf):
-    signal_timescale_s = np.arange(0, (len(signal)/sf), (1/sf))
-    selected_x = interaction(signal_timescale_s, signal)
-
-    # Find the index of the closest value
-    closest_index = np.argmin(np.abs(signal_timescale_s - selected_x))
-
-    # Get the closest value
-    closest_value = signal_timescale_s[closest_index]
-
-    print(f"The closest value to {selected_x} is {closest_value}.")
-
-    return closest_value
