@@ -1,12 +1,8 @@
 # Ignore data folders
-rawdata/*
 sourcedata/*
-derivatives/*
 results/*
 
-!rawdata/README.md
 !sourcedata/README.md
-!derivatives/README.md
 !sourcedata/recording_information.xlsx
 !sourcedata/External_data_dataset1_4096Hz.csv
 !sourcedata/External_data_dataset2_2048Hz.csv
