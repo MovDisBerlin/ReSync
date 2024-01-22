@@ -27,7 +27,7 @@ This repo is structured as follows:
 ├── LICENSE.txt
 ├── README.md
 └── setup.py
-
+```
 
 ```environment.yml``` contains all the packages and their version needed to run the ReSync algorithm.
 ```main``` and ```main_batch``` are the two main scripts that can be used to synchronize recordings:
