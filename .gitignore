@@ -7,6 +7,15 @@ results/*
 !rawdata/README.md
 !sourcedata/README.md
 !derivatives/README.md
+!sourcedata/recording_information.xlsx
+!sourcedata/External_data_dataset1_4096Hz.csv
+!sourcedata/External_data_dataset2_2048Hz.csv
+!sourcedata/Intracerebral_LFP_dataset1_250Hz.csv
+!sourcedata/Intracerebral_LFP_dataset2_250Hz.csv
+
+# Ignore notebooks
+*.ipynb
+
 # results/
 
 # Mac Stuff
