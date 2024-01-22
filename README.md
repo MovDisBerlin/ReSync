@@ -46,7 +46,6 @@ These instructions will get you a copy of the project up and running on your loc
     - to check initiated remote-repo link, and current branch: ```cd ReSync```, ```git init```, ```git remote -v```, ```git branch``` (switch to branch main e.g. with git checkout main)
 
 #### Environment
-* GUI: Create a python environment with the correct requirements. Either use the GUI of a environments-manager (such as anaconda), and install all dependencies mentioned in the env_requirements.txt.
 * Anaconda prompt: you can easily install the required environment from your Anaconda prompt:
     - navigate to repo directory, e.g.: ```cd Users/USERNAME/Research/ReSync```
     - ```conda env create –f environment.yml``` (Confirm Proceed? with ```y```)
