@@ -12,7 +12,8 @@ results/*
 !sourcedata/Intracerebral_LFP_dataset2_250Hz.csv
 
 # Ignore notebooks
-scripts/*.ipynb
+scripts/ReSync.ipynb
+scripts/Random_signal.ipynb
 
 # results/
 
