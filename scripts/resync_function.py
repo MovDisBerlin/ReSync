@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 from scipy.io import savemat
+from pybv import write_brainvision
 
 #import custom-made functions
 from utils import (_convert_index_to_time, _filtering, _get_input_y_n, 
@@ -78,8 +79,8 @@ def run_resync(
     """
 
 
-    assert saving_format in ['csv','mat','pickle'], 'saving_format incorrect.' \
-    'Choose in: .csv, .mat, .pickle'
+    assert saving_format in ['csv','mat','pickle','brainvision'], 'saving_format incorrect.' \
+    'Choose in: csv, mat, pickle, brainvision'
 
 
     # Generate timescales:
@@ -518,6 +519,21 @@ def run_resync(
                                         'fsample': sf_external, 
                                         'label': np.array(external_df_offset.columns.tolist(), 
                                                           dtype=object).reshape(-1,1)})
+            
+        if saving_format == 'brainvision':
+            LFP_array_offset = LFP_df_offset.T.to_numpy()
+            LFP_filename = ('Intracerebral_LFP_' + str(session_ID))
+            write_brainvision(data=LFP_array_offset, sfreq=sf_LFP, 
+                              ch_names=LFP_rec_ch_names, 
+                              fname_base= LFP_filename,
+                              folder_out=saving_path, overwrite=True)
+            external_array_offset = external_df_offset.T.to_numpy()
+            external_filename = ('External_data_' + str(session_ID))
+            write_brainvision(data=external_array_offset, sfreq=sf_external, 
+                              ch_names=external_rec_ch_names, 
+                              fname_base= external_filename,
+                              folder_out=saving_path, overwrite=True)
+
 
         print('Alignment performed, both recordings were cropped and saved 1s before first artifact !')
 
@@ -542,8 +558,17 @@ def run_resync(
                                         'fsample': sf_external, 
                                         'label': np.array(external_df_offset.columns.tolist(), 
                                                           dtype=object).reshape(-1,1)})
+            
+        if saving_format == 'brainvision':
+            external_array_offset = external_df_offset.T.to_numpy()
+            external_filename = ('External_data_' + str(session_ID))
+            write_brainvision(data=external_array_offset, sfreq=sf_external, 
+                              ch_names=external_rec_ch_names, 
+                              fname_base= external_filename,
+                              folder_out=saving_path, overwrite=True)
 
-        print('Alignment performed, only external recording as been cropped to match LFP recording !')
+        print('Alignment performed, only external recording as been cropped '
+              'to match LFP recording !')
 
 
     return LFP_df_offset, external_df_offset

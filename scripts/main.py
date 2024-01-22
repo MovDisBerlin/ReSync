@@ -54,15 +54,15 @@ from resync_function import run_resync
 from packet_loss import check_packet_loss
 
 def main(
-	session_ID='test', 
-	fname_lfp='Intracerebral_LFP_sub024 24MFU M1S0 test randomized_250Hz.csv', 
+	session_ID='test_brainvision', 
+	fname_lfp='Intracerebral_LFP_dataset1_250Hz.csv', 
 	ch_idx_lfp=0,
-	fname_external='External_data_sub024 24MFU M1S0 test randomized_4096Hz.csv',
+	fname_external='External_data_dataset1_4096Hz.csv',
 	BIP_ch_name = 'BIP 01', 
-	saving_format = 'csv',
+	saving_format = 'brainvision',
 	json_filename = None,
-	CROP_BOTH=False,
-	CHECK_FOR_TIMESHIFT=True,
+	CROP_BOTH=True,
+	CHECK_FOR_TIMESHIFT=False,
 	CHECK_FOR_PACKET_LOSS=False,
 	SHOW_FIGURES=True
 	):
