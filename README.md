@@ -33,6 +33,7 @@ This repo is structured as follows:
 ```main``` and ```main_batch``` are the two main scripts that can be used to synchronize recordings:
 * ```main``` is used to synchronize only two recordings from one session.
 * ```main_batch``` can be used to automatize the synchronization of multiple sessions. To use ```main_batch```, the file recording_information.xlsx present in the sourcedata folder must be completed previously.
+
 ```sourcedata``` contains 2 example datasets to try the toolbox and have a look at the output: each dataset contains one intracerebral channel and one external channel, both with stimulation artifacts. NOTE: These example datasets were generated and saved as .csv files. Expected datasets from real recordings are usually .mat for intracerebral recordings and .Poly5 for external recordings. 
 To obtain these formats:
 *we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
