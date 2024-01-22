@@ -36,8 +36,8 @@ This repo is structured as follows:
 
 ```sourcedata``` contains 2 example datasets to try the toolbox and have a look at the output: each dataset contains one intracerebral channel and one external channel, both with stimulation artifacts. NOTE: These example datasets were generated and saved as .csv files. Expected datasets from real recordings are usually .mat for intracerebral recordings and .Poly5 for external recordings. 
 To obtain these formats:
-*we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
-*we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain .mat files. To do so, there are two possibilities:
+* we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
+* we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain .mat files. To do so, there are two possibilities:
     - the open source “Perceive” toolbox (https://github.com/neuromodulation/perceive) for MATLAB
     - COMING SOON: the open source "DBScope" toolbox (https://github.com/NCN-Lab/DBScope) for MATLAB
 
