@@ -16,4 +16,5 @@ dependencies:
     - pymatreader
     - mne
     - pyedflib
+    - pybv
     - -e .
