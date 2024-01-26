@@ -44,7 +44,7 @@ def interaction(
     pos = [] 
 
     fig, ax = plt.subplots()
-    ax.scatter(timescale, data, s=5, c='plum')
+    ax.scatter(timescale, data, s=8, c='plum')
     ax.set_title('Click on the plot to select the sample \n' 
                  'where the artifact starts. You can use the zoom,\n'
                  'as long as the last click before answering y \n'
