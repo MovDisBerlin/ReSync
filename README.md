@@ -57,6 +57,12 @@ These instructions will get you a copy of the project up and running on your loc
     - ```conda env create –f environment.yml``` (Confirm Proceed? with ```y```)
     - ```conda activate resync```
     - ```git init```
+ 
+* If for some reason this method is not working, try these lines in the Anaconda Prompt (it can happen for Mac users):
+    - navigate to repo directory, e.g.: ```cd Users/USERNAME/Research/ReSync```
+    - ```conda create --name resync python==3.10.9 pandas==1.5.3 scipy==1.10.0 numpy==1.23.5 openpyxl==3.0.10 jupyter==1.0.0```
+    - ```conda activate resync```
+    - ```pip install mne==1.3.0 pymatreader matplotlib==3.6.3 pybv```
 
 
 ## User Instructions:
