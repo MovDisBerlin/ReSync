@@ -233,11 +233,10 @@ def plot_LFP_external(
              color='darkcyan',zorder=1, linewidth=0.1
              )
     ax2.set_ylabel('External bipolar channel (mV)')
-    fig.savefig(saving_path 
-                + '\\Fig8-Intracerebral and external recordings aligned.png',
-                bbox_inches='tight'
-                )
-    if SHOW_FIGURES: plt.show()
+    fig.savefig(join(saving_path,
+                     ('Fig8-Intracerebral and external recordings aligned.png')),
+                     bbox_inches='tight')
+    if SHOW_FIGURES: plt.show(block=False)
     else: plt.close()
 
 
