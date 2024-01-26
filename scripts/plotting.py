@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import mne
-
+from os.path import join
 
 def plot_LFP_artifact_channel(
     sub: str,
@@ -39,11 +39,8 @@ def plot_LFP_artifact_channel(
     plt.ylabel('Intracerebral LFP channel (µV)')
 
     if saving_folder:
-        plt.savefig(
-            savingpath 
-            + '\\Fig1-Intracerebral channel raw plot.png',
-            bbox_inches='tight'
-        )
+        plt.savefig((join(savingpath, 'Fig1-Intracerebral channel raw plot.png')),
+            bbox_inches='tight')
 
 
 
@@ -83,11 +80,9 @@ def plot_BIP_artifact_channel(
     plt.ylabel('External bipolar channel - voltage (mV)')
 
     if saving_folder:
-        plt.savefig(
-            savingpath 
-            + '\\Fig2-External bipolar channel raw plot.png',
-            bbox_inches='tight'
-        )
+        plt.savefig((join(savingpath, 
+                          'Fig2-External bipolar channel raw plot.png')),
+                           bbox_inches='tight')
 
 
 
@@ -145,11 +140,8 @@ def plot_LFP_stim(
     fig.tight_layout()
 
     if saving_folder:
-        plt.savefig(
-            savingpath 
-            + '\\LFP and stim bilateral - raw plot.png',
-            bbox_inches='tight'
-        )
+        plt.savefig((join(savingpath, 'LFP and stim bilateral - raw plot.png')),
+            bbox_inches='tight')
     return plt.gcf()
 
 
@@ -310,7 +302,7 @@ def ecg(
     ax2.plot(external_timescale_offset_s, filtered_external_offset, 
              color='darkcyan', zorder=1, linewidth=1
              ) 
-    fig.savefig(saving_path + '\\Fig_ECG.png', bbox_inches='tight')
+    fig.savefig((join(saving_path, 'Fig_ECG.png')), bbox_inches='tight')
     if SHOW_FIGURES: plt.show()
     else: plt.close()
 

@@ -2,6 +2,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+from os.path import join
 import pickle
 from scipy.io import savemat
 from pybv import write_brainvision
@@ -152,11 +153,8 @@ def run_resync(
             alpha=.3
         )
     plt.gcf()
-    plt.savefig(
-        saving_path 
-        + '\\Fig3-External bipolar channel with artifacts detected.png',
-        bbox_inches='tight'
-    )
+    filename = 'Fig3-External bipolar channel with artifacts detected.png'
+    plt.savefig(join(saving_path,filename), bbox_inches='tight')
     if SHOW_FIGURES: 
         plt.show(block=False)
     else: 
@@ -184,12 +182,12 @@ def run_resync(
             alpha=.3
         )
     plt.gcf()
+    filename = 'Fig4-External bipolar channel - first artifact detected.png'
     plt.savefig(
-        saving_path 
-        + '\\Fig4-External bipolar channel - first artifact detected.png',
+        join(saving_path,filename),
         bbox_inches='tight'
     )   
-    if SHOW_FIGURES: 
+    if SHOW_FIGURES:
         plt.show(block=False)
     else: 
         plt.close()
@@ -230,13 +228,10 @@ def run_resync(
             alpha=.3
         )
     plt.gcf()
-    plt.savefig(
-        saving_path 
-        + '\\Fig5-Intracerebral channel with artifacts detected - kernel ' 
-        + str(kernel) 
-        + '.png',
-        bbox_inches='tight'
-    )
+    filename = ('Fig5-Intracerebral channel with artifacts detected - kernel ' 
+                + str(kernel) 
+                + '.png')
+    plt.savefig(join(saving_path, filename), bbox_inches='tight')
     if SHOW_FIGURES: 
         plt.show(block=False)
     else: 
@@ -264,12 +259,10 @@ def run_resync(
             alpha=.3
         )
     plt.gcf()
-    plt.savefig(saving_path 
-                + '\\Fig6-Intracerebral channel - first artifact detected - kernel ' 
+    filename = ('Fig6-Intracerebral channel - first artifact detected - kernel ' 
                 + str(kernel) 
-                + '.png', 
-                bbox_inches='tight'
-    )
+                + '.png')
+    plt.savefig(join(saving_path,filename), bbox_inches='tight')
     if SHOW_FIGURES: 
         plt.show(block=False)
     else: 
@@ -317,13 +310,10 @@ def run_resync(
                 alpha=.3
             )
         plt.gcf()
-        plt.savefig(
-            saving_path 
-            + '\\Fig5-Intracerebral channel with artifacts detected - kernel ' 
+        filename = ('Fig5-Intracerebral channel with artifacts detected - kernel ' 
             + str(kernel) 
-            + '.png',
-            bbox_inches='tight'
-        )
+            + '.png')
+        plt.savefig(join(saving_path, filename), bbox_inches='tight')
         if SHOW_FIGURES: 
             plt.show(block=False)
         else: 
@@ -351,12 +341,10 @@ def run_resync(
                 alpha=.3
             )
         plt.gcf()
-        plt.savefig(saving_path 
-                    + '\\Fig6-Intracerebral channel - first artifact detected - kernel ' 
+        filename = ('Fig6-Intracerebral channel - first artifact detected - kernel ' 
                     + str(kernel) 
-                    + '.png', 
-                    bbox_inches='tight'
-        )
+                    + '.png')
+        plt.savefig(join(saving_path, filename), bbox_inches='tight')
         if SHOW_FIGURES: 
             plt.show(block=False)
         else: 
@@ -442,13 +430,10 @@ def run_resync(
             )
 
             plt.gcf()
-            plt.savefig(
-                saving_path 
-                + '\\Fig5-Intracerebral channel - first artifact detected with correction by user - kernel ' 
+            filename = ('Fig5-Intracerebral channel - first artifact detected with correction by user - kernel ' 
                 + str(kernel) 
-                + '.png', 
-                bbox_inches='tight'
-            )
+                + '.png')
+            plt.savefig(join(saving_path, filename), bbox_inches='tight')
             if SHOW_FIGURES: 
                 plt.show(block=False)
             else: 
@@ -488,19 +473,19 @@ def run_resync(
         if saving_format == 'csv':
             LFP_df_offset['sf_LFP'] = sf_LFP
             external_df_offset['sf_external'] = sf_external
-            LFP_df_offset.to_csv(saving_path + '\\Intracerebral_LFP_' 
+            LFP_df_offset.to_csv(join(saving_path, ('Intracerebral_LFP_' 
                                  + str(session_ID) 
-                                 + '.csv', index=False) 
-            external_df_offset.to_csv(saving_path + '\\External_data_' 
-                                      + str(session_ID) + '.csv', index=False)
+                                 + '.csv')), index=False) 
+            external_df_offset.to_csv(join(saving_path, ('External_data_' 
+                                      + str(session_ID) + '.csv')), index=False)
 
         if saving_format == 'pickle':
             LFP_df_offset['sf_LFP'] = sf_LFP
             external_df_offset['sf_external'] = sf_external
-            LFP_filename = (saving_path + '\\Intracerebral_LFP_' 
-                            + str(session_ID) + '.pkl')
-            external_filename = (saving_path + '\\External_data_' 
-                                 + str(session_ID) + '.pkl')
+            LFP_filename = join(saving_path, ('Intracerebral_LFP_' 
+                            + str(session_ID) + '.pkl'))
+            external_filename = join(saving_path, ('External_data_' 
+                                 + str(session_ID) + '.pkl'))
             # Save the dataset to a pickle file
             with open(LFP_filename, 'wb') as file:
                 pickle.dump(LFP_df_offset, file)
@@ -508,10 +493,10 @@ def run_resync(
                 pickle.dump(external_df_offset, file)            
 
         if saving_format == 'mat':
-            LFP_filename = (saving_path + '\\Intracerebral_LFP_' 
-                            + str(session_ID) + '.mat')
-            external_filename = (saving_path + '\\External_data_' 
-                                 + str(session_ID) + '.mat')
+            LFP_filename = join(saving_path, ('Intracerebral_LFP_' 
+                            + str(session_ID) + '.mat'))
+            external_filename = join(saving_path, ('External_data_' 
+                                 + str(session_ID) + '.mat'))
             savemat(LFP_filename, {'data': LFP_df_offset.T,'fsample': sf_LFP, 
                                    'label': np.array(LFP_df_offset.columns.tolist(), 
                                                      dtype=object).reshape(-1,1)})
@@ -540,20 +525,20 @@ def run_resync(
     else:
         if saving_format == 'csv':
             external_df_offset['sf_external'] = sf_external
-            external_df_offset.to_csv(saving_path + '\\External_data_' 
-                                      + str(session_ID) + '.csv', index=False)
+            external_df_offset.to_csv(join(saving_path, ('External_data_' 
+                                      + str(session_ID) + '.csv')), index=False)
 
         if saving_format == 'pickle':
             external_df_offset['sf_external'] = sf_external
-            external_filename = (saving_path + '\\External_data_' 
-                                 + str(session_ID) + '.pkl')
+            external_filename = join(saving_path, ('External_data_' 
+                                 + str(session_ID) + '.pkl'))
             # Save the dataset to a pickle file
             with open(external_filename, 'wb') as file:
                 pickle.dump(external_df_offset, file)            
 
         if saving_format == 'mat':
-            external_filename = (saving_path + '\\External_data_' 
-                                 + str(session_ID) + '.mat')
+            external_filename = join(saving_path, ('External_data_' 
+                                 + str(session_ID) + '.mat'))
             savemat(external_filename, {'data': external_df_offset.T, 
                                         'fsample': sf_external, 
                                         'label': np.array(external_df_offset.columns.tolist(), 

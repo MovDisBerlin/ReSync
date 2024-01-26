@@ -54,7 +54,7 @@ from resync_function import run_resync
 from packet_loss import check_packet_loss
 
 def main(
-	session_ID='test_brainvision', 
+	session_ID='test_brainvision_test_saving', 
 	fname_lfp='Intracerebral_LFP_dataset1_250Hz.csv', 
 	ch_idx_lfp=0,
 	fname_external='External_data_dataset1_4096Hz.csv',
