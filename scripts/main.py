@@ -120,8 +120,7 @@ def main(
 												)
 	plot_LFP_external(session_ID, LFP_df_offset, external_df_offset, sf_LFP, 
 				   sf_external, ch_idx_lfp, ch_index_external, saving_path, 
-				   SHOW_FIGURES
-				   )
+				   SHOW_FIGURES, block = False)
 
 	#  OPTIONAL : check timeshift:
 	if CHECK_FOR_TIMESHIFT:
