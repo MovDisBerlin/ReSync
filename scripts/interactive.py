@@ -5,7 +5,7 @@ from utils import _get_input_y_n
 
 def select_sample(
         signal: np.ndarray, 
-        sf:int
+        sf: int
         ):
     
     """
@@ -16,7 +16,7 @@ def select_sample(
     """
 
     signal_timescale_s = np.arange(0, (len(signal)/sf), (1/sf))
-    selected_x = interaction(signal_timescale_s, signal)
+    selected_x = interaction(signal, signal_timescale_s)
 
     # Find the index of the closest value
     closest_index = np.argmin(np.abs(signal_timescale_s - selected_x))
@@ -30,8 +30,8 @@ def select_sample(
 
 
 def interaction(
-        timescale: np.ndarray, 
-        data: np.ndarray
+        data: np.ndarray,
+        timescale: np.ndarray
         ):
     
     """
@@ -44,15 +44,26 @@ def interaction(
     pos = [] 
 
     fig, ax = plt.subplots()
-    ax.scatter(timescale, data, s=8, c='plum')
+    ax.scatter(timescale, data, s=8, c='darkorchid')
     ax.set_title('Click on the plot to select the sample \n' 
-                 'where the artifact starts. You can use the zoom,\n'
-                 'as long as the last click before answering y \n'
-                 'is performed on the proper sample')
+                 'where the artifact starts. You can use the zoom, \n'
+                 'as long as the black "+" is placed on the correct sample \n'
+                 'before answering "y" in the terminal')
 
+    plus_symbol, = ax.plot([], [], 'k+', markersize=10)
 
     def onclick(event):
-        pos.append([event.xdata,event.ydata])
+        #pos.append([event.xdata,event.ydata])
+        if event.xdata is not None and event.ydata is not None:
+            pos.append([event.xdata, event.ydata])
+            
+            # Update the position of the black "+" symbol
+            closest_index_x = np.argmin(np.abs(timescale - event.xdata))
+            closest_value_x = timescale[closest_index_x]
+            #closest_index_y = np.argmin(np.abs(data - event.ydata))
+            closest_value_y = data[closest_index_x]
+            plus_symbol.set_data(closest_value_x, closest_value_y)
+            plt.draw()
             
     fig.canvas.mpl_connect('button_press_event', onclick)
 

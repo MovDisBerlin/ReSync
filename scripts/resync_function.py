@@ -394,9 +394,9 @@ def run_resync(
 
 
     else: 
-        print(f'Automatic detection of intracranial artifacts failed, use manual method./n'
-              'In the pop up window, zoom on the first artifact until you can select properly /n'
-              'the last sample before the deflexion, click on it and close the window.')
+        print(f'Automatic detection of intracranial artifacts failed, use manual method. \n'
+              f'In the pop up window, zoom on the first artifact until you can select properly'
+              f'the last sample before the deflexion, click on it and close the window.')
         closest_value_lfp = select_sample(lfp_sig, sf_LFP)
         # calculate sample_shift: 
         sample_shift = int(abs(closest_value_lfp-art_time_LFP[0])*sf_LFP)
