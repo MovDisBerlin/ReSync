@@ -48,7 +48,7 @@ def find_external_sync_artifact(
     deflection instead, then the signal has to be inverted before detecting 
     artifacts.
     '''
-    if abs(max(data)) > abs(min(data)):
+    if abs(max(data[:-1000])) > abs(min(data[:-1000])):
         print('external signal is reversed')
         data = data * -1
 
@@ -66,11 +66,11 @@ def find_external_sync_artifact(
                 index_artifact_start_external.append(q)
                 stimON = True
                 q = q + 1
-            #elif q < 0.2*sf_external:
-                #print ('External recording started with stim already ON. 
-                #Ignoring first artifact')
-                #stimON = True
-                #q = q + 1
+            elif q < 0.2*sf_external:
+                print (f'External recording started with stim already ON.' \
+                f'Ignoring first artifact')
+                stimON = True
+                q = q + 1
         if (stimON
                 and (data[q] <= thresh_BIP) 
                 and (data[q] < data[q + 1]) 
