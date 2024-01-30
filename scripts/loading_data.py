@@ -7,7 +7,7 @@ from utils import _update_and_save_params
 
 #### LFP DATASET ####
 
-def _load_sourceJSON(json_filename: str):
+def load_sourceJSON(json_filename: str, source_path):
 
     """
     Reads source JSON file  
@@ -20,19 +20,17 @@ def _load_sourceJSON(json_filename: str):
 
     """
 
-    # find the path to the folder of a subject
-    source_path = "sourcedata"
-
     with open(join(source_path, json_filename), 'r') as f:
         json_object = json.loads(f.read())
 
     return json_object
 
 
-def _load_mat_file(
+def load_mat_file(
 		sub_ID: str, 
 		filename: str, 
-		saving_path: str):
+		saving_path: str,
+		source_path):
     """"
     Reads .mat-file in FieldTrip structure using mne-function
     
@@ -50,30 +48,26 @@ def _load_mat_file(
         f'filename no .mat INCORRECT extension: {filename}'
     )
 
-    # find the path to the raw_perceive folder of a subject
-    source_path = "sourcedata"
-
     _update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
     _update_and_save_params('FNAME_LFP', filename, sub_ID, saving_path)
 
 
     data = read_raw_fieldtrip(
         join(source_path, filename),
-        info={}, # add info here
-        data_name='data',  # name of heading dict/ variable of original MATLAB object
+        info={},
+        data_name='data',  
 		)
     
     return data
 
 
-def _load_intracranial_csv_file(
+def load_intracranial_csv_file(
 		sub_ID: str, 
 		filename: str, 
 		ch_idx_lfp: int, 
-		saving_path: str
+		saving_path: str,
+		source_path
 		):
-	
-	source_path = "sourcedata"
 
 	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
 	_update_and_save_params('FNAME_LFP', filename, sub_ID, saving_path)
@@ -92,54 +86,57 @@ def _load_intracranial_csv_file(
 
 	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
 	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, 
-						 saving_path)
+						saving_path)
 	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, 
 						 saving_path)
 	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	
 	
+	#return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 
 
 
-def _load_external_csv_file(
+def load_external_csv_file(
 		sub_ID: str, 
 		filename: str, 
 		BIP_ch_name: str, 
-		saving_path: str
+		saving_path: str,
+		source_path
 		):
 	
-	source_path = "sourcedata"
 	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
 	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
 	sf_external = int(filename[filename.find('Hz')-4:filename.find('Hz')])
 	# load a csv file :
 	dataset_external = pd.read_csv(join(source_path, filename))
-	external_file = dataset_external.to_numpy()
-	external_file = external_file.transpose()
-	external_rec_ch_names = list(dataset_external.columns)
-	ch_index_external = external_rec_ch_names.index(BIP_ch_name)
-	BIP_channel = external_file[ch_index_external,:]
 
-	time_duration_TMSi_s = (len(BIP_channel)/sf_external)
+	#external_file = dataset_external.to_numpy()
+	#external_file = external_file.transpose()
+	external_rec_ch_names = list(dataset_external.columns)
+
+	ch_index_external = external_rec_ch_names.index(BIP_ch_name)
+	#BIP_channel = external_file[ch_index_external,:]
+	BIP_channel = dataset_external[:,ch_index_external]
+
+	time_duration_external_s = (len(BIP_channel)/sf_external)
 
 	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
 	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, 
 						 sub_ID, saving_path)	
-	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, 
+	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_external_s, 
 						 sub_ID, saving_path)
 	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
 	_update_and_save_params('CH_IDX_EXTERNAL', ch_index_external, sub_ID, 
 						 saving_path)
 
-	return (BIP_channel, external_file, external_rec_ch_names, sf_external, 
+	return (BIP_channel, dataset_external, external_rec_ch_names, sf_external, 
 		 ch_index_external)
 
 
 
       
-
 # extract variables from LFP recording:
-def _load_data_lfp(
+def load_data_lfp(
 		sub_ID: str, 
 		dataset_lfp, 
 		ch_idx_lfp, 
@@ -169,7 +166,7 @@ def _load_data_lfp(
 
 #### External data recorder dataset ####
 
-def _load_TMSi_artifact_channel(
+def load_TMSi_artifact_channel(
 	sub_ID: str,
     TMSi_data,
 	fname_external: str,
