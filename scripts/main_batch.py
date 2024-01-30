@@ -29,9 +29,14 @@ import os
 import pandas as pd
 from os.path import join
 
-from loading_data import (_load_mat_file, _load_data_lfp, 
-                          _load_TMSi_artifact_channel, _load_sourceJSON, 
-                          _load_intracranial_csv_file, _load_external_csv_file)
+from loading_data import (
+    load_mat_file, 
+    load_data_lfp, 
+    load_TMSi_artifact_channel, 
+    load_sourceJSON, 
+    load_intracranial_csv_file, 
+    load_external_csv_file
+    )
 from plotting import plot_LFP_external, ecg
 from timeshift import check_timeshift
 from utils import _update_and_save_params
@@ -96,17 +101,19 @@ def main_batch(
         #  Loading datasets
             ##  Intracranial data
         if fname_lfp.endswith('.mat'):
-            dataset_lfp= _load_mat_file(session_ID, fname_lfp, saving_path)
+            dataset_lfp = load_mat_file(session_ID, fname_lfp, saving_path, 
+                                       source_path)
             (LFP_array, lfp_sig, 
-             LFP_rec_ch_names, sf_LFP) = _load_data_lfp(session_ID, dataset_lfp, 
+             LFP_rec_ch_names, sf_LFP) = load_data_lfp(session_ID, dataset_lfp, 
                                                         ch_idx_lfp, saving_path
                                                         )
         if fname_lfp.endswith('.csv'):
             (LFP_array, lfp_sig, 
-             LFP_rec_ch_names, sf_LFP) =_load_intracranial_csv_file(session_ID, 
+             LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(session_ID, 
                                                                     fname_lfp, 
                                                                     ch_idx_lfp, 
-                                                                    saving_path
+                                                                    saving_path,
+                                                                    source_path
                                                                     )
 
 
@@ -115,7 +122,7 @@ def main_batch(
             TMSi_data = Poly5Reader(join(source_path, fname_external)) 
             (BIP_channel, external_file, 
              external_rec_ch_names, sf_external, 
-             ch_index_external)= _load_TMSi_artifact_channel(session_ID, 
+             ch_index_external) = load_TMSi_artifact_channel(session_ID, 
                                                              TMSi_data,
                                                              fname_external, 
                                                              BIP_ch_name, 
@@ -124,10 +131,11 @@ def main_batch(
         if fname_external.endswith('.csv'):
             (BIP_channel, external_file, 
              external_rec_ch_names, sf_external, 
-             ch_index_external) = _load_external_csv_file(session_ID, 
+             ch_index_external) = load_external_csv_file(session_ID, 
                                                           fname_external, 
                                                           BIP_ch_name, 
-                                                          saving_path
+                                                          saving_path,
+                                                          source_path
                                                           )
 
         
@@ -146,8 +154,7 @@ def main_batch(
                                                          )
         plot_LFP_external(session_ID, LFP_df_offset, external_df_offset, sf_LFP,
                            sf_external, ch_idx_lfp, ch_index_external, 
-                           saving_path, SHOW_FIGURES
-                           )
+                           saving_path, SHOW_FIGURES)
 
         #  OPTIONAL
         if CHECK_FOR_TIMESHIFT:
@@ -162,12 +169,12 @@ def main_batch(
             _update_and_save_params('JSON_FILE', fname_json, session_ID, 
                                     saving_path
                                     )
-            json_object = _load_sourceJSON(fname_json)
+            json_object = load_sourceJSON(fname_json, source_path)
             check_packet_loss(json_object)
 
         # OPTIONAL : plot cardiac artifact:
-        ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external,
-             saving_path, xmin= 0, xmax= 1.2, SHOW_FIGURES=True)
+        #ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, sf_external,
+             #saving_path, xmin= 0, xmax= 1.2, SHOW_FIGURES=True)
 
 
 
