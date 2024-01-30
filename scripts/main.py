@@ -43,9 +43,14 @@ session_ID parameter.
 import os
 from os.path import join
 
-from loading_data import (_load_mat_file, _load_data_lfp, 
-						  _load_TMSi_artifact_channel, _load_sourceJSON, 
-						  _load_intracranial_csv_file, _load_external_csv_file)
+from loading_data import (
+	load_mat_file, 
+	load_data_lfp, 
+	load_TMSi_artifact_channel, 
+	load_sourceJSON, 
+	load_intracranial_csv_file, 
+	load_external_csv_file
+	)
 from plotting import plot_LFP_external, ecg
 from timeshift import check_timeshift
 from utils import _update_and_save_params
@@ -76,36 +81,50 @@ def main(
 	source_path = "sourcedata"
 
 	#  Loading datasets
-		##  LFP (here Percept datas preprocessed with Perceive toolbox)
+		##  Intracranial LFP (here Percept datas)
+	# the resync function needs 4 information about the intracranial recording:
+	# 1. the intracranial recording itself, containing all the recorded channels (LFP_array)
+	# 2. the intracranial recording, but only the channel containing the stimulation artifacts (lfp_sig)
+	# 3. the names of all the channels recorded intracerebrally (LFP_rec_ch_names)
+	# 4. the sampling frequency of the intracranial recording (sf_LFP)
 	if fname_lfp.endswith('.mat'):
-		dataset_lfp= _load_mat_file(session_ID, fname_lfp, saving_path)
+		dataset_lfp= load_mat_file(session_ID, fname_lfp, saving_path, 
+							 source_path)
 		(LFP_array, lfp_sig, 
-   		LFP_rec_ch_names, sf_LFP) = _load_data_lfp(session_ID, dataset_lfp, 
+   		LFP_rec_ch_names, sf_LFP) = load_data_lfp(session_ID, dataset_lfp, 
 												ch_idx_lfp, saving_path
 												)
 	if fname_lfp.endswith('.csv'):
 		(LFP_array, lfp_sig, 
-   		LFP_rec_ch_names, sf_LFP) = _load_intracranial_csv_file(session_ID, 
+   		LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(session_ID, 
 															 fname_lfp,
 															 ch_idx_lfp,
-															 saving_path
+															 saving_path,
+															 source_path
 															 )
 
 
 		##  External data recorder
+	# the resync function needs 5 information about the external recording:
+	# 1. the external recording itself, containing all the recorded channels (external_file)
+	# 2. the channel containing the stimulation artifacts (BIP_channel)
+	# 3. the names of all the channels recorded externally (external_rec_ch_names)
+	# 4. the sampling frequency of the external recording (sf_external)
+	# 5. the index of the bipolar channel in the external recording (ch_index_external)
 	if fname_external.endswith('.Poly5'):
 		TMSi_data = Poly5Reader(join(source_path, fname_external)) 
-		(BIP_channel, external_file, external_rec_ch_names, sf_external, 
-   		ch_index_external)= _load_TMSi_artifact_channel(session_ID, TMSi_data, 
+		(external_file, BIP_channel, external_rec_ch_names, sf_external, 
+   		ch_index_external) = load_TMSi_artifact_channel(session_ID, TMSi_data, 
 													 fname_external, 
 													 BIP_ch_name, saving_path
 													 )
 	if fname_external.endswith('.csv'):
-		(BIP_channel, external_file, external_rec_ch_names, 
-   		sf_external, ch_index_external) = _load_external_csv_file(session_ID, 
+		(external_file, BIP_channel, external_file, external_rec_ch_names, 
+   		sf_external, ch_index_external) = load_external_csv_file(session_ID, 
 															   fname_external, 
 															   BIP_ch_name, 
-															   saving_path
+															   saving_path,
+															   source_path
 															   )
 
 	#  Sync recording sessions
@@ -134,7 +153,7 @@ def main(
 		_update_and_save_params('JSON_FILE', json_filename, session_ID, 
 						  saving_path
 						  )
-		json_object = _load_sourceJSON(json_filename)
+		json_object = load_sourceJSON(json_filename, source_path)
 		check_packet_loss(json_object)
 
 	# OPTIONAL : plot cardiac artifact:
