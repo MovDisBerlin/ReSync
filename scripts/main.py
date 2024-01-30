@@ -53,9 +53,9 @@ from loading_data import (
 	)
 from plotting import plot_LFP_external, ecg
 from timeshift import check_timeshift
-from utils import _update_and_save_params
+from utils import _update_and_save_params, _get_input_y_n
 from tmsi_poly5reader import Poly5Reader
-from resync_function import run_resync
+from resync_function import detect_artifacts_in_recordings, synchronize_recordings, save_synchronized_recordings
 from packet_loss import check_packet_loss
 
 def main(
@@ -80,7 +80,8 @@ def main(
 	#  Set source path
 	source_path = "sourcedata"
 
-	#  Loading datasets
+	#  1. LOADING DATASETS
+
 		##  Intracranial LFP (here Percept datas)
 	# the resync function needs 4 information about the intracranial recording:
 	# 1. the intracranial recording itself, containing all the recorded channels (LFP_array)
@@ -119,7 +120,7 @@ def main(
 													 BIP_ch_name, saving_path
 													 )
 	if fname_external.endswith('.csv'):
-		(external_file, BIP_channel, external_file, external_rec_ch_names, 
+		(external_file, BIP_channel, external_rec_ch_names, 
    		sf_external, ch_index_external) = load_external_csv_file(session_ID, 
 															   fname_external, 
 															   BIP_ch_name, 
@@ -127,16 +128,54 @@ def main(
 															   source_path
 															   )
 
-	#  Sync recording sessions
-	LFP_df_offset, external_df_offset = run_resync(session_ID, LFP_array, 
-												lfp_sig, LFP_rec_ch_names, 
-												sf_LFP, external_file, 
-												BIP_channel, 
-												external_rec_ch_names, 
-												sf_external, saving_path, 
-												saving_format, CROP_BOTH, 
-												SHOW_FIGURES = True
-												)
+	#  2. FIND ARTIFACTS IN BOTH RECORDINGS:
+	kernels = ['2', '1', 'manual']
+	for kernel in kernels:
+		print('Running resync with kernel = {}...'.format(kernel))
+		art_start_LFP, art_start_BIP = detect_artifacts_in_recordings(session_ID, 
+																lfp_sig, sf_LFP, 
+																BIP_channel, 
+																sf_external, 
+																saving_path, 
+																kernel, 
+																SHOW_FIGURES = True)
+		artifact_correct = _get_input_y_n("Are artifacts properly selected ? ")
+		if artifact_correct == 'y':
+			_update_and_save_params('ART_TIME_LFP', art_start_LFP, 
+                                session_ID, saving_path)
+			_update_and_save_params('KERNEL', kernel, session_ID, saving_path)
+			_update_and_save_params('ART_TIME_BIP', art_start_BIP, 
+                                session_ID, saving_path)
+			break
+
+	# 3. SYNCHRONIZE RECORDINGS TOGETHER:
+	LFP_df_offset, external_df_offset = synchronize_recordings(LFP_array,
+															external_file,
+															art_start_LFP,
+															art_start_BIP,
+															LFP_rec_ch_names, 
+															external_rec_ch_names, 
+															sf_LFP,
+															sf_external,
+															CROP_BOTH)
+
+	# 4. SAVE SYNCHRONIZED RECORDINGS:
+	_update_and_save_params('SAVING_FORMAT', saving_format, session_ID, saving_path) 
+	save_synchronized_recordings(
+		session_ID,
+    	LFP_df_offset, 
+    	external_df_offset,
+    	LFP_rec_ch_names,
+    	external_rec_ch_names,
+    	sf_LFP,
+    	sf_external,
+    	saving_format,
+    	saving_path,
+    	CROP_BOTH
+		)
+
+
+	# 5. PLOT SYNCHRONIZED RECORDINGS:
 	plot_LFP_external(session_ID, LFP_df_offset, external_df_offset, sf_LFP, 
 				   sf_external, ch_idx_lfp, ch_index_external, saving_path, 
 				   SHOW_FIGURES)

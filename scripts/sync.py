@@ -1,11 +1,11 @@
 import pandas as pd    
 import numpy as np
 
-def crop_rec(
+def sync_by_cropping_both(
     LFP_array: np.ndarray,
     external_file: np.ndarray,
-    art_time_LFP: float,
-    art_time_BIP: float,
+    art_start_LFP,
+    art_start_BIP,
     LFP_rec_ch_names: list,
     external_rec_ch_names: list,
     sf_LFP,
@@ -44,12 +44,12 @@ def crop_rec(
 
     """
 
-    ## Intracerebral ##
-    # Crop beginning of LFP recording 1 second before first artifact:
+    ## Intracranial ##
+    # Crop beginning of LFP intracranial recording 1 second before first artifact:
     if real_art_time_LFP == 0:
-        time_start_LFP_0 = art_time_LFP[0]-1 # 1s before first artifact
+        time_start_LFP_0 = art_start_LFP-1 # 1s before first artifact
         index_start_LFP = time_start_LFP_0*(sf_LFP)
-    elif real_art_time_LFP != 0:
+    else:
         time_start_LFP_0 = real_art_time_LFP-1 # 1s before first artifact
         index_start_LFP = time_start_LFP_0*(sf_LFP)
 
@@ -61,12 +61,13 @@ def crop_rec(
     LFP_df_offset = LFP_df_transposed.truncate(before=index_start_LFP) 
     LFP_df_offset = LFP_df_offset.reset_index(drop=True) # reset indexes
 
+    #LFP_cropped = LFP_array[:, int(index_start_LFP):].T # crop LFP_array
 
     ## External ##
     # Crop beginning of external recordings 1s before first artifact:
 
     # find the index of the row corresponding to 1 second before first artifact
-    time_start_external = (art_time_BIP[0])-1
+    time_start_external = (art_start_BIP)-1
     index_start_external = time_start_external*sf_external
 
     external_df = pd.DataFrame(external_file) # convert np.ndarray to dataframe
@@ -108,8 +109,8 @@ def crop_rec(
 def align_external_on_LFP(
     LFP_array: np.ndarray,
     external_file: np.ndarray,
-    art_time_LFP: float,
-    art_time_BIP: float,
+    art_start_LFP,
+    art_start_BIP,
     external_rec_ch_names: list,
     sf_LFP: int,
     sf_external: int,
@@ -148,12 +149,12 @@ def align_external_on_LFP(
     """
 
     if real_art_time_LFP == 0:
-        time_start_LFP = art_time_LFP[0]
+        time_start_LFP = art_start_LFP
     elif real_art_time_LFP != 0:
         time_start_LFP = real_art_time_LFP
 
     # find the timestamp in the external recording corresponding to the start of LFP recording :
-    time_start_external = art_time_BIP[0] - time_start_LFP
+    time_start_external = art_start_BIP- time_start_LFP
     index_start_external = time_start_external*sf_external
 
     # Crop beginning of external recordings to match with the beginning of the LFP recording:

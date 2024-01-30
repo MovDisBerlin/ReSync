@@ -5,6 +5,9 @@ from matplotlib.pyplot import figure
 import mne
 from os.path import join
 
+import matplotlib
+matplotlib.use('Qt5Agg')
+
 def plot_LFP_artifact_channel(
     sub: str,
     timescale: np.ndarray,
