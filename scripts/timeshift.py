@@ -13,8 +13,7 @@ def check_timeshift(
         sf_LFP, 
         external_df_offset: pd.DataFrame, 
         sf_external, 
-        saving_path: str, 
-        SHOW_FIGURES: bool = True
+        saving_path: str
         ):
 
     """
@@ -114,9 +113,3 @@ def check_timeshift(
     fig.savefig(saving_path 
                 + '\\FigA-Timeshift_Intracerebral and external recordings aligned_last artifact.png', 
                 bbox_inches='tight', dpi=1200)
-
-    if SHOW_FIGURES: 
-        plt.show(block=False)
-    else: 
-        plt.close()
-

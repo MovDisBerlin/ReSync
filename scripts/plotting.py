@@ -196,8 +196,7 @@ def plot_LFP_external(
         sf_external: int, 
         ch_idx_lfp: int, 
         ch_index_external: int, 
-        saving_path: str, 
-        SHOW_FIGURES = True
+        saving_path: str
         ):
     
     # Reselect artifact channels in the aligned (= cropped) files
@@ -239,9 +238,7 @@ def plot_LFP_external(
     fig.savefig(join(saving_path,
                      ('Fig8-Intracerebral and external recordings aligned.png')),
                      bbox_inches='tight')
-    if SHOW_FIGURES: plt.show(block=False)
-    else: plt.close()
-
+    plt.show(block=False)
 
 
 import json
@@ -254,8 +251,7 @@ def ecg(
         sf_external: int,
         saving_path: str,
         xmin: float,
-        xmax: float,
-        SHOW_FIGURES=True
+        xmax: float
 ):
     """
     This function can be used to quickly plot the beginning of the signal
@@ -305,7 +301,5 @@ def ecg(
              color='darkcyan', zorder=1, linewidth=1
              ) 
     fig.savefig((join(saving_path, 'Fig_ECG.png')), bbox_inches='tight')
-    if SHOW_FIGURES: plt.show()
-    else: plt.close()
 
 

@@ -39,8 +39,7 @@ def detect_artifacts_in_recordings(
     BIP_channel: np.ndarray, 
     sf_external,
     saving_path: str,
-    kernel,
-    SHOW_FIGURES: bool = True
+    kernel
 ):
 
     """
@@ -147,10 +146,7 @@ def detect_artifacts_in_recordings(
     plt.gcf()
     filename = 'Fig3-External bipolar channel with artifacts detected.png'
     plt.savefig(join(saving_path,filename), bbox_inches='tight')
-    if SHOW_FIGURES: 
-        plt.show(block=False)
-    else: 
-        plt.close()
+    plt.show(block=False)
 
     # PLOT 4 : 
     # plot the first artifact detected in external channel (verification of sample choice):
@@ -179,10 +175,7 @@ def detect_artifacts_in_recordings(
         join(saving_path,filename),
         bbox_inches='tight'
     )   
-    if SHOW_FIGURES:
-        plt.show(block=False)
-    else: 
-        plt.close()
+    plt.show(block=False)
 
     art_start_BIP = art_time_BIP[0]
 
@@ -223,10 +216,7 @@ def detect_artifacts_in_recordings(
                     + str(kernel) 
                     + '.png')
         plt.savefig(join(saving_path, filename), bbox_inches='tight')
-        if SHOW_FIGURES: 
-            plt.show(block=False)
-        else: 
-            plt.close()
+        plt.show(block=False)
         
 
         # PLOT 6 : 
@@ -254,10 +244,7 @@ def detect_artifacts_in_recordings(
                     + str(kernel) 
                     + '.png')
         plt.savefig(join(saving_path,filename), bbox_inches='tight')
-        if SHOW_FIGURES: 
-            plt.show(block=False)
-        else: 
-            plt.close()
+        plt.show(block=False)
 
         art_start_LFP = art_time_LFP[0]
 
@@ -291,10 +278,7 @@ def detect_artifacts_in_recordings(
             + str(kernel) 
             + '.png')
         plt.savefig(join(saving_path, filename), bbox_inches='tight')
-        if SHOW_FIGURES: 
-            plt.show(block=False)
-        else: 
-            plt.close()
+        plt.show(block=False)
 
         art_start_LFP = closest_value_lfp
 

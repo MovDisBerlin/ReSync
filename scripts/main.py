@@ -137,8 +137,7 @@ def main(
 																BIP_channel, 
 																sf_external, 
 																saving_path, 
-																kernel, 
-																SHOW_FIGURES = True)
+																kernel)
 		artifact_correct = _get_input_y_n("Are artifacts properly selected ? ")
 		if artifact_correct == 'y':
 			_update_and_save_params('ART_TIME_LFP', art_start_LFP, 
@@ -177,15 +176,13 @@ def main(
 
 	# 5. PLOT SYNCHRONIZED RECORDINGS:
 	plot_LFP_external(session_ID, LFP_df_offset, external_df_offset, sf_LFP, 
-				   sf_external, ch_idx_lfp, ch_index_external, saving_path, 
-				   SHOW_FIGURES)
+				   sf_external, ch_idx_lfp, ch_index_external, saving_path)
 
 	#  OPTIONAL : check timeshift:
 	if CHECK_FOR_TIMESHIFT:
 		print('Starting timeshift analysis...')
 		check_timeshift(session_ID, LFP_df_offset, sf_LFP, external_df_offset, 
-				  sf_external, saving_path, SHOW_FIGURES
-				  )
+				  sf_external, saving_path, SHOW_FIGURES)
 
 	# OPTIONAL : check for packet loss:
 	if CHECK_FOR_PACKET_LOSS:
@@ -197,8 +194,7 @@ def main(
 
 	# OPTIONAL : plot cardiac artifact:
 	#ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, 
-		#sf_external, saving_path, xmin= 0.25, xmax= 0.36, SHOW_FIGURES=True
-		#)
+		#sf_external, saving_path, xmin= 0.25, xmax= 0.36)
 
 
 if __name__ == '__main__':
