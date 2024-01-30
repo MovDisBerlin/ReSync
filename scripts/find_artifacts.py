@@ -53,9 +53,7 @@ def find_external_sync_artifact(
         data = data * -1
 
     # define thresh_BIP as 1.5 times the difference between the max and min
-    #difference = _calculate_difference(data, sf_external)
-    #thresh_BIP = -1.5*difference
-    thresh_BIP = -1.5*np.ptp(data)
+    thresh_BIP = -1.5*(np.ptp(data[:int(sf_external * 2)]))
 
     # find indexes of artifacts
     # the external sync artifact is a sharp downward reflexion repeated at a high 
@@ -82,7 +80,7 @@ def find_external_sync_artifact(
 # Detection of artifacts in LFP
 
 def find_LFP_sync_artifact(
-    lfp_data: np.ndarray,
+    data: np.ndarray,
     sf_LFP: int,
     use_kernel: str
 ):
@@ -99,7 +97,7 @@ def find_LFP_sync_artifact(
     indicates a stim-artifact.
 
     Input:
-        - lfp_data: single channel as np.ndarray (the function
+        - data: single channel as np.ndarray (the function
             automatically inverts the signal if first a positive
             peak is found, this indicates an inverted signal)
         - sf_LFP (int): sampling frequency of intracranial recording
@@ -128,8 +126,8 @@ def find_LFP_sync_artifact(
     
     # get dot-products between kernel and time-serie snippets
     res = []  # store results of dot-products
-    for i in np.arange(0, len(lfp_data) - len(ker)):
-        res.append(ker @ lfp_data[i: i + len(ker)])  
+    for i in np.arange(0, len(data) - len(ker)):
+        res.append(ker @ data[i: i + len(ker)])  
         # calculate dot-product of vectors
         # the dot-product result is high when the timeseries snippet
         # is very similar to the kernel
@@ -196,15 +194,15 @@ def find_LFP_sync_artifact(
 
 
     # filter out inconsistencies in peak heights (assuming sync-stim-artifacts are stable)
-    abs_heights = [max(abs(lfp_data[i - 5: i + 5])) for i in stim_idx]
+    abs_heights = [max(abs(data[i - 5: i + 5])) for i in stim_idx]
     diff_median = np.array([abs(p - np.median(abs_heights)) for p in abs_heights])
     sel_idx = diff_median < (np.median(abs_heights)*.66)
     stim_idx = list(compress(stim_idx, sel_idx))
     # check polarity of peak
     if not signal_inverted:
-        sel_idx = np.array([min(lfp_data[i - 5: i + 5]) for i in stim_idx]) < (np.median(abs_heights) * -.5)
+        sel_idx = np.array([min(data[i - 5: i + 5]) for i in stim_idx]) < (np.median(abs_heights) * -.5)
     elif signal_inverted:
-        sel_idx = np.array([max(lfp_data[i - 5: i + 5]) for i in stim_idx])  > (np.median(abs_heights) * .5)
+        sel_idx = np.array([max(data[i - 5: i + 5]) for i in stim_idx])  > (np.median(abs_heights) * .5)
     stim_idx = list(compress(stim_idx, sel_idx))
 
 
