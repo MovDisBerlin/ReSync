@@ -53,14 +53,12 @@ def interaction(
     plus_symbol, = ax.plot([], [], 'k+', markersize=10)
 
     def onclick(event):
-        #pos.append([event.xdata,event.ydata])
         if event.xdata is not None and event.ydata is not None:
             pos.append([event.xdata, event.ydata])
             
             # Update the position of the black "+" symbol
             closest_index_x = np.argmin(np.abs(timescale - event.xdata))
             closest_value_x = timescale[closest_index_x]
-            #closest_index_y = np.argmin(np.abs(data - event.ydata))
             closest_value_y = data[closest_index_x]
             plus_symbol.set_data(closest_value_x, closest_value_y)
             plt.draw()
