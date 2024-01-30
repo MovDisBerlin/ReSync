@@ -110,13 +110,12 @@ def load_external_csv_file(
 	# load a csv file :
 	dataset_external = pd.read_csv(join(source_path, filename))
 
-	#external_file = dataset_external.to_numpy()
-	#external_file = external_file.transpose()
+	external_file = dataset_external.to_numpy()
+	external_file = external_file.transpose()
 	external_rec_ch_names = list(dataset_external.columns)
 
 	ch_index_external = external_rec_ch_names.index(BIP_ch_name)
-	#BIP_channel = external_file[ch_index_external,:]
-	BIP_channel = dataset_external[:,ch_index_external]
+	BIP_channel = external_file[ch_index_external,:]
 
 	time_duration_external_s = (len(BIP_channel)/sf_external)
 
@@ -129,7 +128,7 @@ def load_external_csv_file(
 	_update_and_save_params('CH_IDX_EXTERNAL', ch_index_external, sub_ID, 
 						 saving_path)
 
-	return (BIP_channel, dataset_external, external_rec_ch_names, sf_external, 
+	return (external_file, BIP_channel, external_rec_ch_names, sf_external, 
 		 ch_index_external)
 
 
@@ -225,7 +224,7 @@ def load_TMSi_artifact_channel(
 	external_file = TMSi_rec.get_data()
 
 
-	return (BIP_channel, external_file, external_rec_ch_names, 
+	return (external_file, BIP_channel, external_rec_ch_names, 
 		 sf_external, ch_index)
 
 
