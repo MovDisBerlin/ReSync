@@ -199,8 +199,7 @@ def run_resync(
     art_idx_LFP = find_LFP_sync_artifact(
         lfp_data=lfp_sig,
         sf_LFP=sf_LFP,
-        use_kernel=kernel, 
-        consider_first_seconds_LFP=None
+        use_kernel=kernel
     )
 
     art_time_LFP = _convert_index_to_time(
@@ -282,8 +281,7 @@ def run_resync(
         art_idx_LFP = find_LFP_sync_artifact(
             lfp_data=lfp_sig,
             sf_LFP=sf_LFP,
-            use_kernel=kernel, 
-            consider_first_seconds_LFP=None
+            use_kernel=kernel
         )
 
         art_time_LFP = _convert_index_to_time(

@@ -52,34 +52,28 @@ def find_external_sync_artifact(
         print('external signal is reversed')
         data = data * -1
 
-    # define thresh_BIP as a value half of the minimal value
-    difference = _calculate_difference(data, sf_external)
-    thresh_BIP = -1.5*difference
+    # define thresh_BIP as 1.5 times the difference between the max and min
+    #difference = _calculate_difference(data, sf_external)
+    #thresh_BIP = -1.5*difference
+    thresh_BIP = -1.5*np.ptp(data)
 
     # find indexes of artifacts
-    for q in range(start_index,stop_index):
-        if ((stimON == False) 
-                and (data[q] <= thresh_BIP) 
-                and (data[q] < data[q + 1]) 
-                and (data[q] < data[q - 1])):
-            if q >= 0.2*sf_external:
+    # the external sync artifact is a sharp downward reflexion repeated at a high 
+    # frequency (stimulation frequency). Therefore, the artifact is detected when
+    # the signal is below the threshold, and when the signal is lower than the
+    # previous and next sample (first peak of the artifact). Once the artifact is
+    # detected, the function waits until the signal is above the threshold again
+    # and then starts looking for the next artifact.
+
+    for q in range(start_index, stop_index):
+        if ((data[q] <= thresh_BIP) and (data[q] < data[q + 1]) 
+            and (data[q] < data[q - 1])):
+            if not stimON :
                 index_artifact_start_external.append(q)
                 stimON = True
-                q = q + 1
-            elif q < 0.2*sf_external:
-                print (f'External recording started with stim already ON.' \
-                f'Ignoring first artifact')
-                stimON = True
-                q = q + 1
-        if (stimON
-                and (data[q] <= thresh_BIP) 
-                and (data[q] < data[q + 1]) 
-                and (data[q] < data[q - 1])):
-            if (all(data[(q + 2):(q + int(0.5*sf_external))] > thresh_BIP)):
-                stimON = False
-                q = q + 1
-        else:
-            q = q + 1
+            else:
+                if (all(data[(q + 2):(q + int(0.5*sf_external))] > thresh_BIP)):
+                    stimON = False
 
     return index_artifact_start_external
 
@@ -90,8 +84,7 @@ def find_external_sync_artifact(
 def find_LFP_sync_artifact(
     lfp_data: np.ndarray,
     sf_LFP: int,
-    use_kernel: str,
-    consider_first_seconds_LFP=None,
+    use_kernel: str
 ):
     """
     Function that finds artifacts caused by
@@ -149,7 +142,7 @@ def find_LFP_sync_artifact(
     # the first seconds to check whether an stim-artef was present 
     ratio_max_sd = np.max(res[:sf_LFP*30] / np.std(res[:sf_LFP*5]))
     
-    # use peak of kernel dot products    
+    # find peak of kernel dot products    
     pos_idx = find_peaks(
         x=res, 
         height=.3 * max(res),
@@ -168,7 +161,6 @@ def find_LFP_sync_artifact(
         # if NEG peak before POS then signal is inverted
         print('intracranial signal is inverted')
         signal_inverted = True
-        #print(pos_idx[0], neg_idx[0])
         # re-check inverted for difficult cases with small pos-lfp peak before negative stim-artifact
         if (pos_idx[0] - neg_idx[0]) < 50:  # if first positive and negative are very close
             width_pos = 0
@@ -201,14 +193,6 @@ def find_LFP_sync_artifact(
         print('WARNING: probably the LFP signal did NOT'
               ' contain any artifacts. Many incorrect timings'
               ' could be returned')
-
-
-    if consider_first_seconds_LFP:
-        border_start = sf_LFP*consider_first_seconds_LFP
-        border_end = len(lfp_data) - (sf_LFP*consider_first_seconds_LFP)
-        sel = np.logical_or(np.array(stim_idx) < border_start,
-                             np.array(stim_idx) > border_end)
-        stim_idx = list(compress(stim_idx, sel))
 
 
     # filter out inconsistencies in peak heights (assuming sync-stim-artifacts are stable)
