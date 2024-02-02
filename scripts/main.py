@@ -30,8 +30,6 @@ Usage:
 
 	CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
 
-	SHOW_FIGURES: boolean, if True, show figures, if False only save them
-
 2. run main.py
 
 Result:
@@ -55,21 +53,24 @@ from plotting import plot_LFP_external, ecg
 from timeshift import check_timeshift
 from utils import _update_and_save_params, _get_input_y_n
 from tmsi_poly5reader import Poly5Reader
-from resync_function import detect_artifacts_in_recordings, synchronize_recordings, save_synchronized_recordings
+from resync_function import (
+    detect_artifacts_in_recordings, 
+    synchronize_recordings, 
+    save_synchronized_recordings
+)
 from packet_loss import check_packet_loss
 
 def main(
-	session_ID='test_brainvision_test_saving', 
-	fname_lfp='Intracerebral_LFP_dataset1_250Hz.csv', 
-	ch_idx_lfp=0,
-	fname_external='External_data_dataset1_4096Hz.csv',
-	BIP_ch_name = 'BIP 01', 
+	session_ID = 'test_thresh', 
+	fname_lfp = 'sub-20230905PStn_ses-2023121802263096_run-BrainSense20231218024800.mat', 
+	ch_idx_lfp = 0,
+	fname_external = 'sub084_3mfu_m1s0_BrStr_restTap - 20231218T154811.DATA.Poly5',
+	BIP_ch_name = 'Bip25', 
 	saving_format = 'brainvision',
 	json_filename = None,
-	CROP_BOTH=True,
-	CHECK_FOR_TIMESHIFT=False,
-	CHECK_FOR_PACKET_LOSS=False,
-	SHOW_FIGURES=True
+	CROP_BOTH = True,
+	CHECK_FOR_TIMESHIFT = False,
+	CHECK_FOR_PACKET_LOSS = False
 	):
 
 	#  Set saving path
@@ -89,20 +90,28 @@ def main(
 	# 3. the names of all the channels recorded intracerebrally (LFP_rec_ch_names)
 	# 4. the sampling frequency of the intracranial recording (sf_LFP)
 	if fname_lfp.endswith('.mat'):
-		dataset_lfp= load_mat_file(session_ID, fname_lfp, saving_path, 
-							 source_path)
+		dataset_lfp = load_mat_file(
+			session_ID = session_ID, 
+			filename = fname_lfp, 
+			saving_path = saving_path, 
+			source_path = source_path
+			)
 		(LFP_array, lfp_sig, 
-   		LFP_rec_ch_names, sf_LFP) = load_data_lfp(session_ID, dataset_lfp, 
-												ch_idx_lfp, saving_path
-												)
+   		LFP_rec_ch_names, sf_LFP) = load_data_lfp(
+			   session_ID = session_ID, 
+			   dataset_lfp = dataset_lfp, 
+			   ch_idx_lfp = ch_idx_lfp, 
+			   saving_path = saving_path
+			   )
 	if fname_lfp.endswith('.csv'):
 		(LFP_array, lfp_sig, 
-   		LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(session_ID, 
-															 fname_lfp,
-															 ch_idx_lfp,
-															 saving_path,
-															 source_path
-															 )
+   		LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(
+			   session_ID = session_ID, 
+			   filename = fname_lfp,
+			   ch_idx_lfp = ch_idx_lfp,
+			   saving_path = saving_path,
+			   source_path = source_path
+			   )
 
 
 		##  External data recorder
@@ -115,86 +124,144 @@ def main(
 	if fname_external.endswith('.Poly5'):
 		TMSi_data = Poly5Reader(join(source_path, fname_external)) 
 		(external_file, BIP_channel, external_rec_ch_names, sf_external, 
-   		ch_index_external) = load_TMSi_artifact_channel(session_ID, TMSi_data, 
-													 fname_external, 
-													 BIP_ch_name, saving_path
-													 )
+   		ch_index_external) = load_TMSi_artifact_channel(
+			   session_ID = session_ID, 
+			   TMSi_data = TMSi_data, 
+			   fname_external = fname_external,
+			   BIP_ch_name = BIP_ch_name, 
+			   saving_path = saving_path
+			   )
 	if fname_external.endswith('.csv'):
 		(external_file, BIP_channel, external_rec_ch_names, 
-   		sf_external, ch_index_external) = load_external_csv_file(session_ID, 
-															   fname_external, 
-															   BIP_ch_name, 
-															   saving_path,
-															   source_path
-															   )
+   		sf_external, ch_index_external) = load_external_csv_file(
+			   session_ID = session_ID, 
+			   filename = fname_external, 
+			   BIP_ch_name = BIP_ch_name, 
+			   saving_path = saving_path,
+			   source_path = source_path
+			   )
 
 	#  2. FIND ARTIFACTS IN BOTH RECORDINGS:
-	kernels = ['2', '1', 'manual']
+	kernels = ['2', '1', 'thresh', 'manual']
+	# kernel 1 only searches for the steep decrease
+    # kernel 2 is more custom and takes into account the steep decrease and slow recover
+	# manual kernel is for none of the tw previous kernels work. Then the artifact
+	# has to be manually selected by the user, in a pop up window that will automatically open.
 	for kernel in kernels:
 		print('Running resync with kernel = {}...'.format(kernel))
-		art_start_LFP, art_start_BIP = detect_artifacts_in_recordings(session_ID, 
-																lfp_sig, sf_LFP, 
-																BIP_channel, 
-																sf_external, 
-																saving_path, 
-																kernel)
+		art_start_LFP, art_start_BIP = detect_artifacts_in_recordings(
+			session_ID = session_ID, 
+			lfp_sig = lfp_sig,
+			sf_LFP = sf_LFP,
+			BIP_channel = BIP_channel, 
+			sf_external = sf_external, 
+			saving_path = saving_path, 
+			kernel = kernel
+			)
 		artifact_correct = _get_input_y_n("Are artifacts properly selected ? ")
 		if artifact_correct == 'y':
-			_update_and_save_params('ART_TIME_LFP', art_start_LFP, 
-                                session_ID, saving_path)
-			_update_and_save_params('KERNEL', kernel, session_ID, saving_path)
-			_update_and_save_params('ART_TIME_BIP', art_start_BIP, 
-                                session_ID, saving_path)
+			_update_and_save_params(
+				key = 'ART_TIME_LFP', 
+				value = art_start_LFP, 
+				session_ID = session_ID, 
+				saving_path = saving_path
+				)
+			_update_and_save_params(
+				key = 'KERNEL', 
+				value = kernel, 
+				session_ID = session_ID, 
+				saving_path = saving_path
+				)
+			_update_and_save_params(
+				key = 'ART_TIME_BIP', 
+				value = art_start_BIP,
+				session_ID = session_ID, 
+				saving_path = saving_path
+				)
 			break
 
 	# 3. SYNCHRONIZE RECORDINGS TOGETHER:
-	LFP_df_offset, external_df_offset = synchronize_recordings(LFP_array,
-															external_file,
-															art_start_LFP,
-															art_start_BIP,
-															LFP_rec_ch_names, 
-															external_rec_ch_names, 
-															sf_LFP,
-															sf_external,
-															CROP_BOTH)
+	(LFP_df_offset, external_df_offset) = synchronize_recordings(
+		LFP_array = LFP_array,
+		external_file = external_file,
+		art_start_LFP = art_start_LFP,
+		art_start_BIP = art_start_BIP,
+		LFP_rec_ch_names = LFP_rec_ch_names, 
+		external_rec_ch_names = external_rec_ch_names, 
+		sf_LFP = sf_LFP,
+		sf_external = sf_external,
+		CROP_BOTH = CROP_BOTH
+		)
 
 	# 4. SAVE SYNCHRONIZED RECORDINGS:
-	_update_and_save_params('SAVING_FORMAT', saving_format, session_ID, saving_path) 
+	_update_and_save_params(
+		key = 'SAVING_FORMAT', 
+		value = saving_format, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		) 
 	save_synchronized_recordings(
-		session_ID,
-    	LFP_df_offset, 
-    	external_df_offset,
-    	LFP_rec_ch_names,
-    	external_rec_ch_names,
-    	sf_LFP,
-    	sf_external,
-    	saving_format,
-    	saving_path,
-    	CROP_BOTH
+		session_ID = session_ID,
+    	LFP_df_offset = LFP_df_offset, 
+    	external_df_offset = external_df_offset,
+    	LFP_rec_ch_names = LFP_rec_ch_names,
+    	external_rec_ch_names = external_rec_ch_names,
+    	sf_LFP = sf_LFP,
+    	sf_external = sf_external,
+    	saving_format = saving_format,
+    	saving_path = saving_path,
+    	CROP_BOTH = CROP_BOTH
 		)
 
 
 	# 5. PLOT SYNCHRONIZED RECORDINGS:
-	plot_LFP_external(session_ID, LFP_df_offset, external_df_offset, sf_LFP, 
-				   sf_external, ch_idx_lfp, ch_index_external, saving_path)
+	plot_LFP_external(
+		session_ID = session_ID, 
+		LFP_df_offset = LFP_df_offset, 
+		external_df_offset = external_df_offset, 
+		sf_LFP = sf_LFP, 
+		sf_external = sf_external, 
+		ch_idx_lfp = ch_idx_lfp, 
+		ch_index_external = ch_index_external, 
+		saving_path = saving_path)
 
 	#  OPTIONAL : check timeshift:
 	if CHECK_FOR_TIMESHIFT:
 		print('Starting timeshift analysis...')
-		check_timeshift(session_ID, LFP_df_offset, sf_LFP, external_df_offset, 
-				  sf_external, saving_path, SHOW_FIGURES)
+		check_timeshift(
+			session_ID = session_ID, 
+			LFP_df_offset = LFP_df_offset, 
+			sf_LFP = sf_LFP, 
+			external_df_offset = external_df_offset, 
+			sf_external = sf_external, 
+			saving_path = saving_path
+			)
 
 	# OPTIONAL : check for packet loss:
 	if CHECK_FOR_PACKET_LOSS:
-		_update_and_save_params('JSON_FILE', json_filename, session_ID, 
-						  saving_path
-						  )
-		json_object = load_sourceJSON(json_filename, source_path)
-		check_packet_loss(json_object)
+		_update_and_save_params(
+			key = 'JSON_FILE', 
+			value = json_filename, 
+			session_ID = session_ID, 
+			saving_path = saving_path
+			)
+		json_object = load_sourceJSON(
+			json_filename = json_filename, 
+			source_path = source_path
+			)
+		check_packet_loss(json_object = json_object)
 
 	# OPTIONAL : plot cardiac artifact:
-	#ecg(session_ID, LFP_df_offset, sf_LFP, external_df_offset, 
-		#sf_external, saving_path, xmin= 0.25, xmax= 0.36)
+	ecg(
+		session_ID = session_ID, 
+		LFP_df_offset = LFP_df_offset, 
+		sf_LFP = sf_LFP, 
+		external_df_offset = external_df_offset, 
+		sf_external = sf_external, 
+		saving_path = saving_path, 
+		xmin = 0.25, 
+		xmax = 0.36
+		)
 
 
 if __name__ == '__main__':

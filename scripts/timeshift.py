@@ -54,29 +54,44 @@ def check_timeshift(
 
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(
-        start=0, 
-        stop=len(LFP_channel_offset)/sf_LFP, 
-        step=1/sf_LFP
-    )
+        start = 0, 
+        stop = len(LFP_channel_offset)/sf_LFP, 
+        step = 1/sf_LFP
+        )
     external_timescale_offset_s = np.arange(
-        start=0, 
-        stop=len(external_df_offset)/sf_external, 
-        step=1/sf_external
-    )
+        start = 0, 
+        stop = len(external_df_offset)/sf_external, 
+        step = 1/sf_external
+        )
 
     # detrend external recording with high-pass filter before processing:
     filtered_external_offset = _filtering(BIP_channel_offset)
 
     print ('Select the sample corresponding to the last artifact in the intracranial recording')
-    last_artifact_lfp_x = select_sample(LFP_channel_offset, sf_LFP)
+    last_artifact_lfp_x = select_sample(
+        signal = LFP_channel_offset, 
+        sf = sf_LFP
+        )
     print ('Select the sample corresponding to the last artifact in the external recording')
-    last_artifact_external_x = select_sample(filtered_external_offset, sf_external) 
+    last_artifact_external_x = select_sample(
+        signal = filtered_external_offset, 
+        sf = sf_external
+        ) 
 
     timeshift_ms = (last_artifact_external_x - last_artifact_lfp_x)*1000
 
-    _update_and_save_params("TIMESHIFT", timeshift_ms, session_ID, saving_path)
-    _update_and_save_params("REC DURATION FOR TIMESHIFT", 
-                            last_artifact_external_x, session_ID, saving_path)
+    _update_and_save_params(
+        key = "TIMESHIFT", 
+        value = timeshift_ms, 
+        session_ID = session_ID, 
+        saving_path = saving_path
+        )
+    _update_and_save_params(
+        key = "REC DURATION FOR TIMESHIFT", 
+        value = last_artifact_external_x, 
+        session_ID = session_ID, 
+        saving_path = saving_path
+        )
 
     if abs(timeshift_ms) > 100:
         print('WARNING: the timeshift is unusually high,' 
@@ -93,23 +108,61 @@ def check_timeshift(
     ax2.set_ylabel('External bipolar channel (mV)')
     ax1.set_xlim(last_artifact_external_x - 0.1, last_artifact_external_x + 0.1) 
     ax2.set_xlim(last_artifact_external_x - 0.1, last_artifact_external_x + 0.1)
-    ax1.plot(LFP_timescale_offset_s, LFP_channel_offset, color='peachpuff', 
-             zorder=1)
-    ax1.scatter(LFP_timescale_offset_s, LFP_channel_offset, color='darkorange', 
-                s=4, zorder=2) 
-    ax1.axvline(x=last_artifact_lfp_x, ymin=min(LFP_channel_offset), 
-                ymax=max(LFP_channel_offset), color='black', linestyle='dashed', 
-                alpha=.3)
-    ax2.plot(external_timescale_offset_s, filtered_external_offset, 
-             color='paleturquoise', zorder=1) 
-    ax2.scatter(external_timescale_offset_s, filtered_external_offset, 
-                color='darkcyan', s=4, zorder=2) 
-    ax2.axvline(x=last_artifact_external_x, color='black', linestyle='dashed', 
-                alpha=.3)
-    ax1.text(0.05, 0.85, s='delay intra/exter: ' + str(round(timeshift_ms, 2)) 
-             + 'ms', fontsize=14, transform=ax1.transAxes)
+    ax1.plot(
+        LFP_timescale_offset_s, 
+        LFP_channel_offset, 
+        color = 'peachpuff',
+        zorder = 1
+        )
+    ax1.scatter(
+        LFP_timescale_offset_s, 
+        LFP_channel_offset, 
+        color = 'darkorange', 
+        s = 4, 
+        zorder = 2
+        ) 
+    ax1.axvline(
+        x = last_artifact_lfp_x, 
+        ymin = min(LFP_channel_offset), 
+        ymax = max(LFP_channel_offset), 
+        color = 'black', 
+        linestyle = 'dashed',
+        alpha = .3
+        )
+    ax2.plot(
+        external_timescale_offset_s, 
+        filtered_external_offset, 
+        color = 'paleturquoise', 
+        zorder = 1
+        ) 
+    ax2.scatter(
+        external_timescale_offset_s, 
+        filtered_external_offset, 
+        color = 'darkcyan', 
+        s = 4, 
+        zorder = 2
+        ) 
+    ax2.axvline(
+        x = last_artifact_external_x, 
+        color = 'black', 
+        linestyle = 'dashed',
+        alpha = .3
+        )
+    ax1.text(
+        0.05, 
+        0.85, 
+        s = 'delay intra/exter: ' 
+        + str(round(timeshift_ms, 2)) 
+        + 'ms', 
+        fontsize = 14, 
+        transform = ax1.transAxes
+        )
        
     plt.gcf()
-    fig.savefig(saving_path 
-                + '\\FigA-Timeshift_Intracerebral and external recordings aligned_last artifact.png', 
-                bbox_inches='tight', dpi=1200)
+    fig.savefig(
+        saving_path 
+        + '\\FigA-Timeshift_Intracerebral and external recordings aligned_last artifact.png', 
+        bbox_inches = 'tight', 
+        dpi = 1200
+        )
+

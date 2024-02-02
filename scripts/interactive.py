@@ -16,7 +16,7 @@ def select_sample(
     """
 
     signal_timescale_s = np.arange(0, (len(signal)/sf), (1/sf))
-    selected_x = interaction(signal, signal_timescale_s)
+    selected_x = interaction(data = signal, timescale = signal_timescale_s)
 
     # Find the index of the closest value
     closest_index = np.argmin(np.abs(signal_timescale_s - selected_x))

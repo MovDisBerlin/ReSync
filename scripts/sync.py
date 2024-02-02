@@ -9,8 +9,7 @@ def sync_by_cropping_both(
     LFP_rec_ch_names: list,
     external_rec_ch_names: list,
     sf_LFP,
-    sf_external,
-    real_art_time_LFP: float
+    sf_external
 ):
 
     """
@@ -34,7 +33,6 @@ def sync_by_cropping_both(
         channels (to rename the cropped recording accordingly)
         - sf_LFP: sampling frequency of intracranial recording
         - sf_external: sampling frequency of external recording
-        - real_art_time_LFP: float
 
     Returns:
         - LFP_df_offset2: np.ndarray, the cropped intracerebral recording with 
@@ -46,13 +44,9 @@ def sync_by_cropping_both(
 
     ## Intracranial ##
     # Crop beginning of LFP intracranial recording 1 second before first artifact:
-    if real_art_time_LFP == 0:
-        time_start_LFP_0 = art_start_LFP-1 # 1s before first artifact
-        index_start_LFP = time_start_LFP_0*(sf_LFP)
-    else:
-        time_start_LFP_0 = real_art_time_LFP-1 # 1s before first artifact
-        index_start_LFP = time_start_LFP_0*(sf_LFP)
 
+    time_start_LFP_0 = art_start_LFP-1 # 1s before first artifact
+    index_start_LFP = time_start_LFP_0*(sf_LFP)
 
     LFP_df = pd.DataFrame(LFP_array) # convert np.ndarray to dataframe
     LFP_df_transposed = pd.DataFrame.transpose(LFP_df) # invert rows and columns
@@ -60,8 +54,6 @@ def sync_by_cropping_both(
     # remove all rows before first artifact
     LFP_df_offset = LFP_df_transposed.truncate(before=index_start_LFP) 
     LFP_df_offset = LFP_df_offset.reset_index(drop=True) # reset indexes
-
-    #LFP_cropped = LFP_array[:, int(index_start_LFP):].T # crop LFP_array
 
     ## External ##
     # Crop beginning of external recordings 1s before first artifact:
@@ -113,8 +105,7 @@ def align_external_on_LFP(
     art_start_BIP,
     external_rec_ch_names: list,
     sf_LFP: int,
-    sf_external: int,
-    real_art_time_LFP: float
+    sf_external: int
 ):
     
 
@@ -137,7 +128,6 @@ def align_external_on_LFP(
         channels (to rename the cropped recording accordingly)
         - sf_LFP: sampling frequency of intracranial recording
         - sf_external: sampling frequency of external recording
-        - real_art_time_LFP: float
 
     Returns:
         - LFP_df2: np.ndarray, the intracerebral recording with all its recorded 
@@ -148,13 +138,8 @@ def align_external_on_LFP(
 
     """
 
-    if real_art_time_LFP == 0:
-        time_start_LFP = art_start_LFP
-    elif real_art_time_LFP != 0:
-        time_start_LFP = real_art_time_LFP
-
     # find the timestamp in the external recording corresponding to the start of LFP recording :
-    time_start_external = art_start_BIP- time_start_LFP
+    time_start_external = art_start_BIP- art_start_LFP
     index_start_external = time_start_external*sf_external
 
     # Crop beginning of external recordings to match with the beginning of the LFP recording:

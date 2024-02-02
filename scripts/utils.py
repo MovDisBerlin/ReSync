@@ -14,7 +14,7 @@ import operator
 def _define_folders():
 
     """
-    This function is used if the user hasn't already define 
+    This function is used only in the notebook, if the user hasn't already define 
     the saving path in the config.json file (back up function).
     """
 
@@ -24,7 +24,7 @@ def _define_folders():
     with open(os.path.join(json_path, json_filename), 'r') as f:
         loaded_dict =  json.load(f)
 
-    saving_folder = askdirectory(title= 'Select Saving Folder') 
+    saving_folder = askdirectory(title = 'Select Saving Folder') 
     saving_path = os.path.join(saving_folder, loaded_dict['subject_ID'])
     if not os.path.isdir(saving_path):
         os.makedirs(saving_path)
@@ -34,7 +34,12 @@ def _define_folders():
 
 parameters = {}
 
-def _update_and_save_params(key, value, session_ID, saving_path):
+def _update_and_save_params(
+        key, 
+        value, 
+        session_ID, 
+        saving_path
+        ):
     parameters[key] = value
     parameter_filename = ('parameters_' + str(session_ID) + '.json')
     json_file_path = os.path.join(saving_path, parameter_filename)
@@ -46,7 +51,7 @@ def _update_and_save_params(key, value, session_ID, saving_path):
 def _is_channel_in_list(
 		channel_array, 
 		desired_channel_name
-):
+        ):
     if desired_channel_name.lower() in (channel.lower() for channel in channel_array):
         return True
     else:
@@ -59,7 +64,7 @@ def _is_channel_in_list(
 def _convert_index_to_time(
     art_idx: list,
     sf: int
-):
+    ):
     """ 
     Function to calculate timestamps 
     of indexes from a list
@@ -85,7 +90,7 @@ def _convert_index_to_time(
 def _convert_time_to_index(
     art_time: list, 
     sf: int
-):
+    ):
     
     """ 
     Function to calculate indexes from a list of timestamps.
@@ -109,7 +114,10 @@ def _convert_time_to_index(
 
 
 
-def _extract_elements(data_list, indices_to_extract):
+def _extract_elements(
+        data_list, 
+        indices_to_extract
+        ):
     # Create an itemgetter object with the indices specified in indices_to_extract
     getter = operator.itemgetter(*indices_to_extract)
 
@@ -160,7 +168,7 @@ def _get_user_input(message: str) -> str:
 
 def _filtering(
         BIP_channel
-):
+        ):
     """
     This function applies a highpass filter at 1Hz to detrend the data.
     """
@@ -171,7 +179,10 @@ def _filtering(
     return filteredHighPass
 
 
-def _calculate_difference(data, sampling_rate):
+def _calculate_difference(
+        data, 
+        sampling_rate
+        ):
     # Calculate the number of samples corresponding to the first 2 seconds
     num_samples_2_seconds = int(sampling_rate * 2)
 

@@ -9,11 +9,11 @@ import matplotlib
 matplotlib.use('Qt5Agg')
 
 def plot_LFP_artifact_channel(
-    sub: str,
+    session_ID: str,
     timescale: np.ndarray,
     data: np.ndarray, 
     color: str,
-    savingpath: str,
+    saving_path: str,
     saving_folder = True
     ):
 
@@ -22,11 +22,11 @@ def plot_LFP_artifact_channel(
     quick visualization (and saving).
 
     Input:
-        - sub: the subject ID
+        - session_ID: the session ID
         - timescale: the timescale of the signal to be plotted (x) as np.ndarray
         - data: single channel as np.ndarray (y)
         - color: the color of the signal on the plot
-        - savingpath: the folder where the plot has to be saved
+        - saving_path: the folder where the plot has to be saved
         - saving_folder: Boolean, default = True, plots are automatically saved
     """
 
@@ -34,16 +34,19 @@ def plot_LFP_artifact_channel(
     plt.plot(
         timescale, 
         data, 
-        linewidth=1, 
-        color=color
+        linewidth = 1, 
+        color = color
     )
     plt.xlabel('Time (s)')
-    plt.title(str(sub))
+    plt.title(str(session_ID))
     plt.ylabel('Intracerebral LFP channel (µV)')
 
     if saving_folder:
-        plt.savefig((join(savingpath, 'Fig1-Intracerebral channel raw plot.png')),
-            bbox_inches='tight')
+        plt.savefig((join(
+            saving_path, 
+            'Fig1-Intracerebral channel raw plot.png')),
+            bbox_inches='tight'
+            )
 
 
 
@@ -51,11 +54,11 @@ def plot_LFP_artifact_channel(
 ### Plot a single channel with its associated timescale ###
 
 def plot_BIP_artifact_channel(
-    sub: str,
+    session_ID: str,
     timescale: np.ndarray,
     data: np.ndarray, 
     color: str,
-    savingpath: str,
+    saving_path: str,
     saving_folder = True
     ):
 
@@ -63,11 +66,11 @@ def plot_BIP_artifact_channel(
     Plots the external bipolar channel for quick visualization (and saving).
 
     Input:
-        - sub: the subject ID
+        - session_ID: the subject ID
         - timescale: the timescale of the signal to be plotted (x) as np.ndarray
         - data: single channel as np.ndarray (y)
         - color: the color of the signal on the plot
-        - savingpath: the folder where the plot has to be saved
+        - saving_path: the folder where the plot has to be saved
         - saving_folder: Boolean, default = True, plots automatically saved
     """
 
@@ -79,23 +82,25 @@ def plot_BIP_artifact_channel(
         color=color
     )
     plt.xlabel('Time (s)')
-    plt.title(str(sub))
+    plt.title(str(session_ID))
     plt.ylabel('External bipolar channel - voltage (mV)')
 
     if saving_folder:
-        plt.savefig((join(savingpath, 
-                          'Fig2-External bipolar channel raw plot.png')),
-                           bbox_inches='tight')
+        plt.savefig((join(
+            saving_path, 
+            'Fig2-External bipolar channel raw plot.png')),
+            bbox_inches='tight'
+            )
 
 
 
 ### Plot both hemisphere LFP activity with stimulation amplitude ###
 
 def plot_LFP_stim(
-    sub: str,
+    session_ID: str,
     timescale: np.ndarray,
     LFP_rec: mne.io.array.array.RawArray,
-    savingpath: str,
+    saving_path: str,
     saving_folder = True
     ):
     
@@ -104,10 +109,10 @@ def plot_LFP_stim(
     the stimulation from the 2 hemispheres.
 
     Input:
-        - sub: the subject ID
+        - session_ID: the subject ID
         - timescale: the timescale of the signal to be plotted (x) as np.ndarray
         - LFP_rec: mne.io.array.array.RawArray (LFP recording as MNE object)
-        - savingpath: the folder where the plot has to be saved
+        - saving_path: the folder where the plot has to be saved
         - saving_folder: Boolean, default = True, plots automatically saved
 
     
@@ -121,13 +126,33 @@ def plot_LFP_stim(
     stim_R_channel = LFP_rec.get_data()[5]
     figure(figsize=(12, 6), dpi=80)
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1)
-    ax1.set_title(str(sub))
-    ax1.plot(timescale, LFP_L_channel, linewidth=1, color='darkorange')
-    ax2.plot(timescale, stim_L_channel, linewidth=1, color='darkorange', 
-             linestyle='dashed')
-    ax3.plot(timescale, LFP_R_channel, linewidth=1, color='purple')
-    ax4.plot(timescale, stim_R_channel, linewidth=1, color='purple', 
-             linestyle='dashed')
+    ax1.set_title(str(session_ID))
+    ax1.plot(
+        timescale, 
+        LFP_L_channel, 
+        linewidth = 1, 
+        color = 'darkorange'
+        )
+    ax2.plot(
+        timescale, 
+        stim_L_channel, 
+        linewidth = 1, 
+        color = 'darkorange', 
+        Linestyle = 'dashed'
+        )
+    ax3.plot(
+        timescale, 
+        LFP_R_channel, 
+        linewidth = 1, 
+        color = 'purple'
+        )
+    ax4.plot(
+        timescale, 
+        stim_R_channel, 
+        linewidth = 1, 
+        color = 'purple',
+        linestyle = 'dashed'
+        )
     ax1.axes.xaxis.set_ticklabels([])
     ax2.axes.xaxis.set_ticklabels([])
     ax3.axes.xaxis.set_ticklabels([])
@@ -143,15 +168,18 @@ def plot_LFP_stim(
     fig.tight_layout()
 
     if saving_folder:
-        plt.savefig((join(savingpath, 'LFP and stim bilateral - raw plot.png')),
-            bbox_inches='tight')
+        plt.savefig((join(
+            saving_path, 
+            'LFP and stim bilateral - raw plot.png')),
+            bbox_inches = 'tight'
+            )
     return plt.gcf()
 
 
 ### Plot a single channel with its associated timescale ###
 
 def plot_channel(
-    sub: str,
+    session_ID: str,
     timescale: np.ndarray,
     data: np.ndarray, 
     color: str,
@@ -162,7 +190,7 @@ def plot_channel(
     Plots the selected channel for quick visualization (and saving).
 
     Input:
-        - sub: the subject ID
+        - session_ID: the subject ID
         - timescale: the timescale of the signal to be plotted (x) as np.ndarray
         - data: single channel as np.ndarray (y)
         - color: the color of the signal on the plot
@@ -175,11 +203,20 @@ def plot_channel(
 
     figure(figsize=(12, 6), dpi=80)
     if scatter:
-        plt.scatter(timescale, data, color=color)
+        plt.scatter(
+            timescale, 
+            data, 
+            color = color
+            )
     else:
-        plt.plot(timescale, data, linewidth=1, color=color)
+        plt.plot(
+            timescale, 
+            data, 
+            linewidth = 1, 
+            color = color
+            )
     plt.xlabel('Time (s)')
-    plt.title(str(sub))
+    plt.title(str(session_ID))
 
     return plt.gcf()
 
@@ -189,7 +226,7 @@ def plot_channel(
 from utils import _filtering
 
 def plot_LFP_external(
-        sub_ID: str, 
+        session_ID: str, 
         LFP_df_offset: pd.DataFrame, 
         external_df_offset: pd.DataFrame, 
         sf_LFP: int, 
@@ -209,7 +246,8 @@ def plot_LFP_external(
     filtered_external_offset = _filtering(BIP_channel_offset)
 
     # Generate new timescales:
-    LFP_timescale_offset_s = np.arange(0,(len(LFP_channel_offset)/sf_LFP),
+    LFP_timescale_offset_s = np.arange(0,
+                                       (len(LFP_channel_offset)/sf_LFP),
                                        1/sf_LFP
                                        )
     external_timescale_offset_s = np.arange(0,
@@ -219,32 +257,40 @@ def plot_LFP_external(
 
     # PLOT 8: Both signals aligned with all their artifacts detected:
     fig, ax1 = plt.subplots()
-    fig.suptitle(str(sub_ID))
+    fig.suptitle(str(session_ID))
     fig.set_figheight(6)
     fig.set_figwidth(12)
-    #ax1.axes.xaxis.set_ticklabels([])
     ax1.set_xlabel('Time (s)')
     ax1.set_ylabel('Intracerebral LFP channel (µV)')
     ax1.set_xlim(0,len(LFP_channel_offset)/sf_LFP) 
-    #ax2.set_xlim(0,len(LFP_channel_offset)/sf_LFP) 
-    ax1.plot(LFP_timescale_offset_s,LFP_channel_offset,color='darkorange',
-             zorder=1, linewidth=0.3
-             )
+    ax1.plot(
+        LFP_timescale_offset_s,
+        LFP_channel_offset,
+        color = 'darkorange',
+        zorder = 1, 
+        linewidth = 0.3
+        )
     ax2 = ax1.twinx()
-    ax2.plot(external_timescale_offset_s,filtered_external_offset, 
-             color='darkcyan',zorder=1, linewidth=0.1
-             )
+    ax2.plot(
+        external_timescale_offset_s,
+        filtered_external_offset,
+        color = 'darkcyan',
+        zorder = 1,
+        linewidth = 0.1
+        )
     ax2.set_ylabel('External bipolar channel (mV)')
-    fig.savefig(join(saving_path,
-                     ('Fig8-Intracerebral and external recordings aligned.png')),
-                     bbox_inches='tight')
+    fig.savefig(join(
+        saving_path,
+        ('Fig8-Intracerebral and external recordings aligned.png')),
+        bbox_inches = 'tight'
+        )
     plt.show(block=False)
 
 
 import json
 
 def ecg(
-        sub_ID: str, 
+        session_ID: str, 
         LFP_df_offset: pd.DataFrame, 
         sf_LFP: int,
         external_df_offset: pd.DataFrame,
@@ -260,7 +306,7 @@ def ecg(
     """
 
     #import settings
-    json_filename = (saving_path + '\\parameters_' + str(sub_ID) + '.json')
+    json_filename = (join(saving_path, 'parameters_' + str(session_ID) + '.json'))
     with open( json_filename, 'r') as f:
         loaded_dict =  json.load(f)
 
@@ -273,7 +319,8 @@ def ecg(
     filtered_external_offset=BIP_channel_offset
 
     # Generate new timescales:
-    LFP_timescale_offset_s = np.arange(0, (len(LFP_channel_offset)/sf_LFP), 
+    LFP_timescale_offset_s = np.arange(0, 
+                                       (len(LFP_channel_offset)/sf_LFP), 
                                        1/sf_LFP
                                        )
     external_timescale_offset_s = np.arange(0, 
@@ -294,12 +341,20 @@ def ecg(
     ax2.set_xlim(xmin, xmax)
     ax1.set_ylim(-50, 50)
     #ax2.set_ylim(-0.0035, -0.00225)
-    ax1.plot(LFP_timescale_offset_s, LFP_channel_offset, color='darkorange', 
-             zorder=1, linewidth=1
-             )
-    ax2.plot(external_timescale_offset_s, filtered_external_offset, 
-             color='darkcyan', zorder=1, linewidth=1
-             ) 
+    ax1.plot(
+        LFP_timescale_offset_s, 
+        LFP_channel_offset, 
+        color = 'darkorange', 
+        zorder = 1, 
+        linewidth = 1
+        )
+    ax2.plot(
+        external_timescale_offset_s,
+        filtered_external_offset, 
+        color = 'darkcyan', 
+        zorder = 1, 
+        linewidth = 1
+        ) 
     fig.savefig((join(saving_path, 'Fig_ECG.png')), bbox_inches='tight')
 
 

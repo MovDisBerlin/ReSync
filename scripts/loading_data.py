@@ -27,7 +27,7 @@ def load_sourceJSON(json_filename: str, source_path):
 
 
 def load_mat_file(
-		sub_ID: str, 
+		session_ID: str, 
 		filename: str, 
 		saving_path: str,
 		source_path):
@@ -48,8 +48,18 @@ def load_mat_file(
         f'filename no .mat INCORRECT extension: {filename}'
     )
 
-    _update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
-    _update_and_save_params('FNAME_LFP', filename, sub_ID, saving_path)
+    _update_and_save_params(
+		key = 'SUBJECT_ID', 
+		value = session_ID, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+    _update_and_save_params(
+		key = 'FNAME_LFP', 
+		value = filename, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
 
 
     data = read_raw_fieldtrip(
@@ -62,15 +72,25 @@ def load_mat_file(
 
 
 def load_intracranial_csv_file(
-		sub_ID: str, 
+		session_ID: str, 
 		filename: str, 
 		ch_idx_lfp: int, 
 		saving_path: str,
 		source_path
 		):
 
-	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
-	_update_and_save_params('FNAME_LFP', filename, sub_ID, saving_path)
+	_update_and_save_params(
+		key = 'SUBJECT_ID', 
+		value = session_ID, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'FNAME_LFP', 
+		value = filename, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
 	sf_LFP = int(filename[filename.find('Hz')-3:filename.find('Hz')])
 	# load a csv file :
 	dataset_lfp = pd.read_csv(join(source_path, filename))
@@ -84,28 +104,55 @@ def load_intracranial_csv_file(
 
 	time_duration_LFP = (len(lfp_sig)/sf_LFP)
 
-	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
-	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, 
-						saving_path)
-	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, 
-						 saving_path)
-	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	
-	
-	#return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
+	_update_and_save_params(
+		key = 'CH_IDX_LFP', 
+		value = ch_idx_lfp, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'LFP_REC_CH_NAMES', 
+		value = LFP_rec_ch_names, 
+		session_ID = session_ID,
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'LFP_REC_DURATION', 
+		value = time_duration_LFP, 
+		session_ID = session_ID,
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'sf_LFP', 
+		value = sf_LFP, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
+
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 
 
 
 def load_external_csv_file(
-		sub_ID: str, 
+		session_ID: str, 
 		filename: str, 
 		BIP_ch_name: str, 
 		saving_path: str,
 		source_path
 		):
 	
-	_update_and_save_params('SUBJECT_ID', sub_ID, sub_ID, saving_path)
-	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
+	_update_and_save_params(
+		key = 'SUBJECT_ID', 
+		value = session_ID, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'FNAME_EXTERNAL', 
+		value = filename, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
 	sf_external = int(filename[filename.find('Hz')-4:filename.find('Hz')])
 	# load a csv file :
 	dataset_external = pd.read_csv(join(source_path, filename))
@@ -119,14 +166,36 @@ def load_external_csv_file(
 
 	time_duration_external_s = (len(BIP_channel)/sf_external)
 
-	_update_and_save_params('FNAME_EXTERNAL', filename, sub_ID, saving_path)
-	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, 
-						 sub_ID, saving_path)	
-	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_external_s, 
-						 sub_ID, saving_path)
-	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
-	_update_and_save_params('CH_IDX_EXTERNAL', ch_index_external, sub_ID, 
-						 saving_path)
+	_update_and_save_params(
+		key = 'FNAME_EXTERNAL', 
+		value = filename, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'EXTERNAL_REC_CH_NAMES', 
+		value = external_rec_ch_names, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
+	_update_and_save_params(
+		key = 'EXTERNAL_REC_DURATION', 
+		value = time_duration_external_s, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'sf_EXTERNAL', 
+		value = sf_external, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
+	_update_and_save_params(
+		key = 'CH_IDX_EXTERNAL', 
+		value = ch_index_external, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
 
 	return (external_file, BIP_channel, external_rec_ch_names, sf_external, 
 		 ch_index_external)
@@ -136,7 +205,7 @@ def load_external_csv_file(
       
 # extract variables from LFP recording:
 def load_data_lfp(
-		sub_ID: str, 
+		session_ID: str, 
 		dataset_lfp, 
 		ch_idx_lfp, 
 		saving_path: str
@@ -148,16 +217,32 @@ def load_data_lfp(
 	lfp_sig = dataset_lfp.get_data()[ch_idx_lfp]
 	LFP_rec_ch_names = dataset_lfp.ch_names
 	sf_LFP = int(dataset_lfp.info["sfreq"])
-
-	n_chan = len(dataset_lfp.ch_names)
 	time_duration_LFP = (dataset_lfp.n_times/dataset_lfp.info['sfreq']).astype(float)
 
-	_update_and_save_params('CH_IDX_LFP', ch_idx_lfp, sub_ID, saving_path)
-	_update_and_save_params('LFP_REC_CH_NAMES', LFP_rec_ch_names, sub_ID, 
-						 saving_path)
-	_update_and_save_params('LFP_REC_DURATION', time_duration_LFP, sub_ID, 
-						 saving_path)
-	_update_and_save_params('sf_LFP', sf_LFP, sub_ID, saving_path)	
+	_update_and_save_params(
+		key = 'CH_IDX_LFP', 
+		value = ch_idx_lfp, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'LFP_REC_CH_NAMES', 
+		value = LFP_rec_ch_names, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'LFP_REC_DURATION', 
+		value = time_duration_LFP, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'sf_LFP', 
+		value = sf_LFP, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
 
 
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
@@ -166,7 +251,7 @@ def load_data_lfp(
 #### External data recorder dataset ####
 
 def load_TMSi_artifact_channel(
-	sub_ID: str,
+	session_ID: str,
     TMSi_data,
 	fname_external: str,
 	BIP_ch_name: str,
@@ -210,15 +295,38 @@ def load_TMSi_artifact_channel(
 	time_duration_TMSi_s = (TMSi_rec.n_times/TMSi_rec.info['sfreq']).astype(float)
 	sf_external = int(TMSi_rec.info['sfreq'])
 
-	_update_and_save_params('FNAME_EXTERNAL', fname_external, sub_ID, saving_path)
-	_update_and_save_params('EXTERNAL_REC_CH_NAMES', external_rec_ch_names, 
-						 sub_ID, saving_path)	
-	_update_and_save_params('EXTERNAL_REC_DURATION', time_duration_TMSi_s, 
-						 sub_ID, saving_path)
-	_update_and_save_params('sf_EXTERNAL', sf_external, sub_ID, saving_path)	
+	_update_and_save_params(
+		key = 'FNAME_EXTERNAL', 
+		value = fname_external, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'EXTERNAL_REC_CH_NAMES', 
+		value = external_rec_ch_names,
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
+	_update_and_save_params(
+		key = 'EXTERNAL_REC_DURATION', 
+		value = time_duration_TMSi_s, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'sf_EXTERNAL', 
+		value = sf_external, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
       
 	ch_index = TMSi_rec.ch_names.index(BIP_ch_name)
-	_update_and_save_params('CH_IDX_EXTERNAL', ch_index, sub_ID, saving_path)
+	_update_and_save_params(
+		key = 'CH_IDX_EXTERNAL', 
+		value = ch_index, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
 	
 	BIP_channel = TMSi_rec.get_data()[ch_index]
 	external_file = TMSi_rec.get_data()
