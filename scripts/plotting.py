@@ -44,7 +44,7 @@ def plot_LFP_artifact_channel(
     if saving_folder:
         plt.savefig((join(
             saving_path, 
-            'Fig1-Intracerebral channel raw plot.png')),
+            'Fig4-Intracranial channel raw plot.png')),
             bbox_inches='tight'
             )
 
@@ -88,7 +88,7 @@ def plot_BIP_artifact_channel(
     if saving_folder:
         plt.savefig((join(
             saving_path, 
-            'Fig2-External bipolar channel raw plot.png')),
+            'Fig1-External bipolar channel raw plot.png')),
             bbox_inches='tight'
             )
 
@@ -281,7 +281,7 @@ def plot_LFP_external(
     ax2.set_ylabel('External bipolar channel (mV)')
     fig.savefig(join(
         saving_path,
-        ('Fig8-Intracerebral and external recordings aligned.png')),
+        ('Fig8-Intracranial and external recordings aligned.png')),
         bbox_inches = 'tight'
         )
     plt.show(block=False)

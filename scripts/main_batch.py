@@ -15,13 +15,26 @@ Usage:
 
 	CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
 
-	SHOW_FIGURES: boolean, if True, show figures, if False only save them
-
 2. run main_batch.py
 
-Result:
-The results will be saved in the results folder, in a sub-folder named after 
-each session_ID parameter contained in the excel file.
+Results:
+The results will be saved in the results folder, in a sub-folder named after the 
+session_ID parameter.
+8 figures are automatically generated and saved:
+- Fig 1: External bipolar channel raw plot (of the channel containing artifacts)
+- Fig 2: External bipolar channel with artifact detected
+- Fig 3: External bipolar channel - first artifact detected (zoom of Fig2)
+- Fig 4: Intracranial channel raw plot (of the channel containing artifacts)
+- Fig 5 : Intracranial channel with artifact detected - kernel ID (indicates which 
+kernel was used to detect the artifact properly)
+- Fig 6: Intracranial channel - first artifact detected - kernel ID (zoom of Fig5)
+- (Fig 7:Intracranial channel - first artifact corrected by user)
+Fig 7 is only generated when no automatic detection of the artifact was possible,
+and the user therefore had to manually select it (rare cases)
+- Fig 8: Intracranial and external recordings aligned
+
+IF the timeshift analysis is also performed, there will be one supplementary figure:
+- Fig A : Timeshift - Intracranial and external recordings aligned - last artifact
 
 '''
 
@@ -39,10 +52,11 @@ from loading_data import (
     )
 from plotting import plot_LFP_external, ecg
 from timeshift import check_timeshift
-from utils import _update_and_save_params, _get_input_y_n
+from utils import _update_and_save_params, _get_input_y_n, _get_user_input
 from tmsi_poly5reader import Poly5Reader
 from resync_function import (
-    detect_artifacts_in_recordings, 
+    detect_artifacts_in_external_recording,
+    detect_artifacts_in_intracranial_recording, 
     synchronize_recordings, 
     save_synchronized_recordings
 )
@@ -162,23 +176,61 @@ def main_batch(
                 )
 
         #  2. FIND ARTIFACTS IN BOTH RECORDINGS:
-        kernels = ['thresh', 'manual', '2', '1']
+            # 2.1. Find artifacts in external recording:
+        art_start_BIP = detect_artifacts_in_external_recording(
+            session_ID = session_ID,
+            BIP_channel = BIP_channel,
+            sf_external = sf_external,
+            saving_path = saving_path,
+            start_index = 0
+        )
+        artifact_correct = _get_input_y_n(
+            "Is the external artifact properly selected ? "
+            )
+        if artifact_correct == 'y':
+            _update_and_save_params(
+                key = 'ART_TIME_BIP', 
+                value = art_start_BIP,
+                session_ID = session_ID, 
+                saving_path = saving_path
+                )
+        else: 
+            start_later = _get_user_input(
+                "How many seconds in the beginning should be ignored?"
+                )
+            start_later_index = start_later*sf_external
+            art_start_BIP = detect_artifacts_in_external_recording(
+                session_ID = session_ID,
+                BIP_channel = BIP_channel,
+                sf_external = sf_external,
+                saving_path = saving_path,
+                start_index = start_later_index
+            )
+            _update_and_save_params(
+                key = 'ART_TIME_BIP', 
+                value = art_start_BIP,
+                session_ID = session_ID, 
+                saving_path = saving_path
+                )
+
+            # 2.2. Find artifacts in intracranial recording:
+        kernels = ['thresh', '2', '1', 'manual']
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
         # manual kernel is for none of the tw previous kernels work. Then the artifact
         # has to be manually selected by the user, in a pop up window that will automatically open.
         for kernel in kernels:
             print('Running resync with kernel = {}...'.format(kernel))
-            art_start_LFP, art_start_BIP = detect_artifacts_in_recordings(
+            art_start_LFP = detect_artifacts_in_intracranial_recording(
                 session_ID = session_ID, 
                 lfp_sig = lfp_sig,
                 sf_LFP = sf_LFP,
-                BIP_channel = BIP_channel, 
-                sf_external = sf_external, 
                 saving_path = saving_path, 
                 kernel = kernel
                 )
-            artifact_correct = _get_input_y_n("Are artifacts properly selected ? ")
+            artifact_correct = _get_input_y_n(
+                "Is the intracranial artifact properly selected ? "
+                )
             if artifact_correct == 'y':
                 _update_and_save_params(
                     key = 'ART_TIME_LFP', 
@@ -189,12 +241,6 @@ def main_batch(
                 _update_and_save_params(
                     key = 'KERNEL', 
                     value = kernel, 
-                    session_ID = session_ID, 
-                    saving_path = saving_path
-                    )
-                _update_and_save_params(
-                    key = 'ART_TIME_BIP', 
-                    value = art_start_BIP,
                     session_ID = session_ID, 
                     saving_path = saving_path
                     )
@@ -259,6 +305,7 @@ def main_batch(
 
         # OPTIONAL : check for packet loss:
         if CHECK_FOR_PACKET_LOSS:
+            json_filename = row['fname_json']
             _update_and_save_params(
                 key = 'JSON_FILE', 
                 value = json_filename, 
@@ -270,6 +317,7 @@ def main_batch(
                 source_path = source_path
                 )
             check_packet_loss(json_object = json_object)
+
 
 """
         # OPTIONAL : plot cardiac artifact:

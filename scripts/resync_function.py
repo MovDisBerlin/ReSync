@@ -36,67 +36,47 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 
-def detect_artifacts_in_recordings(
+def detect_artifacts_in_external_recording(
     session_ID: str, 
-    lfp_sig: np.ndarray, 
-    sf_LFP,
     BIP_channel: np.ndarray, 
     sf_external,
     saving_path: str,
-    kernel: str
+    start_index
+
 ):
 
     """
-    This function synchronizes the intracerebral recording with
+    This function synchronizes the intracranial recording with
     the external recording of the same session.
 
     Inputs:
         - session_ID
-        - lfp_sig: np.ndarray, the channel of the intracerebral recording to be
-        used for alignment (the one containing deep brain stimulation artifacts)
-        - sf_LFP: sampling frequency of intracranial recording
         - BIP_channel: np.ndarray, the channel of the external recording to be 
         used for alignment (the one containing deep brain stimulation artifacts 
-        = the channel recorded with the bipolar electrode)
+            = the channel recorded with the bipolar electrode)
         - sf_external: sampling frequency of external recording
         - saving_path: str,
-        - kernel: str
+        - start_index: default is 0 when recording is properly started in StimOff,
+        but it can be changed when this is not the case (back-up option)
 
     
-    Outputs:
-        - art_start_LFP: the timestamp when the artifact starts in intracranial recording
+    Output:
         - art_start_BIP: the timestamp when the artifact starts in external recording
     """
 
 
 
-    # Generate timescales:
-    LFP_timescale_s = np.arange(
-        start = 0, 
-        stop = (len(lfp_sig)/sf_LFP), 
-        step = (1/sf_LFP)
-        )
+    # Generate timescale:
     external_timescale_s = np.arange(
         start = 0, 
         stop = (len(BIP_channel)/sf_external), 
         step = (1/sf_external)
         )
 
-    # PLOT 1 : 
-    # raw signal of the intracerebral channel used for artifact detection:
-    plot_LFP_artifact_channel(
-        session_ID = session_ID, 
-        timescale = LFP_timescale_s, 
-        data = lfp_sig, 
-        color ='darkorange', 
-        saving_path = saving_path
-        )
-    plt.close()
-
     # apply a highpass filter at 1Hz to the external bipolar channel (detrending)
     filtered_external = _filtering(BIP_channel) 
 
-    # PLOT 2 : 
+    # PLOT 1 : 
     # plot the signal of the external channel used for artifact detection:
     plot_BIP_artifact_channel(
         session_ID = session_ID, 
@@ -111,18 +91,14 @@ def detect_artifacts_in_recordings(
     ### DETECT ARTIFACTS ###
 
     # find artifacts in external bipolar channel:
-    art_idx_BIP = find_external_sync_artifact(
+    art_start_BIP = find_external_sync_artifact(
         data = filtered_external, 
-        sf_external = sf_external
+        sf_external = sf_external,
+        start_index = start_index
         )
     
-    
-    art_time_BIP = _convert_index_to_time(
-        art_idx = art_idx_BIP, 
-        sf = sf_external
-        )
 
-    # PLOT 3 : plot the external channel with its artifacts detected:
+    # PLOT 2 : plot the external channel with its artifacts detected:
     plot_channel(
         session_ID = session_ID, 
         timescale = external_timescale_s, 
@@ -131,19 +107,18 @@ def detect_artifacts_in_recordings(
         scatter = False
         )
     plt.ylabel('Artifact channel BIP (mV)')
-    for xline in art_time_BIP:
-        plt.axvline(
-            x = xline, 
+    plt.axvline(
+            x = art_start_BIP, 
             color ='black', 
             linestyle = 'dashed', 
             alpha = .3
             )
     plt.gcf()
-    filename = 'Fig3-External bipolar channel with artifacts detected.png'
+    filename = 'Fig2-External bipolar channel with artifact detected.png'
     plt.savefig(join(saving_path,filename), bbox_inches='tight')
     plt.show(block=False)
 
-    # PLOT 4 : 
+    # PLOT 3 : 
     # plot the first artifact detected in external channel (verification of sample choice):
     plot_channel(
         session_ID = session_ID, 
@@ -154,27 +129,75 @@ def detect_artifacts_in_recordings(
         )
     plt.ylabel('Artifact channel BIP - Voltage (mV)')
     plt.xlim(
-        art_time_BIP[0]-(60/sf_external),
-        art_time_BIP[0]+(60/sf_external)
+        art_start_BIP-(60/sf_external),
+        art_start_BIP+(60/sf_external)
         )
-    for xline in art_time_BIP:
-        plt.axvline(
-            x = xline, 
-            color = 'black', 
-            linestyle = 'dashed', 
-            alpha = .3
-            )
+    plt.axvline(
+        x = art_start_BIP, 
+        color = 'black', 
+        linestyle = 'dashed', 
+        alpha = .3
+        )
     plt.gcf()
-    filename = 'Fig4-External bipolar channel - first artifact detected.png'
+    filename = 'Fig3-External bipolar channel - first artifact detected.png'
     plt.savefig(
         join(saving_path,filename),
         bbox_inches='tight'
         )   
     plt.show(block=False)
 
-    art_start_BIP = art_time_BIP[0]
+    return art_start_BIP
 
-    # find artifacts in intracerebral channel
+
+
+
+def detect_artifacts_in_intracranial_recording(
+    session_ID: str, 
+    lfp_sig: np.ndarray, 
+    sf_LFP,
+    saving_path: str,
+    kernel: str
+):
+
+    """
+    This function synchronizes the intracranial recording with
+    the external recording of the same session.
+
+    Inputs:
+        - session_ID
+        - lfp_sig: np.ndarray, the channel of the intracranial recording to be
+        used for alignment (the one containing deep brain stimulation artifacts)
+        - sf_LFP: sampling frequency of intracranial recording
+        - saving_path: str,
+        - kernel: str
+
+    
+    Outputs:
+        - art_start_LFP: the timestamp when the artifact starts in intracranial recording
+        
+    """
+
+
+    # Generate timescale:
+    LFP_timescale_s = np.arange(
+        start = 0, 
+        stop = (len(lfp_sig)/sf_LFP), 
+        step = (1/sf_LFP)
+        )
+
+    # PLOT 4 : 
+    # raw signal of the intracranial channel used for artifact detection:
+    plot_LFP_artifact_channel(
+        session_ID = session_ID, 
+        timescale = LFP_timescale_s, 
+        data = lfp_sig, 
+        color ='darkorange', 
+        saving_path = saving_path
+        )
+    plt.close()
+
+
+    ### DETECT ARTIFACTS ###
     if kernel in  ['1', '2', 'thresh']:
         art_idx_LFP = find_LFP_sync_artifact(
             data = lfp_sig,
@@ -188,7 +211,7 @@ def detect_artifacts_in_recordings(
             )
 
         # PLOT 5 : 
-        # plot the intracerebral channel with its artifacts detected:
+        # plot the intracranial channel with its artifacts detected:
         plot_channel(
             session_ID = session_ID, 
             timescale = LFP_timescale_s, 
@@ -196,7 +219,7 @@ def detect_artifacts_in_recordings(
             color = 'darkorange',
             scatter = False
             )
-        plt.ylabel('Intracerebral LFP channel (µV)')
+        plt.ylabel('Intracranial LFP channel (µV)')
         for xline in art_time_LFP:
             plt.axvline(
                 x = xline, 
@@ -207,7 +230,7 @@ def detect_artifacts_in_recordings(
                 alpha = .3
                 )
         plt.gcf()
-        filename = ('Fig5-Intracerebral channel with artifacts detected - kernel ' 
+        filename = ('Fig5-Intracranial channel with artifact detected - kernel ' 
                     + str(kernel) 
                     + '.png')
         plt.savefig(join(saving_path, filename), bbox_inches='tight')
@@ -215,7 +238,7 @@ def detect_artifacts_in_recordings(
         
 
         # PLOT 6 : 
-        # plot the first artifact detected in intracerebral channel (verification of sample choice):
+        # plot the first artifact detected in intracranial channel (verification of sample choice):
         plot_channel(
             session_ID = session_ID, 
             timescale = LFP_timescale_s, 
@@ -223,7 +246,7 @@ def detect_artifacts_in_recordings(
             color = 'darkorange',
             scatter = True
             )
-        plt.ylabel('Intracerebral LFP channel (µV)')
+        plt.ylabel('Intracranial LFP channel (µV)')
         plt.xlim(art_time_LFP[0]-0.1, art_time_LFP[0]+0.3)
         for xline in art_time_LFP:
             plt.axvline(
@@ -235,7 +258,7 @@ def detect_artifacts_in_recordings(
                 alpha = .3
                 )
         plt.gcf()
-        filename = ('Fig6-Intracerebral channel - first artifact detected - kernel ' 
+        filename = ('Fig6-Intracranial channel - first artifact detected - kernel ' 
                     + str(kernel) 
                     + '.png')
         plt.savefig(join(saving_path,filename), bbox_inches='tight')
@@ -249,7 +272,7 @@ def detect_artifacts_in_recordings(
               f'the last sample before the deflexion, click on it and close the window.')
         closest_value_lfp = select_sample(signal = lfp_sig, sf = sf_LFP)
 
-        # PLOT 5 : plot the artifact adjusted by user in the intracerebral channel:
+        # PLOT 7 : plot the artifact adjusted by user in the intracranial channel:
         plot_channel(
             session_ID = session_ID, 
             timescale = LFP_timescale_s, 
@@ -257,7 +280,7 @@ def detect_artifacts_in_recordings(
             color = 'darkorange',
             scatter = True
             )
-        plt.ylabel('Intracerebral LFP channel (µV)')
+        plt.ylabel('Intracranial LFP channel (µV)')
         plt.xlim(closest_value_lfp-0.1, closest_value_lfp+0.3)
         plt.axvline(
             x = closest_value_lfp, 
@@ -269,16 +292,14 @@ def detect_artifacts_in_recordings(
             )
 
         plt.gcf()
-        filename = ('Fig5-Intracerebral channel - first artifact detected with correction by user - kernel ' 
-            + str(kernel) 
-            + '.png')
+        filename = ('Fig7-Intracranial channel - first artifact corrected by user.png')
         plt.savefig(join(saving_path, filename), bbox_inches='tight')
         plt.show(block=False)
 
         art_start_LFP = closest_value_lfp
 
 
-    return art_start_LFP, art_start_BIP
+    return art_start_LFP
 
 
 
@@ -297,7 +318,7 @@ def synchronize_recordings(
 ):
 
     if CROP_BOTH:
-        # crop intracerebral and external recordings 1 second before first artifact
+        # crop intracranial and external recordings 1 second before first artifact
         (LFP_df_offset, 
         external_df_offset) = sync_by_cropping_both(
             LFP_array = LFP_array, 
@@ -352,7 +373,7 @@ def save_synchronized_recordings(
             LFP_df_offset['sf_LFP'] = sf_LFP
             external_df_offset['sf_external'] = sf_external
             LFP_df_offset.to_csv(join(saving_path, 
-                                      ('Intracerebral_LFP_' 
+                                      ('Intracranial_LFP_' 
                                        + str(session_ID) 
                                        + '.csv')), 
                                        index=False
@@ -368,7 +389,7 @@ def save_synchronized_recordings(
             external_df_offset['sf_external'] = sf_external
             LFP_filename = join(
                 saving_path, 
-                ('Intracerebral_LFP_' + str(session_ID) + '.pkl')
+                ('Intracranial_LFP_' + str(session_ID) + '.pkl')
                 )
             external_filename = join(
                 saving_path, 
@@ -383,7 +404,7 @@ def save_synchronized_recordings(
         if saving_format == 'mat':
             LFP_filename = join(
                 saving_path, 
-                ('Intracerebral_LFP_' + str(session_ID) + '.mat')
+                ('Intracranial_LFP_' + str(session_ID) + '.mat')
                 )
             external_filename = join(
                 saving_path, 
@@ -403,7 +424,7 @@ def save_synchronized_recordings(
             
         if saving_format == 'brainvision':
             LFP_array_offset = LFP_df_offset.T.to_numpy()
-            LFP_filename = ('Intracerebral_LFP_' + str(session_ID))
+            LFP_filename = ('Intracranial_LFP_' + str(session_ID))
             write_brainvision(
                 data = LFP_array_offset, 
                 sfreq = sf_LFP, 

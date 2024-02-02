@@ -2,6 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from os.path import join
 
 from utils import _filtering
 from interactive import select_sample
@@ -17,19 +18,19 @@ def check_timeshift(
         ):
 
     """
-    Check the timeshift between the intracerebral and external recordings after
+    Check the timeshift between the intracranial and external recordings after
     synchronization. As the two recording systems are different, it may happen
     that the internal clocks are not completely identical. This function allows
     to check this and to warn in case of a large timeshift.
-    To do so, the function plots the intracerebral recording and the external one.
+    To do so, the function plots the intracranial recording and the external one.
     On each plot, the user is asked to select the sample corresponding to the
     last artifact in the recording. The function then computes the time difference
     between the two times. If the difference is large, it may indicate a problem
-    in the recording, such as a packet loss in the intracerebral recording.
+    in the recording, such as a packet loss in the intracranial recording.
 
     Inputs:
         - session_ID: str, the subject ID
-        - LFP_df_offset: pd.DataFrame, the intracerebral recording containing all
+        - LFP_df_offset: pd.DataFrame, the intracranial recording containing all
         recorded channels
         - sf_LFP: sampling frequency of intracranial recording
         - external_df_offset: pd.DataFrame, the external recording containing all
@@ -37,7 +38,6 @@ def check_timeshift(
         - sf_external: sampling frequency of external recording
         - saving_path: str, path to the folder where the parameters.json file is
         saved
-        - SHOW_FIGURES: bool = True
 
     """
 
@@ -104,7 +104,7 @@ def check_timeshift(
     fig.set_figwidth(6)
     ax1.axes.xaxis.set_ticklabels([])
     ax2.set_xlabel('Time (s)')
-    ax1.set_ylabel('Intracerebral LFP channel (µV)')
+    ax1.set_ylabel('Intracranial LFP channel (µV)')
     ax2.set_ylabel('External bipolar channel (mV)')
     ax1.set_xlim(last_artifact_external_x - 0.1, last_artifact_external_x + 0.1) 
     ax2.set_xlim(last_artifact_external_x - 0.1, last_artifact_external_x + 0.1)
@@ -159,9 +159,9 @@ def check_timeshift(
         )
        
     plt.gcf()
-    fig.savefig(
-        saving_path 
-        + '\\FigA-Timeshift_Intracerebral and external recordings aligned_last artifact.png', 
+    fig.savefig(join(
+        saving_path,
+        'FigA-Timeshift - Intracranial and external recordings aligned - last artifact.png'), 
         bbox_inches = 'tight', 
         dpi = 1200
         )

@@ -9,7 +9,8 @@ from utils import _calculate_difference
 
 def find_external_sync_artifact(
     data: np.ndarray, 
-    sf_external: int
+    sf_external: int,
+    start_index
 ):
 
     """ 
@@ -33,14 +34,7 @@ def find_external_sync_artifact(
 
     """
 
-    #initialize variables (lists and state)
-    index_artifact_start_external = []
-    stimON = False
 
-    start_index = 0
-    stop_index = len(data)-2
-
-    #check polarity of artifacts before detection:
     '''
     To be properly detected in external channel, artifacts have to look 
     like a downward deflection (they are more negative than positive). 
@@ -48,6 +42,7 @@ def find_external_sync_artifact(
     deflection instead, then the signal has to be inverted before detecting 
     artifacts.
     '''
+    #check polarity of artifacts before detection:
     if abs(max(data[:-1000])) > abs(min(data[:-1000])):
         print('external signal is reversed')
         data = data * -1
@@ -63,17 +58,13 @@ def find_external_sync_artifact(
     # detected, the function waits until the signal is above the threshold again
     # and then starts looking for the next artifact.
 
-    for q in range(start_index, stop_index):
+    for q in range(start_index, len(data)-2):
         if ((data[q] <= thresh_BIP) and (data[q] < data[q + 1]) 
             and (data[q] < data[q - 1])):
-            if not stimON :
-                index_artifact_start_external.append(q)
-                stimON = True
-            else:
-                if (all(data[(q + 2):(q + int(0.5*sf_external))] > thresh_BIP)):
-                    stimON = False
+            art_time_BIP = q/sf_external
+            break
 
-    return index_artifact_start_external
+    return art_time_BIP
 
 
 
