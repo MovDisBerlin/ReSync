@@ -64,9 +64,9 @@ from packet_loss import check_packet_loss
 
 def main_batch(
         excel_fname = 'recording_information_personal.xlsx',
-        saving_format = 'csv',
-        CROP_BOTH = True,
-        CHECK_FOR_TIMESHIFT = True,
+        saving_format = 'mat',
+        CROP_BOTH = False,
+        CHECK_FOR_TIMESHIFT = False,
         CHECK_FOR_PACKET_LOSS = False,
 ):
     
@@ -218,7 +218,7 @@ def main_batch(
                 )
 
             # 2.2. Find artifacts in intracranial recording:
-        kernels = ['manual', 'thresh', '2', '1']
+        kernels = ['thresh', 'manual', '2', '1']
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
         # manual kernel is for none of the two previous kernels work. Then the artifact
@@ -251,13 +251,11 @@ def main_batch(
                 break
 
         # 3. SYNCHRONIZE RECORDINGS TOGETHER:
-        (LFP_df_offset, external_df_offset) = synchronize_recordings(
+        (LFP_synchronized, external_synchronized) = synchronize_recordings(
             LFP_array = LFP_array,
             external_file = external_file,
             art_start_LFP = art_start_LFP,
             art_start_BIP = art_start_BIP,
-            LFP_rec_ch_names = LFP_rec_ch_names, 
-            external_rec_ch_names = external_rec_ch_names, 
             sf_LFP = sf_LFP,
             sf_external = sf_external,
             CROP_BOTH = CROP_BOTH
@@ -272,8 +270,8 @@ def main_batch(
             ) 
         save_synchronized_recordings(
             session_ID = session_ID,
-            LFP_df_offset = LFP_df_offset, 
-            external_df_offset = external_df_offset,
+            LFP_synchronized = LFP_synchronized, 
+            external_synchronized = external_synchronized,
             LFP_rec_ch_names = LFP_rec_ch_names,
             external_rec_ch_names = external_rec_ch_names,
             sf_LFP = sf_LFP,
@@ -287,22 +285,23 @@ def main_batch(
         # 5. PLOT SYNCHRONIZED RECORDINGS:
         plot_LFP_external(
             session_ID = session_ID, 
-            LFP_df_offset = LFP_df_offset, 
-            external_df_offset = external_df_offset, 
+            LFP_synchronized = LFP_synchronized, 
+            external_synchronized = external_synchronized, 
             sf_LFP = sf_LFP, 
             sf_external = sf_external, 
             ch_idx_lfp = ch_idx_lfp, 
             ch_index_external = ch_index_external, 
-            saving_path = saving_path)
+            saving_path = saving_path
+            )
 
         #  OPTIONAL : check timeshift:
         if CHECK_FOR_TIMESHIFT:
             print('Starting timeshift analysis...')
             check_timeshift(
                 session_ID = session_ID, 
-                LFP_df_offset = LFP_df_offset, 
+                LFP_synchronized = LFP_synchronized, 
                 sf_LFP = sf_LFP, 
-                external_df_offset = external_df_offset, 
+                external_synchronized = external_synchronized, 
                 sf_external = sf_external, 
                 saving_path = saving_path
                 )
@@ -327,9 +326,9 @@ def main_batch(
         # OPTIONAL : plot cardiac artifact:
         ecg(
             session_ID = session_ID, 
-            LFP_df_offset = LFP_df_offset, 
+            LFP_synchronized = LFP_synchronized, 
             sf_LFP = sf_LFP, 
-            external_df_offset = external_df_offset, 
+            external_synchronized = external_synchronized, 
             sf_external = sf_external, 
             saving_path = saving_path, 
             xmin = 0.25, 

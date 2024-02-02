@@ -10,9 +10,9 @@ from utils import _update_and_save_params
 
 def check_timeshift(
         session_ID: str, 
-        LFP_df_offset: pd.DataFrame, 
+        LFP_synchronized, 
         sf_LFP, 
-        external_df_offset: pd.DataFrame, 
+        external_synchronized, 
         sf_external, 
         saving_path: str
         ):
@@ -47,10 +47,15 @@ def check_timeshift(
         loaded_dict =  json.load(f)
 
     # Reselect artifact channels in the aligned (= cropped) files:
-    LFP_channel_offset = LFP_df_offset.iloc[:, 
-                                            loaded_dict["CH_IDX_LFP"]].to_numpy()  
-    BIP_channel_offset = external_df_offset.iloc[:, 
-                                                 loaded_dict["CH_IDX_EXTERNAL"]].to_numpy() 
+    #LFP_channel_offset = LFP_df_offset.iloc[:, 
+                                            #loaded_dict["CH_IDX_LFP"]].to_numpy()  
+    #BIP_channel_offset = external_df_offset.iloc[:, 
+                                                 #loaded_dict["CH_IDX_EXTERNAL"]].to_numpy() 
+    
+    LFP_channel_offset = LFP_synchronized[:,loaded_dict["CH_IDX_LFP"]]
+    print(len(LFP_channel_offset))
+    BIP_channel_offset = external_synchronized[:,loaded_dict["CH_IDX_EXTERNAL"]]
+    print(len(BIP_channel_offset))
 
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(
@@ -60,7 +65,7 @@ def check_timeshift(
         )
     external_timescale_offset_s = np.arange(
         start = 0, 
-        stop = len(external_df_offset)/sf_external, 
+        stop = len(external_synchronized)/sf_external, 
         step = 1/sf_external
         )
 

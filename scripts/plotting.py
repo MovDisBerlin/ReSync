@@ -226,8 +226,8 @@ def plot_channel(
 
 def plot_LFP_external(
         session_ID: str, 
-        LFP_df_offset: pd.DataFrame, 
-        external_df_offset: pd.DataFrame, 
+        LFP_synchronized, 
+        external_synchronized, 
         sf_LFP: int, 
         sf_external: int, 
         ch_idx_lfp: int, 
@@ -238,8 +238,11 @@ def plot_LFP_external(
     # Reselect artifact channels in the aligned (= cropped) files
     if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
 
-    LFP_channel_offset = LFP_df_offset.iloc[:,ch_idx_lfp].to_numpy()  
-    BIP_channel_offset = external_df_offset.iloc[:,ch_index_external].to_numpy() 
+    #LFP_channel_offset = LFP_df_offset.iloc[:,ch_idx_lfp].to_numpy()  
+    #BIP_channel_offset = external_df_offset.iloc[:,ch_index_external].to_numpy() 
+
+    LFP_channel_offset = LFP_synchronized[:,ch_idx_lfp]
+    BIP_channel_offset = external_synchronized[:,ch_index_external]
 
      # pre-processing of external bipolar channel :
     b, a = scipy.signal.butter(1, 0.05, 'highpass')
@@ -285,16 +288,16 @@ def plot_LFP_external(
         ('Fig8-Intracranial and external recordings aligned.png')),
         bbox_inches = 'tight'
         )
-    plt.show(block=False)
+    plt.show(block=True)
 
 
 import json
 
 def ecg(
         session_ID: str, 
-        LFP_df_offset: pd.DataFrame, 
+        LFP_synchronized: pd.DataFrame, 
         sf_LFP: int,
-        external_df_offset: pd.DataFrame,
+        external_synchronized: pd.DataFrame,
         sf_external: int,
         saving_path: str,
         xmin: float,
@@ -312,12 +315,9 @@ def ecg(
         loaded_dict =  json.load(f)
 
     # Reselect artifact channels in the aligned (= cropped) files
-    LFP_channel_offset = LFP_df_offset.iloc[:, loaded_dict['CH_IDX_LFP']].to_numpy()  
-    BIP_channel_offset = external_df_offset.iloc[:, loaded_dict['CH_IDX_EXTERNAL']].to_numpy() 
+    LFP_channel_offset = LFP_synchronized[:, loaded_dict['CH_IDX_LFP']] 
+    BIP_channel_offset = external_synchronized[:, loaded_dict['CH_IDX_EXTERNAL']]
 
-    # pre-processing of external bipolar channel before searching artifacts:
-    #filtered_external_offset = _filtering(BIP_channel_offset)
-    filtered_external_offset=BIP_channel_offset
 
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(0, 
@@ -351,7 +351,7 @@ def ecg(
         )
     ax2.plot(
         external_timescale_offset_s,
-        filtered_external_offset, 
+        BIP_channel_offset, 
         color = 'darkcyan', 
         zorder = 1, 
         linewidth = 1

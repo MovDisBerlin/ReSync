@@ -111,22 +111,3 @@ def _get_user_input(message: str) -> int:
     return user_input
 
 
-
-def _calculate_difference(
-        data, 
-        sampling_rate
-        ):
-    # Calculate the number of samples corresponding to the first 2 seconds
-    num_samples_2_seconds = int(sampling_rate * 2)
-
-    # Extract the first 2 seconds of data
-    data_2_seconds = data[:num_samples_2_seconds]
-
-    # Find the minimum and maximum values
-    min_value = min(data_2_seconds)
-    max_value = max(data_2_seconds)
-
-    # Calculate the difference
-    difference = abs(max_value - min_value)
-
-    return difference

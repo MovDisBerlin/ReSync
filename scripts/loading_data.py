@@ -291,7 +291,6 @@ def load_TMSi_artifact_channel(
 	toMNE = True
 	TMSi_rec = TMSi_data.read_data_MNE()
 	external_rec_ch_names = TMSi_rec.ch_names
-	n_chan = len(TMSi_rec.ch_names)
 	time_duration_TMSi_s = (TMSi_rec.n_times/TMSi_rec.info['sfreq']).astype(float)
 	sf_external = int(TMSi_rec.info['sfreq'])
 

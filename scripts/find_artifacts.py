@@ -2,8 +2,6 @@ import numpy as np
 from scipy.signal import find_peaks
 from itertools import compress
 
-from utils import _calculate_difference
-
 
 # Detection of artifacts in TMSi
 

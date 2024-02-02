@@ -303,8 +303,6 @@ def synchronize_recordings(
 		external_file,
         art_start_LFP,
         art_start_BIP,
-        LFP_rec_ch_names, 
-        external_rec_ch_names, 
         sf_LFP,
         sf_external,
 		CROP_BOTH
@@ -312,14 +310,12 @@ def synchronize_recordings(
 
     if CROP_BOTH:
         # crop intracranial and external recordings 1 second before first artifact
-        (LFP_df_offset, 
-        external_df_offset) = sync_by_cropping_both(
+        (LFP_synchronized, 
+        external_synchronized) = sync_by_cropping_both(
             LFP_array = LFP_array, 
             external_file = external_file, 
             art_start_LFP = art_start_LFP, 
             art_start_BIP = art_start_BIP, 
-            LFP_rec_ch_names = LFP_rec_ch_names, 
-            external_rec_ch_names = external_rec_ch_names, 
             sf_LFP = sf_LFP,
             sf_external = sf_external
             )
@@ -327,27 +323,26 @@ def synchronize_recordings(
 
     else:
         # only crop beginning and end of external recording to match LFP recording:
-        (LFP_df_offset, 
-        external_df_offset) = align_external_on_LFP(
+        (LFP_synchronized, 
+        external_synchronized) = align_external_on_LFP(
             LFP_array = LFP_array, 
             external_file = external_file, 
             art_start_LFP = art_start_LFP, 
             art_start_BIP = art_start_BIP,  
-            external_rec_ch_names = external_rec_ch_names, 
             sf_LFP = sf_LFP,
             sf_external = sf_external
             )
 
 
-    return LFP_df_offset, external_df_offset
+    return LFP_synchronized, external_synchronized
 
 
 
 
 def save_synchronized_recordings(
     session_ID,
-    LFP_df_offset, 
-    external_df_offset,
+    LFP_synchronized, 
+    external_synchronized,
     LFP_rec_ch_names,
     external_rec_ch_names,
     sf_LFP,
@@ -362,6 +357,11 @@ def save_synchronized_recordings(
 
 
     if CROP_BOTH:
+        LFP_df_offset = pd.DataFrame(LFP_synchronized)
+        LFP_df_offset.columns = LFP_rec_ch_names
+        external_df_offset = pd.DataFrame(external_synchronized)
+        external_df_offset.columns = external_rec_ch_names
+
         if saving_format == 'csv':
             LFP_df_offset['sf_LFP'] = sf_LFP
             external_df_offset['sf_external'] = sf_external
@@ -416,20 +416,20 @@ def save_synchronized_recordings(
                                        )
             
         if saving_format == 'brainvision':
-            LFP_array_offset = LFP_df_offset.T.to_numpy()
+            #LFP_array_offset = LFP_df_offset.T.to_numpy()
             LFP_filename = ('Intracranial_LFP_' + str(session_ID))
             write_brainvision(
-                data = LFP_array_offset, 
+                data = LFP_synchronized, 
                 sfreq = sf_LFP, 
                 ch_names = LFP_rec_ch_names, 
                 fname_base = LFP_filename, 
                 folder_out = saving_path, 
                 overwrite = True
                 )
-            external_array_offset = external_df_offset.T.to_numpy()
+            #external_array_offset = external_df_offset.T.to_numpy()
             external_filename = ('External_data_' + str(session_ID))
             write_brainvision(
-                data = external_array_offset, 
+                data = external_synchronized, 
                 sfreq = sf_external, 
                 ch_names = external_rec_ch_names, 
                 fname_base = external_filename,
@@ -441,6 +441,9 @@ def save_synchronized_recordings(
         print('Alignment performed, both recordings were cropped and saved 1s before first artifact !')
 
     else:
+        external_df_offset = pd.DataFrame(external_synchronized)
+        external_df_offset.columns = external_rec_ch_names
+
         if saving_format == 'csv':
             external_df_offset['sf_external'] = sf_external
             external_df_offset.to_csv(join
@@ -473,10 +476,10 @@ def save_synchronized_recordings(
                                    )
             
         if saving_format == 'brainvision':
-            external_array_offset = external_df_offset.T.to_numpy()
+            #external_array_offset = external_df_offset.T.to_numpy()
             external_filename = ('External_data_' + str(session_ID))
             write_brainvision(
-                data = external_array_offset, 
+                data = external_synchronized, 
                 sfreq = sf_external,
                 ch_names = external_rec_ch_names, 
                 fname_base = external_filename,
