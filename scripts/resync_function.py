@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from os.path import join
 import pickle
+import scipy
 from scipy.io import savemat
 from pybv import write_brainvision
 
 #import custom-made functions
-from utils import _filtering
 from find_artifacts import *
 from plotting import *
 from sync import sync_by_cropping_both, align_external_on_LFP
@@ -69,7 +69,9 @@ def detect_artifacts_in_external_recording(
         )
 
     # apply a highpass filter at 1Hz to the external bipolar channel (detrending)
-    filtered_external = _filtering(BIP_channel) 
+    b, a = scipy.signal.butter(1, 0.05, 'highpass')
+    filtered_external = scipy.signal.filtfilt(b, a, BIP_channel)
+
 
     # PLOT 1 : 
     # plot the signal of the external channel used for artifact detection:

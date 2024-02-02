@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from os.path import join
+import scipy
 
-from utils import _filtering
 from interactive import select_sample
 from utils import _update_and_save_params
 
@@ -65,7 +65,9 @@ def check_timeshift(
         )
 
     # detrend external recording with high-pass filter before processing:
-    filtered_external_offset = _filtering(BIP_channel_offset)
+    b, a = scipy.signal.butter(1, 0.05, 'highpass')
+    filtered_external_offset = scipy.signal.filtfilt(b, a, BIP_channel_offset)
+
 
     print ('Select the sample corresponding to the last artifact in the intracranial recording')
     last_artifact_lfp_x = select_sample(
@@ -159,6 +161,7 @@ def check_timeshift(
         )
        
     plt.gcf()
+    plt.show(block=True)
     fig.savefig(join(
         saving_path,
         'FigA-Timeshift - Intracranial and external recordings aligned - last artifact.png'), 

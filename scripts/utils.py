@@ -112,20 +112,6 @@ def _get_user_input(message: str) -> int:
 
 
 
-
-def _filtering(
-        BIP_channel
-        ):
-    """
-    This function applies a highpass filter at 1Hz to detrend the data.
-    """
-
-    b, a = scipy.signal.butter(1, 0.05, 'highpass')
-    filteredHighPass = scipy.signal.filtfilt(b, a, BIP_channel)
-
-    return filteredHighPass
-
-
 def _calculate_difference(
         data, 
         sampling_rate
