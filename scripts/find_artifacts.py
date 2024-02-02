@@ -10,7 +10,7 @@ from utils import _calculate_difference
 def find_external_sync_artifact(
     data: np.ndarray, 
     sf_external: int,
-    start_index
+    start_index = 0
 ):
 
     """ 
@@ -19,8 +19,6 @@ def find_external_sync_artifact(
     For correct functioning, the external data recording should
     start in stim-off, and typically short pulses are given 
     (without ramping). 
-    This function uses a fixed threshold ('thresh_external'), which
-    has to be adapted to each data recorder in the config.json file. 
     The signal must be pre-processed previously with a high-pass 
     Butterworth filter (1Hz) to ensure removal of slow drifts
     and offset around 0.
@@ -28,9 +26,14 @@ def find_external_sync_artifact(
     Inputs:
         - data: np.ndarray, single external channel (from bipolar electrode)
         - sf_external: int, sampling frequency of external recording
+        - start_index: default is 0, which means that the function will start
+            looking for artifacts from the beginning of the signal. If the
+            function is called with a start_index different from 0, the function
+            will start looking for artifacts from that index. This is useful when
+            the recording was started in Stimulation ON or when there is another
+            kind of artifact at the beginning of the recording
     Returns:
-        - index_artifact_start_external: list, containing the indexes of each
-            artifact start detected. 
+        - art_time_BIP: the timestamp where the artifact starts in external recording 
 
     """
 
@@ -92,13 +95,15 @@ def find_LFP_sync_artifact(
             automatically inverts the signal if first a positive
             peak is found, this indicates an inverted signal)
         - sf_LFP (int): sampling frequency of intracranial recording
-        - use_kernel: decides whether kernel 1 or 2 is used,
-            kernel 1 is straight-forward and finds a steep decrease,
-            kernel 2 mimics the steep decrease and slow recovery of the signal. 
-            In our tests, kernel 2 was the best in 52.7% of the cases.
+        - use_kernel: str, '1' or '2' or 'thresh'. The kernel/method used to detect
+            the stim-artifact. '1' is a simple kernel that only detects the
+            steep decrease of the stim-artifact. '2' is a more complex kernel
+            that takes into account the steep decrease and slow recover of the
+            stim-artifact. 'thresh' is a method that uses a threshold to detect
+            the stim-artifact.
     
     Returns:
-        - stim_idx: a list with all stim-artifact starts. 
+        - art_time_LFP: the timestamp where the artifact starts in intracranial recording.
     """
     
     signal_inverted = False  # defaults false

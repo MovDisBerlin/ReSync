@@ -195,6 +195,10 @@ def main_batch(
                 saving_path = saving_path
                 )
         else:
+            # if there's an unrelated artifact or if the stimulation is ON at the beginning
+            # of the recording, the user can input the number of seconds to ignore at the
+            # beginning of the recording, and the function will start looking for artifacts
+            # after that time.
             start_later = _get_user_input(
                 "How many seconds in the beginning should be ignored "
                 )
