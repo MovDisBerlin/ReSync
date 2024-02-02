@@ -69,15 +69,19 @@ def check_timeshift(
     filtered_external_offset = scipy.signal.filtfilt(b, a, BIP_channel_offset)
 
 
-    print ('Select the sample corresponding to the last artifact in the intracranial recording')
+    print ('Select the first sample of the last artifact in the intracranial recording')
     last_artifact_lfp_x = select_sample(
         signal = LFP_channel_offset, 
-        sf = sf_LFP
+        sf = sf_LFP,
+        color1 = 'peachpuff',
+        color2 = 'darkorange'
         )
-    print ('Select the sample corresponding to the last artifact in the external recording')
+    print ('Select the first sample of the last artifact in the external recording')
     last_artifact_external_x = select_sample(
         signal = filtered_external_offset, 
-        sf = sf_external
+        sf = sf_external,
+        color1 = 'paleturquoise',
+        color2 = 'darkcyan'
         ) 
 
     timeshift_ms = (last_artifact_external_x - last_artifact_lfp_x)*1000

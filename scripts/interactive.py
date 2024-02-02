@@ -5,7 +5,9 @@ from utils import _get_input_y_n
 
 def select_sample(
         signal: np.ndarray, 
-        sf: int
+        sf: int,
+        color1: str,
+        color2: str
         ):
     
     """
@@ -16,7 +18,12 @@ def select_sample(
     """
 
     signal_timescale_s = np.arange(0, (len(signal)/sf), (1/sf))
-    selected_x = interaction(data = signal, timescale = signal_timescale_s)
+    selected_x = interaction(
+        data = signal, 
+        timescale = signal_timescale_s, 
+        color1 = color1, 
+        color2 = color2
+        )
 
     # Find the index of the closest value
     closest_index = np.argmin(np.abs(signal_timescale_s - selected_x))
@@ -31,7 +38,9 @@ def select_sample(
 
 def interaction(
         data: np.ndarray,
-        timescale: np.ndarray
+        timescale: np.ndarray,
+        color1: str,
+        color2: str
         ):
     
     """
@@ -44,7 +53,8 @@ def interaction(
     pos = [] 
 
     fig, ax = plt.subplots()
-    ax.scatter(timescale, data, s=8, c='darkorchid')
+    ax.plot(timescale, data, c = color1, zorder = 1)
+    ax.scatter(timescale, data, s = 8, c = color2, zorder = 2)
     ax.set_title('Click on the plot to select the sample \n' 
                  'where the artifact starts. You can use the zoom, \n'
                  'as long as the black "+" is placed on the correct sample \n'

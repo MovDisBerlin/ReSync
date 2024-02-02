@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import mne
 from os.path import join
+import scipy
 
 import matplotlib
 matplotlib.use('Qt5Agg')
@@ -223,8 +224,6 @@ def plot_channel(
 
 
 
-from utils import _filtering
-
 def plot_LFP_external(
         session_ID: str, 
         LFP_df_offset: pd.DataFrame, 
@@ -243,7 +242,9 @@ def plot_LFP_external(
     BIP_channel_offset = external_df_offset.iloc[:,ch_index_external].to_numpy() 
 
      # pre-processing of external bipolar channel :
-    filtered_external_offset = _filtering(BIP_channel_offset)
+    b, a = scipy.signal.butter(1, 0.05, 'highpass')
+    filtered_external_offset = scipy.signal.filtfilt(b, a, BIP_channel_offset)
+
 
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(0,

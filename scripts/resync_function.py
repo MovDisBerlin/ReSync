@@ -260,7 +260,12 @@ def detect_artifacts_in_intracranial_recording(
         print(f'Automatic detection of intracranial artifacts failed, use manual method. \n'
               f'In the pop up window, zoom on the first artifact until you can select properly'
               f'the last sample before the deflexion, click on it and close the window.')
-        art_start_LFP = select_sample(signal = lfp_sig, sf = sf_LFP)
+        art_start_LFP = select_sample(
+            signal = lfp_sig, 
+            sf = sf_LFP, 
+            color1 = 'peachpuff',
+            color2 = 'darkorange'
+            )
 
         # PLOT 7 : plot the artifact adjusted by user in the intracranial channel:
         plot_channel(

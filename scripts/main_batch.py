@@ -218,10 +218,10 @@ def main_batch(
                 )
 
             # 2.2. Find artifacts in intracranial recording:
-        kernels = ['thresh', '2', '1', 'manual']
+        kernels = ['manual', 'thresh', '2', '1']
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
-        # manual kernel is for none of the tw previous kernels work. Then the artifact
+        # manual kernel is for none of the two previous kernels work. Then the artifact
         # has to be manually selected by the user, in a pop up window that will automatically open.
         for kernel in kernels:
             print('Running resync with kernel = {}...'.format(kernel))
