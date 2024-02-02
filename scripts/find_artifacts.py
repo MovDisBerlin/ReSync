@@ -96,8 +96,6 @@ def find_LFP_sync_artifact(
             kernel 1 is straight-forward and finds a steep decrease,
             kernel 2 mimics the steep decrease and slow recovery of the signal. 
             In our tests, kernel 2 was the best in 52.7% of the cases.
-        - consider_first_seconds_LFP: if given, only artifacts in the first
-            (and last) n-seconds are considered
     
     Returns:
         - stim_idx: a list with all stim-artifact starts. 
@@ -187,15 +185,16 @@ def find_LFP_sync_artifact(
 
         # filter out inconsistencies in peak heights (assuming sync-stim-artifacts are stable)
         abs_heights = [max(abs(data[i - 5: i + 5])) for i in stim_idx]
-        diff_median = np.array([abs(p - np.median(abs_heights)) for p in abs_heights])
-        sel_idx = diff_median < (np.median(abs_heights)*.66)
-        stim_idx = list(compress(stim_idx, sel_idx))
+        #diff_median = np.array([abs(p - np.median(abs_heights)) for p in abs_heights])
+        #sel_idx = diff_median < (np.median(abs_heights)*.66)
+        #stim_idx = list(compress(stim_idx, sel_idx))
         # check polarity of peak
         if not signal_inverted:
             sel_idx = np.array([min(data[i - 5: i + 5]) for i in stim_idx]) < (np.median(abs_heights) * -.5)
         elif signal_inverted:
             sel_idx = np.array([max(data[i - 5: i + 5]) for i in stim_idx])  > (np.median(abs_heights) * .5)
-        stim_idx = list(compress(stim_idx, sel_idx))
+        stim_idx_all = list(compress(stim_idx, sel_idx))
+        stim_idx = stim_idx_all[0]
 
     else:
         thres_window = sf_LFP * 2
@@ -206,8 +205,10 @@ def find_LFP_sync_artifact(
         over_thres = np.where(abs_data > thres)[0][0]
         # Take last sample that lies within the value distribution of the thres_window before the threshold passing
         # The percentile is something that can be varied
-        artifact_idx = np.where(abs_data[:over_thres] <= np.percentile(abs_data[:over_thres], 95))[0][-1]
-        stim_idx = [artifact_idx]
+        stim_idx = np.where(abs_data[:over_thres] <= np.percentile(abs_data[:over_thres], 95))[0][-1]
+        #stim_idx = [artifact_idx]
+
+    art_time_LFP = stim_idx/sf_LFP
 
 
-    return stim_idx
+    return art_time_LFP

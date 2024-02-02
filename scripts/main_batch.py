@@ -194,9 +194,9 @@ def main_batch(
                 session_ID = session_ID, 
                 saving_path = saving_path
                 )
-        else: 
+        else:
             start_later = _get_user_input(
-                "How many seconds in the beginning should be ignored?"
+                "How many seconds in the beginning should be ignored "
                 )
             start_later_index = start_later*sf_external
             art_start_BIP = detect_artifacts_in_external_recording(

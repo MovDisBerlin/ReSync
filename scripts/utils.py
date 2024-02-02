@@ -57,60 +57,6 @@ def _is_channel_in_list(
     else:
         return False
 
-### FUNCTIONS FOR CONVERSION time/index ###
-
-# Conversion between index and timestamps
-
-def _convert_index_to_time(
-    art_idx: list,
-    sf: int
-    ):
-    """ 
-    Function to calculate timestamps 
-    of indexes from a list
-    
-    Inputs:
-        - art_idx : list of indexes
-        - sf : sampling frequency of the signal 
-        from which the indexes come from
-
-    Returns:
-        - art_time : list of timestamps
-    """
-
-    art_time = []
-    for n in np.arange(0, len(art_idx), 1):
-        art_time_x = art_idx[n]/sf
-        art_time.append(art_time_x)
-        
-    return art_time
-
-
-
-def _convert_time_to_index(
-    art_time: list, 
-    sf: int
-    ):
-    
-    """ 
-    Function to calculate indexes from a list of timestamps.
-    
-    Inputs:
-        - art_time : list of timestamps
-        - sf : sampling frequency of the signal 
-        from which the timestamps come from
-    
-    Returns:
-        - art_idx : list of indexes    
-    """
-
-    art_idx = []
-    for n in np.arange(0, len(art_time), 1):
-        art_idx_x = art_time[n]*sf
-        art_idx.append(art_idx_x)
-    
-    return art_idx
-
 
 
 
@@ -151,19 +97,20 @@ def _get_input_y_n(message: str) -> str:
     return user_input
 
 
-def _get_user_input(message: str) -> str:
+def _get_user_input(message: str) -> int:
 
     """Get user input."""
 
     while True:
-
-        user_input = input(f"{message}? ")
-
-        assert user_input[-5:] == '.json', (
-        f'filename no .json INCORRECT extension: {user_input}'
-    )
+        try:
+            user_input = int(input(f"{message}? "))
+            break
+        except ValueError:
+            print("Input must be an integer. Please provide a valid input.")
 
     return user_input
+
+
 
 
 def _filtering(
