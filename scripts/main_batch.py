@@ -63,10 +63,10 @@ from resync_function import (
 from packet_loss import check_packet_loss
 
 def main_batch(
-        excel_fname = 'recording_information_personal.xlsx',
+        excel_fname = 'recording_information.xlsx',
         saving_format = 'mat',
         CROP_BOTH = False,
-        CHECK_FOR_TIMESHIFT = False,
+        CHECK_FOR_TIMESHIFT = True,
         CHECK_FOR_PACKET_LOSS = False,
 ):
     
@@ -218,7 +218,7 @@ def main_batch(
                 )
 
             # 2.2. Find artifacts in intracranial recording:
-        kernels = ['thresh', 'manual', '2', '1']
+        kernels = ['thresh', '2', '1', 'manual']
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
         # manual kernel is for none of the two previous kernels work. Then the artifact
@@ -331,11 +331,11 @@ def main_batch(
             external_synchronized = external_synchronized, 
             sf_external = sf_external, 
             saving_path = saving_path, 
-            xmin = 0.25, 
-            xmax = 0.36
+            xmin = 0, 
+            xmax = 2
             )
-"""
 
+"""
 
 
 if __name__ == '__main__':

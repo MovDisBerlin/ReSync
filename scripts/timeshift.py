@@ -47,10 +47,8 @@ def check_timeshift(
         loaded_dict =  json.load(f)
     
     LFP_channel_offset = LFP_synchronized[:,loaded_dict["CH_IDX_LFP"]]
-    print(len(LFP_channel_offset))
     BIP_channel_offset = external_synchronized[:,loaded_dict["CH_IDX_EXTERNAL"]]
-    print(len(BIP_channel_offset))
-
+    
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(
         start = 0, 
