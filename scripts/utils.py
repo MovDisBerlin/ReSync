@@ -40,6 +40,17 @@ def _update_and_save_params(
         session_ID, 
         saving_path
         ):
+    
+    """
+    This function is used to update the parameters dictionary and save it in a json file.
+
+    Inputs:
+        - key: the key of the parameter to update
+        - value: the new value of the parameter
+        - session_ID: the session identifier
+        - saving_path: the path where to save/find the json file
+    """
+
     parameters[key] = value
     parameter_filename = ('parameters_' + str(session_ID) + '.json')
     json_file_path = os.path.join(saving_path, parameter_filename)
@@ -52,6 +63,7 @@ def _is_channel_in_list(
 		channel_array, 
 		desired_channel_name
         ):
+    
     if desired_channel_name.lower() in (channel.lower() for channel in channel_array):
         return True
     else:

@@ -30,10 +30,10 @@ def check_timeshift(
 
     Inputs:
         - session_ID: str, the subject ID
-        - LFP_df_offset: pd.DataFrame, the intracranial recording containing all
+        - LFP_synchronized: pd.DataFrame, the intracranial recording containing all
         recorded channels
         - sf_LFP: sampling frequency of intracranial recording
-        - external_df_offset: pd.DataFrame, the external recording containing all
+        - external_synchronized: pd.DataFrame, the external recording containing all
         recorded channels
         - sf_external: sampling frequency of external recording
         - saving_path: str, path to the folder where the parameters.json file is
@@ -45,12 +45,6 @@ def check_timeshift(
     json_filename = (saving_path + '\\parameters_' + str(session_ID) + '.json')
     with open( json_filename, 'r') as f:
         loaded_dict =  json.load(f)
-
-    # Reselect artifact channels in the aligned (= cropped) files:
-    #LFP_channel_offset = LFP_df_offset.iloc[:, 
-                                            #loaded_dict["CH_IDX_LFP"]].to_numpy()  
-    #BIP_channel_offset = external_df_offset.iloc[:, 
-                                                 #loaded_dict["CH_IDX_EXTERNAL"]].to_numpy() 
     
     LFP_channel_offset = LFP_synchronized[:,loaded_dict["CH_IDX_LFP"]]
     print(len(LFP_channel_offset))

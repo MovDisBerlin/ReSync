@@ -23,11 +23,11 @@ def plot_LFP_artifact_channel(
     quick visualization (and saving).
 
     Input:
-        - session_ID: the session ID
-        - timescale: the timescale of the signal to be plotted (x) as np.ndarray
-        - data: single channel as np.ndarray (y)
-        - color: the color of the signal on the plot
-        - saving_path: the folder where the plot has to be saved
+        - session_ID: str, the session ID
+        - timescale: np.ndarray, the timescale of the signal to be plotted
+        - data: np.ndarray, single channel containing datapoints
+        - color: str, the color of the signal on the plot
+        - saving_path: str, the folder where the plot has to be saved
         - saving_folder: Boolean, default = True, plots are automatically saved
     """
 
@@ -67,11 +67,11 @@ def plot_BIP_artifact_channel(
     Plots the external bipolar channel for quick visualization (and saving).
 
     Input:
-        - session_ID: the subject ID
-        - timescale: the timescale of the signal to be plotted (x) as np.ndarray
-        - data: single channel as np.ndarray (y)
-        - color: the color of the signal on the plot
-        - saving_path: the folder where the plot has to be saved
+        - session_ID: str, the subject ID
+        - timescale: np.ndarray, the timescale of the signal to be plotted
+        - data: np.ndarray, single channel containing datapoints
+        - color: str, the color of the signal on the plot
+        - saving_path: str, the folder where the plot has to be saved
         - saving_folder: Boolean, default = True, plots automatically saved
     """
 
@@ -106,14 +106,14 @@ def plot_LFP_stim(
     ):
     
     """
-    Function that plots all together the LFP and 
+    Function that plots together the LFP and 
     the stimulation from the 2 hemispheres.
 
     Input:
-        - session_ID: the subject ID
-        - timescale: the timescale of the signal to be plotted (x) as np.ndarray
+        - session_ID: str, the subject ID
+        - timescale: np.ndarray, the timescale of the signal to be plotted
         - LFP_rec: mne.io.array.array.RawArray (LFP recording as MNE object)
-        - saving_path: the folder where the plot has to be saved
+        - saving_path: str, the folder where the plot has to be saved
         - saving_folder: Boolean, default = True, plots automatically saved
 
     
@@ -191,11 +191,11 @@ def plot_channel(
     Plots the selected channel for quick visualization (and saving).
 
     Input:
-        - session_ID: the subject ID
-        - timescale: the timescale of the signal to be plotted (x) as np.ndarray
-        - data: single channel as np.ndarray (y)
-        - color: the color of the signal on the plot
-        - scatter: True or False, if the user wants to see the 
+        - session_ID: str, the subject ID
+        - timescale: np.ndarray, the timescale of the signal to be plotted
+        - data: np.ndarray, single channel containing datapoints
+        - color: str, the color of the signal on the plot
+        - scatter: Boolean, if the user wants to see the 
         samples instead of a continuous line
     
     Returns:
@@ -235,11 +235,28 @@ def plot_LFP_external(
         saving_path: str
         ):
     
+    """
+    This function can be used to quickly plot the synchronized signals
+    to check for artifacts and verify that they are aligned after
+    synchronization.
+
+    Inputs:
+        - session_ID: str, the subject ID
+        - LFP_synchronized: pd.DataFrame, the synchronized LFP signal
+        - external_synchronized: pd.DataFrame, the synchronized external signal
+        - sf_LFP: int, the sampling frequency of the LFP signal
+        - sf_external: int, the sampling frequency of the external signal
+        - ch_idx_lfp: int, the index of the LFP channel
+        - ch_index_external: int, the index of the external channel
+        - saving_path: str, the folder where the plot has to be saved
+
+    Returns:
+        - the plot of the synchronized signals
+    """
+
+
     # Reselect artifact channels in the aligned (= cropped) files
     if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
-
-    #LFP_channel_offset = LFP_df_offset.iloc[:,ch_idx_lfp].to_numpy()  
-    #BIP_channel_offset = external_df_offset.iloc[:,ch_index_external].to_numpy() 
 
     LFP_channel_offset = LFP_synchronized[:,ch_idx_lfp]
     BIP_channel_offset = external_synchronized[:,ch_index_external]
@@ -291,6 +308,8 @@ def plot_LFP_external(
     plt.show(block=True)
 
 
+
+
 import json
 
 def ecg(
@@ -306,7 +325,20 @@ def ecg(
     """
     This function can be used to quickly plot the beginning of the signal
     to check for cardiac artifacts and verify that they are aligned after 
-    synchronization
+    synchronization.
+
+    Inputs:
+        - session_ID: str, the subject ID
+        - LFP_synchronized: pd.DataFrame, the synchronized LFP signal
+        - sf_LFP: int, the sampling frequency of the LFP signal
+        - external_synchronized: pd.DataFrame, the synchronized external signal
+        - sf_external: int, the sampling frequency of the external signal
+        - saving_path: str, the folder where the plot has to be saved
+        - xmin: float, the timestamp to start the plot
+        - xmax: float, the timestamp to end the plot
+
+    Returns:
+        - the plot of the synchronized signals (zoom on the beginning)
     """
 
     #import settings
@@ -341,7 +373,6 @@ def ecg(
     ax1.set_xlim(xmin, xmax) 
     ax2.set_xlim(xmin, xmax)
     ax1.set_ylim(-50, 50)
-    #ax2.set_ylim(-0.0035, -0.00225)
     ax1.plot(
         LFP_timescale_offset_s, 
         LFP_channel_offset, 

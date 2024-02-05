@@ -21,9 +21,9 @@ def sync_by_cropping_both(
         recorded channels
         - external_file: np.ndarray, the external recording containing all 
         recorded channels
-        - art_time_LFP: float, the timepoint when the artifact starts in the 
+        - art_start_LFP: float, the timepoint when the artifact starts in the 
         intracerebral recording
-        - art_time_BIP: float, the timepoint when the artifact starts in the 
+        - art_start_BIP: float, the timepoint when the artifact starts in the 
         external recording
         - sf_LFP: sampling frequency of intracranial recording
         - sf_external: sampling frequency of external recording
@@ -96,9 +96,9 @@ def align_external_on_LFP(
         recorded channels
         - external_file: np.ndarray, the external recording containing all 
         recorded channels
-        - art_time_LFP: float, the timepoint when the artifact starts in the 
+        - art_start_LFP: float, the timepoint when the artifact starts in the 
         intracerebral recording
-        - art_time_BIP: float, the timepoint when the artifact starts in the 
+        - art_start_BIP: float, the timepoint when the artifact starts in the 
         external recording
         - sf_LFP: sampling frequency of intracranial recording
         - sf_external: sampling frequency of external recording

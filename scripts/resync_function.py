@@ -36,7 +36,7 @@ def detect_artifacts_in_external_recording(
     BIP_channel: np.ndarray, 
     sf_external,
     saving_path: str,
-    start_index
+    start_index: int = 0
 
 ):
 
@@ -45,12 +45,12 @@ def detect_artifacts_in_external_recording(
     the external recording of the same session.
 
     Inputs:
-        - session_ID
+        - session_ID: str, session identifier
         - BIP_channel: np.ndarray, the channel of the external recording to be 
-        used for alignment (the one containing deep brain stimulation artifacts 
-            = the channel recorded with the bipolar electrode)
+        used for synchronization (the one containing deep brain stimulation 
+        artifacts = the channel recorded with the bipolar electrode)
         - sf_external: sampling frequency of external recording
-        - saving_path: str,
+        - saving_path: str, path to the folder where the figures will be saved
         - start_index: default is 0 when recording is properly started in StimOff,
         but it can be changed when this is not the case (back-up option)
 
@@ -161,15 +161,16 @@ def detect_artifacts_in_intracranial_recording(
     the external recording of the same session.
 
     Inputs:
-        - session_ID
+        - session_ID: str, session identifier
         - lfp_sig: np.ndarray, the channel of the intracranial recording to be
-        used for alignment (the one containing deep brain stimulation artifacts)
+        used for synchronization (the one containing deep brain stimulation artifacts)
         - sf_LFP: sampling frequency of intracranial recording
-        - saving_path: str,
-        - kernel: str
+        - saving_path: str, path to the folder where the figures will be saved
+        - kernel: str, method used for artifact detection in intracranial recording
+        (1, 2, thresh, manual)
 
     
-    Outputs:
+    Returns:
         - art_start_LFP: the timestamp when the artifact starts in intracranial recording
         
     """
@@ -299,7 +300,7 @@ def detect_artifacts_in_intracranial_recording(
 
 
 def synchronize_recordings(
-		LFP_array,
+		LFP_array: np.ndarray,
 		external_file,
         art_start_LFP,
         art_start_BIP,
@@ -307,6 +308,27 @@ def synchronize_recordings(
         sf_external,
 		CROP_BOTH
 ):
+
+    """
+    This function synchronizes the intracranial recording with
+    the external recording of the same session.
+
+    Inputs:
+        - LFP_array: np.ndarray, intracranial recording
+        - external_file: np.ndarray, external recording
+        - art_start_LFP: the timestamp when the artifact starts in intracranial recording
+        - art_start_BIP: the timestamp when the artifact starts in external recording
+        - sf_LFP: sampling frequency of intracranial recording
+        - sf_external: sampling frequency of external recording
+        - CROP_BOTH: bool, if True, both recordings are cropped 1 second before 
+        first artifact. If False, only external recording is cropped to match 
+        intracranial recording
+
+    Returns:
+        - LFP_synchronized: np.ndarray, intracranial recording synchronized with external recording
+        - external_synchronized: np.ndarray, external recording synchronized with intracranial recording
+    """
+
 
     if CROP_BOTH:
         # crop intracranial and external recordings 1 second before first artifact
@@ -351,6 +373,26 @@ def save_synchronized_recordings(
     saving_path,
     CROP_BOTH
 ):
+
+    """
+    This function saves the synchronized intracranial and external recordings.
+
+    Inputs:
+        - session_ID: str, session identifier
+        - LFP_synchronized: np.ndarray, intracranial recording synchronized with external recording
+        - external_synchronized: np.ndarray, external recording synchronized with intracranial recording
+        - LFP_rec_ch_names: list, names of the intracranial recording channels
+        - external_rec_ch_names: list, names of the external recording channels
+        - sf_LFP: sampling frequency of intracranial recording
+        - sf_external: sampling frequency of external recording
+        - saving_format: str, format in which the recordings will be saved
+        - saving_path: str, path to the folder where the recordings will be saved
+        - CROP_BOTH: bool, if True, both recordings are cropped 1 second before 
+        first artifact. If False, only external recording is cropped to match 
+        intracranial recording
+
+    """
+
 
     assert saving_format in ['csv','mat','pickle','brainvision'], 'saving_format incorrect.' \
     'Choose in: csv, mat, pickle, brainvision'
@@ -416,7 +458,6 @@ def save_synchronized_recordings(
                                        )
             
         if saving_format == 'brainvision':
-            #LFP_array_offset = LFP_df_offset.T.to_numpy()
             LFP_filename = ('Intracranial_LFP_' + str(session_ID))
             write_brainvision(
                 data = LFP_synchronized, 
@@ -426,7 +467,6 @@ def save_synchronized_recordings(
                 folder_out = saving_path, 
                 overwrite = True
                 )
-            #external_array_offset = external_df_offset.T.to_numpy()
             external_filename = ('External_data_' + str(session_ID))
             write_brainvision(
                 data = external_synchronized, 
@@ -476,7 +516,6 @@ def save_synchronized_recordings(
                                    )
             
         if saving_format == 'brainvision':
-            #external_array_offset = external_df_offset.T.to_numpy()
             external_filename = ('External_data_' + str(session_ID))
             write_brainvision(
                 data = external_synchronized, 

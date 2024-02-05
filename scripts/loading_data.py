@@ -26,11 +26,13 @@ def load_sourceJSON(json_filename: str, source_path):
     return json_object
 
 
+
 def load_mat_file(
 		session_ID: str, 
 		filename: str, 
 		saving_path: str,
-		source_path):
+		source_path
+		):
     """"
     Reads .mat-file in FieldTrip structure using mne-function
     
@@ -38,6 +40,7 @@ def load_mat_file(
         - sub_ID: str 
         - filename: str of only .mat-filename
 		- saving_path: str of path to save the parameters
+		- source_path: str of path to the source file
     
     Returns:
         - data: mne-object of .mat file
@@ -71,6 +74,7 @@ def load_mat_file(
     return data
 
 
+
 def load_intracranial_csv_file(
 		session_ID: str, 
 		filename: str, 
@@ -78,6 +82,29 @@ def load_intracranial_csv_file(
 		saving_path: str,
 		source_path
 		):
+
+	"""
+	Takes a .csv file containing the LFP recording and extracts the LFP signal
+	from the channel of interest. It also returns the whole LFP recording (in an
+	array), the names of all the channels recorded, the sampling frequency of the
+	LFP recording and the index of the channel of interest in the LFP recording.
+
+	Inputs:
+		- session_ID: str, subject ID
+		- filename: str, name of the LFP recording session
+		- ch_idx_lfp: int, index of the channel of interest in the LFP recording
+		- saving_path: str, path to save the parameters
+		- source_path: str, path to the source file
+
+	Returns:
+		- LFP_array: np.ndarray, the LFP recording containing 
+			all recorded channels
+		- lfp_sig: np.ndarray, the LFP signal from the channel 
+			of interest
+		- LFP_rec_ch_names: list, the names of all the channels 
+			recorded
+		- sf_LFP: int, sampling frequency of LFP recording
+	"""
 
 	_update_and_save_params(
 		key = 'SUBJECT_ID', 
@@ -141,6 +168,33 @@ def load_external_csv_file(
 		source_path
 		):
 	
+	"""
+	Takes a .csv file containing the external recording and extracts the channel
+	containing the artifacts, which will be used for synchronization.
+	It also returns the whole external recording (in an array), 
+	the names of all the channels recorded externally, the sampling
+	frequency of the external recording and the index of the bipolar channel 
+	in the external recording.
+
+	Inputs:
+		- session_ID: str, subject ID
+		- filename: str, name of the external recording session
+		- BIP_ch_name: str, name of the bipolar channel, containing the artifacts
+		- saving_path: str, path to save the parameters
+		- source_path: str, path to the source file
+
+	Returns:
+		- external_file: np.ndarray, the external recording containing all recorded
+			channels
+		- BIP_channel: np.ndarray, the channel of the external recording to be used
+			for synchronization (the one containing deep brain stimulation 
+			artifacts = the	channel recorded with the bipolar electrode)
+		- external_rec_ch_names: list, the names of all the channels recorded externally
+		- sf_external: int, sampling frequency of external recording
+		- ch_index_external: int, index of the bipolar channel in the external recording
+			(BIP_channel)
+	"""
+
 	_update_and_save_params(
 		key = 'SUBJECT_ID', 
 		value = session_ID, 
@@ -156,7 +210,6 @@ def load_external_csv_file(
 	sf_external = int(filename[filename.find('Hz')-4:filename.find('Hz')])
 	# load a csv file :
 	dataset_external = pd.read_csv(join(source_path, filename))
-
 	external_file = dataset_external.to_numpy()
 	external_file = external_file.transpose()
 	external_rec_ch_names = list(dataset_external.columns)
@@ -211,6 +264,28 @@ def load_data_lfp(
 		saving_path: str
 		):
 
+	"""
+	Takes a .mat file containing the LFP recording and extracts the LFP signal
+	from the channel of interest. It also returns the whole LFP recording (in an
+	array), the names of all the channels recorded, the sampling frequency of the
+	LFP recording and the index of the channel of interest in the LFP recording.
+
+	Inputs:
+		- session_ID: str, subject ID
+		- dataset_lfp: mne-object of .mat file
+		- ch_idx_lfp: int, index of the channel of interest in the LFP recording
+		- saving_path: str, path to save the parameters
+
+	Returns:
+		- LFP_array: np.ndarray, the LFP recording containing 
+			all recorded channels
+		- lfp_sig: np.ndarray, the LFP signal from the channel 
+			of interest
+		- LFP_rec_ch_names: list, the names of all the channels 
+			recorded
+		- sf_LFP: int, sampling frequency of LFP recording
+	"""	
+
 	if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
 
 	LFP_array = dataset_lfp.get_data()
@@ -261,29 +336,29 @@ def load_TMSi_artifact_channel(
 	"""
 	Takes a poly5 object containing all the external channels recorded.
 	It extracts the channel containing the artifacts, which will be used for 
-	synchronization (usually "BIP 01" in our settings). It also returns the
-	whole external recording (in an array), the names of all the channels 
-	recorded externally, the sampling frequency of the external recording and 
-	the index of the bipolar channel in the external recording.
+	synchronization. It also returns the whole external recording (in an array),
+	the names of all the channels recorded externally, the sampling frequency 
+	of the external recording and the index of the bipolar channel in the 
+	external recording.
 
 	Input:
-		- sub_ID: str, subject ID
+		- session_ID: str, subject ID
 		- TMSi_data: TMSiFileFormats.file_readers.poly5reader.Poly5Reader
 		- fname_external: str, name of the external recording session
 		- BIP_ch_name: str, name of the bipolar channel, containing the artifacts
 		- saving_path: str, path to save the parameters
 
 	Returns:
-		- BIP_channel (np.ndarray with shape (y,)): the channel of the external 
-            recording to be used for alignment (the one containing deep brain 
+		- BIP_channel: np.ndarray, the channel of the external 
+            recording to be used for synchronization (the one containing deep brain 
             stimulation artifacts = the channel recorded with the bipolar 
-            electrode, y datapoints)
-        - external_file (np.ndarray with shape: (x, y)): the external recording 
-            containing all recorded channels (x channels, y datapoints)
-		- external_rec_ch_names (list of x names): the names of all the channels 
+            electrode)
+        - external_file: np.ndarray, the external recording 
+            containing all recorded channels
+		- external_rec_ch_names: list, the names of all the channels 
             recorded externally
-		- sf_external (int): sampling frequency of external recording
-		- ch_index (int): index of the bipolar channel in the external recording 
+		- sf_external: int, sampling frequency of external recording
+		- ch_index: int, index of the bipolar channel in the external recording 
 			(BIP_channel)
 	"""
 

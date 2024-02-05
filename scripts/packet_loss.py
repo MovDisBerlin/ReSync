@@ -9,6 +9,10 @@ def check_packet_loss(
         json_object
 ):
 
+    """
+    Check for packet loss in BrainSense Streaming data.
+    """
+
     prc_data_codes = {
         'signal_test': 'CalibrationTests',
         'streaming': 'BrainSenseTimeDomain',
@@ -38,6 +42,7 @@ def convert_list_string_floats(
 
 
 def check_missings_in_lfp (dat):
+
     ticksMsec = convert_list_string_floats(dat['TicksInMses'])
     ticksDiffs = np.diff(np.array(ticksMsec))
     data_is_missing = (ticksDiffs != 250).any()

@@ -93,15 +93,18 @@ def find_LFP_sync_artifact(
             automatically inverts the signal if first a positive
             peak is found, this indicates an inverted signal)
         - sf_LFP (int): sampling frequency of intracranial recording
-        - use_kernel: str, '1' or '2' or 'thresh'. The kernel/method used to detect
-            the stim-artifact. '1' is a simple kernel that only detects the
-            steep decrease of the stim-artifact. '2' is a more complex kernel
-            that takes into account the steep decrease and slow recover of the
-            stim-artifact. 'thresh' is a method that uses a threshold to detect
+        - use_kernel: str, '1' or '2' or 'thresh'. The kernel/method 
+            used to detect the stim-artifact. 
+                '1' is a simple kernel that only detects the steep decrease 
+            of the stim-artifact. 
+                '2' is a more complex kernel that takes into account the 
+            steep decrease and slow recover of the stim-artifact. 
+                'thresh' is a method that uses a threshold to detect
             the stim-artifact.
     
     Returns:
-        - art_time_LFP: the timestamp where the artifact starts in intracranial recording.
+        - art_time_LFP: the timestamp where the artifact starts in 
+        intracranial recording.
     """
     
     signal_inverted = False  # defaults false
@@ -152,7 +155,8 @@ def find_LFP_sync_artifact(
             # if NEG peak before POS then signal is inverted
             print('intracranial signal is inverted')
             signal_inverted = True
-            # re-check inverted for difficult cases with small pos-lfp peak before negative stim-artifact
+            # re-check inverted for difficult cases with small pos-lfp peak 
+            # before negative stim-artifact
             if (pos_idx[0] - neg_idx[0]) < 50:  # if first positive and negative are very close
                 width_pos = 0
                 r_i = pos_idx[0]
