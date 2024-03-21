@@ -59,6 +59,7 @@ from os.path import join
 from loading_data import (
 	load_mat_file, 
 	load_data_lfp, 
+    load_data_lfp_DBScope,
 	load_TMSi_artifact_channel, 
 	load_sourceJSON, 
 	load_intracranial_csv_file, 
@@ -86,7 +87,9 @@ def main(
 	json_filename = None,
 	CROP_BOTH = True,
 	CHECK_FOR_TIMESHIFT = False,
-	CHECK_FOR_PACKET_LOSS = False
+	CHECK_FOR_PACKET_LOSS = False,
+    PREPROCESSING = 'DBScope', # 'Perceive' or 'DBScope'
+    trial_idx_lfp = 3 # only used if fname_lfp is a DBScope file
 	):
 
 		#  Set saving path
@@ -105,7 +108,7 @@ def main(
         # 2. the intracranial recording, but only the channel containing the stimulation artifacts (lfp_sig)
         # 3. the names of all the channels recorded intracerebrally (LFP_rec_ch_names)
         # 4. the sampling frequency of the intracranial recording (sf_LFP)
-        if fname_lfp.endswith('.mat'):
+        if fname_lfp.endswith('.mat') and PREPROCESSING == 'Perceive':
             dataset_lfp = load_mat_file(
                 session_ID = session_ID, 
                 filename = fname_lfp, 
@@ -117,6 +120,16 @@ def main(
                 session_ID = session_ID, 
                 dataset_lfp = dataset_lfp, 
                 ch_idx_lfp = ch_idx_lfp, 
+                saving_path = saving_path
+                )
+        if fname_lfp.endswith('.mat') and PREPROCESSING == 'DBScope':
+            (LFP_array, lfp_sig, 
+            LFP_rec_ch_names, sf_LFP) = load_data_lfp_DBScope(
+                session_ID = session_ID, 
+                fname_lfp = fname_lfp, 
+                ch_idx_lfp = ch_idx_lfp, 
+                trial_idx_lfp = trial_idx_lfp,
+                source_path = source_path,
                 saving_path = saving_path
                 )
         if fname_lfp.endswith('.csv'):

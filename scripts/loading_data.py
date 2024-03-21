@@ -322,6 +322,66 @@ def load_data_lfp(
 
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
 
+import scipy.io
+
+def load_data_lfp_DBScope(
+		session_ID: str, 
+		fname_lfp,
+		ch_idx_lfp, 
+		trial_idx_lfp,
+		source_path: str,
+		saving_path: str
+		):
+
+	if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
+	if type(trial_idx_lfp) == float: trial_idx_lfp = int(trial_idx_lfp)
+
+	# load the mat file from DBScope:
+	mat = scipy.io.loadmat(join(source_path, fname_lfp))
+
+	# extract the necessary information needed for synchronization:
+	# We need: LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
+	sf_LFP = mat['lfp_raw']['hdr'][0][0]['fs'][0][0][0][0]
+	LFP_rec_ch_names = [mat['lfp_raw']['hdr'][0][0]['channel_names'][0][0][0][trial_idx_lfp][0][0][0],
+						mat['lfp_raw']['hdr'][0][0]['channel_names'][0][0][0][trial_idx_lfp][0][1][0]]
+	LFP_array = mat['lfp_raw']['trial'][0][0][0][trial_idx_lfp]
+	lfp_sig = mat['lfp_raw']['trial'][0][0][0][trial_idx_lfp][ch_idx_lfp]
+	time_duration_LFP = len(lfp_sig)/sf_LFP
+
+	_update_and_save_params(
+		key = 'CH_IDX_LFP', 
+		value = ch_idx_lfp, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'TRIAL_IDX_LFP', 
+		value = trial_idx_lfp, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'LFP_REC_CH_NAMES', 
+		value = LFP_rec_ch_names, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'LFP_REC_DURATION', 
+		value = time_duration_LFP, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)
+	_update_and_save_params(
+		key = 'sf_LFP', 
+		value = sf_LFP, 
+		session_ID = session_ID, 
+		saving_path = saving_path
+		)	
+
+
+	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
+
 
 #### External data recorder dataset ####
 

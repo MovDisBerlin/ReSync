@@ -44,7 +44,8 @@ from os.path import join
 
 from loading_data import (
     load_mat_file, 
-    load_data_lfp, 
+    load_data_lfp,
+    load_data_lfp_DBScope, 
     load_TMSi_artifact_channel, 
     load_sourceJSON, 
     load_intracranial_csv_file, 
@@ -68,6 +69,7 @@ def main_batch(
         CROP_BOTH = False,
         CHECK_FOR_TIMESHIFT = True,
         CHECK_FOR_PACKET_LOSS = False,
+        PREPROCESSING = 'DBScope' # 'Perceive' or 'DBScope
 ):
     
     excel_file_path = join("sourcedata", excel_fname)
@@ -83,6 +85,7 @@ def main_batch(
         fname_lfp = row['fname_lfp']
         fname_external = row['fname_external']
         ch_idx_lfp = row['ch_idx_LFP']
+        trial_idx_lfp = row['trial_idx_LFP']
         if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
         BIP_ch_name = row['BIP_ch_name']
         
@@ -123,7 +126,7 @@ def main_batch(
         # 2. the intracranial recording, but only the channel containing the stimulation artifacts (lfp_sig)
         # 3. the names of all the channels recorded intracerebrally (LFP_rec_ch_names)
         # 4. the sampling frequency of the intracranial recording (sf_LFP)
-        if fname_lfp.endswith('.mat'):
+        if fname_lfp.endswith('.mat') and PREPROCESSING == 'Perceive':
             dataset_lfp = load_mat_file(
                 session_ID = session_ID, 
                 filename = fname_lfp, 
@@ -137,6 +140,18 @@ def main_batch(
                 ch_idx_lfp = ch_idx_lfp, 
                 saving_path = saving_path
                 )
+            
+        if fname_lfp.endswith('.mat') and PREPROCESSING == 'DBScope':
+            (LFP_array, lfp_sig, 
+            LFP_rec_ch_names, sf_LFP) = load_data_lfp_DBScope(
+                session_ID = session_ID, 
+                fname_lfp = fname_lfp, 
+                ch_idx_lfp = ch_idx_lfp, 
+                trial_idx_lfp = trial_idx_lfp,
+                source_path = source_path,
+                saving_path = saving_path
+                )
+        
         if fname_lfp.endswith('.csv'):
             (LFP_array, lfp_sig, 
             LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(
@@ -218,7 +233,7 @@ def main_batch(
                 )
 
             # 2.2. Find artifacts in intracranial recording:
-        kernels = ['thresh', '2', '1', 'manual']
+        kernels = ['thresh', 'manual', '2', '1']
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
         # manual kernel is for none of the two previous kernels work. Then the artifact
