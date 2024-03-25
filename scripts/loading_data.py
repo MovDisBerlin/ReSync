@@ -374,10 +374,11 @@ def load_data_lfp_DBScope(
 		)
 	_update_and_save_params(
 		key = 'sf_LFP', 
-		value = sf_LFP, 
+		value = float(sf_LFP), 
 		session_ID = session_ID, 
 		saving_path = saving_path
 		)	
+
 
 
 	return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
