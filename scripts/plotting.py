@@ -265,7 +265,6 @@ def plot_LFP_external(
     b, a = scipy.signal.butter(1, 0.05, 'highpass')
     filtered_external_offset = scipy.signal.filtfilt(b, a, BIP_channel_offset)
 
-
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(0,
                                        (len(LFP_channel_offset)/sf_LFP),
@@ -300,6 +299,8 @@ def plot_LFP_external(
         linewidth = 0.1
         )
     ax2.set_ylabel('External bipolar channel (mV)')
+    
+        
     fig.savefig(join(
         saving_path,
         ('Fig8-Intracranial and external recordings aligned.png')),

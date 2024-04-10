@@ -31,8 +31,6 @@ def select_sample(
     # Get the closest value
     closest_value = signal_timescale_s[closest_index]
 
-    print(f"The closest value to {selected_x} is {closest_value}.")
-
     return closest_value
 
 

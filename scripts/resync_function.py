@@ -258,9 +258,9 @@ def detect_artifacts_in_intracranial_recording(
 
 
     if kernel == 'manual':
-        print(f'Automatic detection of intracranial artifacts failed, use manual method. \n'
-              f'In the pop up window, zoom on the first artifact until you can select properly'
-              f'the last sample before the deflexion, click on it and close the window.')
+        print(f'Automatic detection of intracranial artifacts failed, using manual method. \n'
+              f'In the pop up window, zoom on the first artifact until you can select properly  '
+              f'the last sample before the deflection, click on it and close the window.')
         art_start_LFP = select_sample(
             signal = lfp_sig, 
             sf = sf_LFP, 

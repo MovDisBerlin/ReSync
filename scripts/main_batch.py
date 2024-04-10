@@ -200,7 +200,7 @@ def main_batch(
             start_index = 0
         )
         artifact_correct = _get_input_y_n(
-            "Is the external artifact properly selected ? "
+            "Is the external DBS artifact properly selected ? "
             )
         if artifact_correct == 'y':
             _update_and_save_params(
@@ -239,7 +239,7 @@ def main_batch(
         # manual kernel is for none of the two previous kernels work. Then the artifact
         # has to be manually selected by the user, in a pop up window that will automatically open.
         for kernel in kernels:
-            print('Running resync with kernel = {}...'.format(kernel))
+            print('Running resync with method = {}...'.format(kernel))
             art_start_LFP = detect_artifacts_in_intracranial_recording(
                 session_ID = session_ID, 
                 lfp_sig = lfp_sig,
@@ -248,7 +248,7 @@ def main_batch(
                 kernel = kernel
                 )
             artifact_correct = _get_input_y_n(
-                "Is the intracranial artifact properly selected ? "
+                "Is the intracranial DBS artifact properly selected ? "
                 )
             if artifact_correct == 'y':
                 _update_and_save_params(

@@ -78,10 +78,10 @@ from resync_function import (
 from packet_loss import check_packet_loss
 
 def main(
-	session_ID = 'test_thresh', 
-	fname_lfp = 'sub-20230905PStn_ses-2023121802263096_run-BrainSense20231218024800.mat', 
+	session_ID = 'test_dbscope', 
+	fname_lfp = '_20230801T071013_Streaming_fieldtrip.mat', 
 	ch_idx_lfp = 0,
-	fname_external = 'sub084_3mfu_m1s0_BrStr_restTap - 20231218T154811.DATA.Poly5',
+	fname_external = 'sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5',
 	BIP_ch_name = 'Bip25', 
 	saving_format = 'brainvision',
 	json_filename = None,
@@ -89,7 +89,7 @@ def main(
 	CHECK_FOR_TIMESHIFT = False,
 	CHECK_FOR_PACKET_LOSS = False,
     PREPROCESSING = 'DBScope', # 'Perceive' or 'DBScope'
-    trial_idx_lfp = 3 # only used if fname_lfp is a DBScope file
+    trial_idx_lfp = 3 # only used if fname_lfp is a DBScope file. It corresponds to the number indicated in the DBScope viewer for Streamings, under "Select recording" - 1.
 	):
 
 		#  Set saving path
@@ -180,7 +180,7 @@ def main(
             start_index = 0
         )
         artifact_correct = _get_input_y_n(
-            "Is the external artifact properly selected ? "
+            "Is the external DBS artifact properly selected ? "
             )
         if artifact_correct == 'y':
             _update_and_save_params(
@@ -219,7 +219,7 @@ def main(
         # manual kernel is for none of the two previous kernels work. Then the artifact
         # has to be manually selected by the user, in a pop up window that will automatically open.
         for kernel in kernels:
-            print('Running resync with kernel = {}...'.format(kernel))
+            print('Running resync with method = {}...'.format(kernel))
             art_start_LFP = detect_artifacts_in_intracranial_recording(
                 session_ID = session_ID, 
                 lfp_sig = lfp_sig,
@@ -228,7 +228,7 @@ def main(
                 kernel = kernel
                 )
             artifact_correct = _get_input_y_n(
-                "Is the intracranial artifact properly selected ? "
+                "Is the intracranial DBS artifact properly selected ? "
                 )
             if artifact_correct == 'y':
                 _update_and_save_params(
