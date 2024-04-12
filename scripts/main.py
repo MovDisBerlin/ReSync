@@ -30,6 +30,16 @@ Usage:
 
 	CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
 
+    PREPROCESSING: string, 'Perceive' or 'DBScope'. The preprocessing toolbox used
+                    to preprocess the LFP data (convert the JSON file to a 
+                    Fieldtrip .mat file). If 'DBScope', the trial_idx_lfp parameter
+                    will be used to select the correct trial in the DBScope file.
+    
+    trial_idx_lfp: int, only used if PREPROCESSING is 'DBScope'. It corresponds to
+                    the number indicated in the DBScope viewer for Streamings, under
+                    "Select recording" - 1.
+
+
 2. run main.py
 
 Results:
@@ -56,7 +66,7 @@ IF the timeshift analysis is also performed, there will be one supplementary fig
 import os
 from os.path import join
 
-from loading_data import (
+from functions.loading_data import (
 	load_mat_file, 
 	load_data_lfp, 
     load_data_lfp_DBScope,
@@ -65,17 +75,17 @@ from loading_data import (
 	load_intracranial_csv_file, 
 	load_external_csv_file
 	)
-from plotting import plot_LFP_external, ecg
-from timeshift import check_timeshift
-from utils import _update_and_save_params, _get_input_y_n, _get_user_input
-from tmsi_poly5reader import Poly5Reader
-from resync_function import (
+from functions.plotting import plot_LFP_external, ecg
+from functions.timeshift import check_timeshift
+from functions.utils import _update_and_save_params, _get_input_y_n, _get_user_input
+from functions.tmsi_poly5reader import Poly5Reader
+from functions.resync_function import (
     detect_artifacts_in_external_recording, 
 	detect_artifacts_in_intracranial_recording,
     synchronize_recordings, 
     save_synchronized_recordings
 )
-from packet_loss import check_packet_loss
+from functions.packet_loss import check_packet_loss
 
 def main(
 	session_ID = 'test_dbscope', 
@@ -88,8 +98,8 @@ def main(
 	CROP_BOTH = True,
 	CHECK_FOR_TIMESHIFT = False,
 	CHECK_FOR_PACKET_LOSS = False,
-    PREPROCESSING = 'DBScope', # 'Perceive' or 'DBScope'
-    trial_idx_lfp = 3 # only used if fname_lfp is a DBScope file. It corresponds to the number indicated in the DBScope viewer for Streamings, under "Select recording" - 1.
+    PREPROCESSING = 'DBScope', 
+    trial_idx_lfp = 3
 	):
 
 		#  Set saving path

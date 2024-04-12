@@ -15,6 +15,11 @@ Usage:
 
 	CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
 
+    PREPROCESSING: string, 'Perceive' or 'DBScope'. The preprocessing toolbox used
+                    to preprocess the LFP data (convert the JSON file to a 
+                    Fieldtrip .mat file). If 'DBScope', the trial_idx_lfp parameter
+                    will be used to select the correct trial in the DBScope file.
+
 2. run main_batch.py
 
 Results:
@@ -42,7 +47,7 @@ import os
 import pandas as pd
 from os.path import join
 
-from loading_data import (
+from functions.loading_data import (
     load_mat_file, 
     load_data_lfp,
     load_data_lfp_DBScope, 
@@ -51,17 +56,17 @@ from loading_data import (
     load_intracranial_csv_file, 
     load_external_csv_file
     )
-from plotting import plot_LFP_external, ecg
-from timeshift import check_timeshift
-from utils import _update_and_save_params, _get_input_y_n, _get_user_input
-from tmsi_poly5reader import Poly5Reader
-from resync_function import (
+from functions.plotting import plot_LFP_external, ecg
+from functions.timeshift import check_timeshift
+from functions.utils import _update_and_save_params, _get_input_y_n, _get_user_input
+from functions.tmsi_poly5reader import Poly5Reader
+from functions.resync_function import (
     detect_artifacts_in_external_recording,
     detect_artifacts_in_intracranial_recording, 
     synchronize_recordings, 
     save_synchronized_recordings
 )
-from packet_loss import check_packet_loss
+from functions.packet_loss import check_packet_loss
 
 def main_batch(
         excel_fname = 'recording_information.xlsx',
@@ -85,9 +90,11 @@ def main_batch(
         fname_lfp = row['fname_lfp']
         fname_external = row['fname_external']
         ch_idx_lfp = row['ch_idx_LFP']
-        trial_idx_lfp = row['trial_idx_LFP']
         if type(ch_idx_lfp) == float: ch_idx_lfp = int(ch_idx_lfp)
         BIP_ch_name = row['BIP_ch_name']
+        if PREPROCESSING == 'DBScope':
+            trial_idx_lfp = row['trial_idx_LFP']
+            if type(trial_idx_lfp) == float: trial_idx_lfp = int(trial_idx_lfp)
         
         if pd.isna(session_ID):
             print(f"Skipping analysis for row {index + 2}"
