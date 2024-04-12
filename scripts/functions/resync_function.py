@@ -518,7 +518,7 @@ def save_synchronized_recordings(
         if saving_format == 'brainvision':
             external_filename = ('External_data_' + str(session_ID))
             write_brainvision(
-                data = external_synchronized, 
+                data = external_synchronized.T, 
                 sfreq = sf_external,
                 ch_names = external_rec_ch_names, 
                 fname_base = external_filename,
