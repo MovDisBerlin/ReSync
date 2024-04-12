@@ -9,20 +9,21 @@ This repo is structured as follows:
 .
 ├── results
 ├── scripts
-│   ├── find_artifacts
-│   ├── interactive
-│   ├── loading_data
+│   ├── functions
+│   │   ├── find_artifacts
+│   │   ├── interactive
+│   │   ├── loading_data
+│   │   ├── packet_loss
+│   │   ├── plotting
+│   │   ├── resync_function
+│   │   ├── sync
+│   │   ├── timeshift
+│   │   ├── tmsi_poly5reader
+│   │   └── utils    
 │   ├── main_batch
-│   ├── main
-│   ├── packet_loss
-│   ├── plotting
-│   ├── resync_function
-│   ├── sync
-│   ├── timeshift
-│   ├── tmsi_poly5reader
-│   └── utils
+│   └── main
 ├── sourcedata
-    └── recording_information.xlsx
+│   └── recording_information.xlsx
 ├── environment.yml
 ├── LICENSE.txt
 ├── README.md
@@ -32,14 +33,14 @@ This repo is structured as follows:
 ```environment.yml``` contains all the packages and their version needed to run the ReSync algorithm.
 ```main``` and ```main_batch``` are the two main scripts that can be used to synchronize recordings:
 * ```main``` is used to synchronize only two recordings from one session.
-* ```main_batch``` can be used to automatize the synchronization of multiple sessions. To use ```main_batch```, the file recording_information.xlsx present in the sourcedata folder must be completed previously.
+* ```main_batch``` can be used to automatize the synchronization of multiple sessions. To use ```main_batch```, the file recording_information.xlsx present in the sourcedata folder must be completed beforehand.
 
 ```sourcedata``` contains 2 example datasets to try the toolbox and have a look at the output: each dataset contains one intracerebral channel and one external channel, both with stimulation artifacts. NOTE: These example datasets were generated and saved as .csv files. Expected datasets from real recordings are usually .mat for intracerebral recordings and .Poly5 for external recordings. 
 To obtain these formats:
 * we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
-* we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain .mat files. To do so, there are two possibilities:
+* we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain FieldTrip .mat files. To do so, there are two possibilities:
     - the open source “Perceive” toolbox (https://github.com/neuromodulation/perceive) for MATLAB
-    - COMING SOON: the open source "DBScope" toolbox (https://github.com/NCN-Lab/DBScope) for MATLAB
+    - the open source "DBScope" toolbox (https://github.com/NCN-Lab/DBScope) for MATLAB
 
 ## Getting Started
 
@@ -74,6 +75,8 @@ These instructions will get you a copy of the project up and running on your loc
 ## Authors
 
 * **Juliette Vivien** - *Initial work* -
+
+*  **Alessia Cavallo** - *Contributor* 
 
 * **Jeroen Habets** - *Contributor* - https://github.com/jgvhabets
 
