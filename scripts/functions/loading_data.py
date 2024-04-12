@@ -3,7 +3,7 @@ import pandas as pd
 from mne.io import read_raw_fieldtrip
 from os.path import join
 
-from utils import _update_and_save_params
+from functions.utils import _update_and_save_params
 
 #### LFP DATASET ####
 

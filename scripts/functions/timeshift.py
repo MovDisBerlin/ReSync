@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from os.path import join
 import scipy
 
-from interactive import select_sample
-from utils import _update_and_save_params
+from functions.interactive import select_sample
+from functions.utils import _update_and_save_params
 
 def check_timeshift(
         session_ID: str, 

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from utils import _get_input_y_n
+from functions.utils import _get_input_y_n
 
 def select_sample(
         signal: np.ndarray, 

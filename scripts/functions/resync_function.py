@@ -9,10 +9,10 @@ from scipy.io import savemat
 from pybv import write_brainvision
 
 #import custom-made functions
-from find_artifacts import *
-from plotting import *
-from sync import sync_by_cropping_both, align_external_on_LFP
-from interactive import select_sample
+from functions.find_artifacts import *
+from functions.plotting import *
+from functions.sync import sync_by_cropping_both, align_external_on_LFP
+from functions.interactive import select_sample
 
 ## set font sizes and other parameters for the figures
 SMALL_SIZE = 12
