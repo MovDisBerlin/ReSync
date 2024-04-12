@@ -69,7 +69,7 @@ from functions.resync_function import (
 from functions.packet_loss import check_packet_loss
 
 def main_batch(
-        excel_fname = 'recording_information_personal.xlsx',
+        excel_fname = 'recording_information.xlsx',
         saving_format = 'brainvision',
         CROP_BOTH = False,
         CHECK_FOR_TIMESHIFT = True,
@@ -94,6 +94,9 @@ def main_batch(
         BIP_ch_name = row['BIP_ch_name']
         if PREPROCESSING == 'DBScope':
             trial_idx_lfp = row['trial_idx_LFP']
+            if pd.isna(trial_idx_lfp):
+                print(f"Skipping analysis for row {index + 2}"
+                      f"because trial_idx_LFP is empty.")
             if type(trial_idx_lfp) == float: trial_idx_lfp = int(trial_idx_lfp)
         
         if pd.isna(session_ID):
