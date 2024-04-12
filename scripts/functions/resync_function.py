@@ -460,8 +460,8 @@ def save_synchronized_recordings(
         if saving_format == 'brainvision':
             LFP_filename = ('Intracranial_LFP_' + str(session_ID))
             write_brainvision(
-                data = LFP_synchronized, 
-                sfreq = sf_LFP, 
+                data = LFP_synchronized.T, 
+                sfreq = float(sf_LFP), 
                 ch_names = LFP_rec_ch_names, 
                 fname_base = LFP_filename, 
                 folder_out = saving_path, 
@@ -469,8 +469,8 @@ def save_synchronized_recordings(
                 )
             external_filename = ('External_data_' + str(session_ID))
             write_brainvision(
-                data = external_synchronized, 
-                sfreq = sf_external, 
+                data = external_synchronized.T, 
+                sfreq = float(sf_external), 
                 ch_names = external_rec_ch_names, 
                 fname_base = external_filename,
                 folder_out = saving_path, 

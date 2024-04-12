@@ -69,12 +69,12 @@ from functions.resync_function import (
 from functions.packet_loss import check_packet_loss
 
 def main_batch(
-        excel_fname = 'recording_information.xlsx',
-        saving_format = 'mat',
+        excel_fname = 'recording_information_personal.xlsx',
+        saving_format = 'brainvision',
         CROP_BOTH = False,
         CHECK_FOR_TIMESHIFT = True,
         CHECK_FOR_PACKET_LOSS = False,
-        PREPROCESSING = 'DBScope' # 'Perceive' or 'DBScope
+        PREPROCESSING = 'Perceive' # 'Perceive' or 'DBScope
 ):
     
     excel_file_path = join("sourcedata", excel_fname)
