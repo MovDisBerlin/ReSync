@@ -70,6 +70,39 @@ def _update_and_save_params(key, value, session_ID, saving_path):
         json.dump(parameters, json_file, indent=4)
 
 
+import pandas as pd
+def _check_for_empties(session_ID, fname_lfp, fname_external, ch_idx_lfp, BIP_ch_name, index):
+    SKIP = False
+    if pd.isna(session_ID):
+        print(
+            f"Skipping analysis for row {index + 2}" f" because session_ID is empty."
+        )
+        SKIP = True
+    if pd.isna(fname_lfp):
+        print(
+            f"Skipping analysis for row {index + 2}" f" because fname_lfp is empty."
+        )
+        SKIP = True
+    if pd.isna(fname_external):
+        print(
+            f"Skipping analysis for row {index + 2}"
+            f" because fname_external is empty."
+        )
+        SKIP = True
+    if pd.isna(ch_idx_lfp):
+        print(
+            f"Skipping analysis for row {index + 2}" f" because ch_idx_lfp is empty."
+        )
+        SKIP = True
+    if pd.isna(BIP_ch_name):
+        print(
+            f"Skipping analysis for row {index + 2}"
+            f" because BIP_ch_name is empty."
+        )
+        SKIP = True
+    return SKIP
+
+
 def _is_channel_in_list(channel_array, desired_channel_name):
 
     if desired_channel_name.lower() in (channel.lower() for channel in channel_array):

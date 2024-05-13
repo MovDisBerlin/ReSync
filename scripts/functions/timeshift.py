@@ -6,7 +6,7 @@ from os.path import join
 import scipy
 
 from functions.interactive import select_sample
-from functions.utils import _update_and_save_params
+from functions.utils import _update_and_save_multiple_params
 
 
 def check_timeshift(
@@ -75,6 +75,7 @@ def check_timeshift(
 
     timeshift_ms = (last_artifact_external_x - last_artifact_lfp_x) * 1000
 
+    """
     _update_and_save_params(
         key="TIMESHIFT",
         value=timeshift_ms,
@@ -87,6 +88,10 @@ def check_timeshift(
         session_ID=session_ID,
         saving_path=saving_path,
     )
+    """
+    
+    dictionary = {"TIMESHIFT": timeshift_ms, "REC DURATION FOR TIMESHIFT": last_artifact_external_x}
+    _update_and_save_multiple_params(dictionary, session_ID, saving_path)
 
     if abs(timeshift_ms) > 100:
         print(

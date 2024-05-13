@@ -199,11 +199,11 @@ def main(
         # 2.2. Find artifacts in intracranial recording:
     methods = ["thresh", "2", "1", "manual"]
     # thresh takes the last sample that lies within the value distribution of the 
-    # thres_window (aka: baseline window) before the threshold passing
+        # thres_window (aka: baseline window) before the threshold passing
     # kernel 1 only searches for the steep decrease
     # kernel 2 is more custom and takes into account the steep decrease and slow recover
     # manual kernel is for none of the three previous methods work. Then the artifact
-    # has to be manually selected by the user, in a pop up window that will automatically open.
+        # has to be manually selected by the user, in a pop up window that will automatically open.
     for method in methods:
         print("Running resync with method = {}...".format(method))
         art_start_LFP = detect_artifacts_in_intracranial_recording(
@@ -211,7 +211,7 @@ def main(
             lfp_sig=lfp_sig,
             sf_LFP=sf_LFP,
             saving_path=saving_path,
-            kernel=method,
+            method=method
         )
         artifact_correct = _get_input_y_n(
             "Is the intracranial DBS artifact properly selected ? "
@@ -279,7 +279,7 @@ def main(
     # OPTIONAL : check for packet loss:
     if CHECK_FOR_PACKET_LOSS:
         _update_and_save_params(
-            key="JSON_FILE",
+            key="JSON_FILENAME",
             value=json_filename,
             session_ID=session_ID,
             saving_path=saving_path,

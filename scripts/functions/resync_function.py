@@ -120,7 +120,7 @@ def detect_artifacts_in_external_recording(
 
 
 def detect_artifacts_in_intracranial_recording(
-    session_ID: str, lfp_sig: np.ndarray, sf_LFP, saving_path: str, kernel: str
+    session_ID: str, lfp_sig: np.ndarray, sf_LFP, saving_path: str, method: str
 ):
     """
     This function synchronizes the intracranial recording with
@@ -132,7 +132,7 @@ def detect_artifacts_in_intracranial_recording(
         used for synchronization (the one containing deep brain stimulation artifacts)
         - sf_LFP: sampling frequency of intracranial recording
         - saving_path: str, path to the folder where the figures will be saved
-        - kernel: str, method used for artifact detection in intracranial recording
+        - method: str, method used for artifact detection in intracranial recording
         (1, 2, thresh, manual)
 
 
@@ -158,9 +158,9 @@ def detect_artifacts_in_intracranial_recording(
     plt.close()
 
     ### DETECT ARTIFACTS ###
-    if kernel in ["1", "2", "thresh"]:
+    if method in ["1", "2", "thresh"]:
         art_start_LFP = find_LFP_sync_artifact(
-            data=lfp_sig, sf_LFP=sf_LFP, use_kernel=kernel
+            data=lfp_sig, sf_LFP=sf_LFP, use_kernel=method
         )
 
         # PLOT 5 :
@@ -183,8 +183,8 @@ def detect_artifacts_in_intracranial_recording(
         )
         plt.gcf()
         filename = (
-            "Fig5-Intracranial channel with artifact detected - kernel "
-            + str(kernel)
+            "Fig5-Intracranial channel with artifact detected - method "
+            + str(method)
             + ".png"
         )
         plt.savefig(join(saving_path, filename), bbox_inches="tight")
@@ -211,14 +211,14 @@ def detect_artifacts_in_intracranial_recording(
         )
         plt.gcf()
         filename = (
-            "Fig6-Intracranial channel - first artifact detected - kernel "
-            + str(kernel)
+            "Fig6-Intracranial channel - first artifact detected - method "
+            + str(method)
             + ".png"
         )
         plt.savefig(join(saving_path, filename), bbox_inches="tight")
         plt.show(block=False)
 
-    if kernel == "manual":
+    if method == "manual":
         print(
             f"Automatic detection of intracranial artifacts failed, using manual method. \n"
             f"In the pop up window, zoom on the first artifact until you can select properly  "

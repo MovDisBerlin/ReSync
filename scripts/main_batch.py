@@ -48,17 +48,13 @@ import pandas as pd
 from os.path import join
 
 from functions.loading_data import (
-    load_mat_file,
-    load_data_lfp,
-    load_data_lfp_DBScope,
-    load_TMSi_artifact_channel,
-    load_sourceJSON,
-    load_intracranial_csv_file,
-    load_external_csv_file,
+    load_intracranial,
+    load_external,
+    load_sourceJSON
 )
 from functions.plotting import plot_LFP_external, ecg
 from functions.timeshift import check_timeshift
-from functions.utils import _update_and_save_params, _get_input_y_n, _get_user_input
+from functions.utils import _update_and_save_params, _update_and_save_multiple_params, _get_input_y_n, _get_user_input, _check_for_empties
 from functions.tmsi_poly5reader import Poly5Reader
 from functions.resync_function import (
     detect_artifacts_in_external_recording,
@@ -70,7 +66,7 @@ from functions.packet_loss import check_packet_loss
 
 
 def main_batch(
-    excel_fname="recording_information.xlsx",
+    excel_fname="recording_information_personal.xlsx",
     saving_format="brainvision",
     CROP_BOTH=False,
     CHECK_FOR_TIMESHIFT=True,
@@ -93,7 +89,13 @@ def main_batch(
         ch_idx_lfp = row["ch_idx_LFP"]
         if type(ch_idx_lfp) == float:
             ch_idx_lfp = int(ch_idx_lfp)
+        json_filename = row["fname_json"]
         BIP_ch_name = row["BIP_ch_name"]
+
+        SKIP = _check_for_empties(session_ID, fname_lfp, fname_external, ch_idx_lfp, BIP_ch_name, index)
+        if SKIP:
+            continue
+
         if PREPROCESSING == "DBScope":
             trial_idx_lfp = row["trial_idx_LFP"]
             if pd.isna(trial_idx_lfp):
@@ -103,7 +105,9 @@ def main_batch(
                 )
             if type(trial_idx_lfp) == float:
                 trial_idx_lfp = int(trial_idx_lfp)
+        else: trial_idx_lfp = None
 
+        """
         if pd.isna(session_ID):
             print(
                 f"Skipping analysis for row {index + 2}" f"because session_ID is empty."
@@ -131,55 +135,42 @@ def main_batch(
                 f"because BIP_ch_name is empty."
             )
             continue
+        """
+
+        working_path = os.getcwd()
 
         #  Set saving path
-        saving_path = join("results", session_ID)
+        results_path = join(working_path, "results")
+        saving_path = join(results_path, session_ID)
         if not os.path.isdir(saving_path):
             os.makedirs(saving_path)
 
         #  Set source path
-        source_path = "sourcedata"
+        source_path = join(working_path, "sourcedata")
 
         #  1. LOADING DATASETS
 
-        ##  Intracranial LFP (here Percept datas)
+        ##  Intracranial LFP
         # the resync function needs 4 information about the intracranial recording:
         # 1. the intracranial recording itself, containing all the recorded channels (LFP_array)
         # 2. the intracranial recording, but only the channel containing the stimulation artifacts (lfp_sig)
         # 3. the names of all the channels recorded intracerebrally (LFP_rec_ch_names)
         # 4. the sampling frequency of the intracranial recording (sf_LFP)
-        if fname_lfp.endswith(".mat") and PREPROCESSING == "Perceive":
-            dataset_lfp = load_mat_file(
-                session_ID=session_ID,
-                filename=fname_lfp,
-                saving_path=saving_path,
-                source_path=source_path,
-            )
-            (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_data_lfp(
-                session_ID=session_ID,
-                dataset_lfp=dataset_lfp,
-                ch_idx_lfp=ch_idx_lfp,
-                saving_path=saving_path,
-            )
 
-        if fname_lfp.endswith(".mat") and PREPROCESSING == "DBScope":
-            (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_data_lfp_DBScope(
-                session_ID=session_ID,
-                fname_lfp=fname_lfp,
-                ch_idx_lfp=ch_idx_lfp,
-                trial_idx_lfp=trial_idx_lfp,
-                source_path=source_path,
-                saving_path=saving_path,
-            )
-
-        if fname_lfp.endswith(".csv"):
-            (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(
-                session_ID=session_ID,
-                filename=fname_lfp,
-                ch_idx_lfp=ch_idx_lfp,
-                saving_path=saving_path,
-                source_path=source_path,
-            )
+        (
+            LFP_array, 
+            lfp_sig, 
+            LFP_rec_ch_names, 
+            sf_LFP
+        ) = load_intracranial(
+            session_ID=session_ID,
+            fname_lfp=fname_lfp,
+            ch_idx_lfp=ch_idx_lfp,
+            trial_idx_lfp=trial_idx_lfp,
+            saving_path=saving_path,
+            source_path=source_path,
+            PREPROCESSING=PREPROCESSING
+        )
 
             ##  External data recorder
         # the resync function needs 5 information about the external recording:
@@ -188,34 +179,19 @@ def main_batch(
         # 3. the names of all the channels recorded externally (external_rec_ch_names)
         # 4. the sampling frequency of the external recording (sf_external)
         # 5. the index of the bipolar channel in the external recording (ch_index_external)
-        if fname_external.endswith(".Poly5"):
-            TMSi_data = Poly5Reader(join(source_path, fname_external))
-            (
-                external_file,
-                BIP_channel,
-                external_rec_ch_names,
-                sf_external,
-                ch_index_external,
-            ) = load_TMSi_artifact_channel(
+
+        (
+            external_file, 
+            BIP_channel, 
+            external_rec_ch_names, 
+            sf_external, 
+            ch_index_external
+            ) = load_external(
                 session_ID=session_ID,
-                TMSi_data=TMSi_data,
                 fname_external=fname_external,
                 BIP_ch_name=BIP_ch_name,
                 saving_path=saving_path,
-            )
-        if fname_external.endswith(".csv"):
-            (
-                external_file,
-                BIP_channel,
-                external_rec_ch_names,
-                sf_external,
-                ch_index_external,
-            ) = load_external_csv_file(
-                session_ID=session_ID,
-                filename=fname_external,
-                BIP_ch_name=BIP_ch_name,
-                saving_path=saving_path,
-                source_path=source_path,
+                source_path=source_path
             )
 
         #  2. FIND ARTIFACTS IN BOTH RECORDINGS:
@@ -230,12 +206,12 @@ def main_batch(
         artifact_correct = _get_input_y_n(
             "Is the external DBS artifact properly selected ? "
         )
-        if artifact_correct == "y":
+        if artifact_correct in ("y", "Y"):
             _update_and_save_params(
                 key="ART_TIME_BIP",
                 value=art_start_BIP,
                 session_ID=session_ID,
-                saving_path=saving_path,
+                saving_path=saving_path
             )
         else:
             # if there's an unrelated artifact or if the stimulation is ON at the beginning
@@ -261,36 +237,28 @@ def main_batch(
             )
 
             # 2.2. Find artifacts in intracranial recording:
-        kernels = ["thresh", "2", "1", "manual"]
+        methods = ["thresh", "2", "1", "manual"]
+        # thresh takes the last sample that lies within the value distribution of the 
+            # thres_window (aka: baseline window) before the threshold passing
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
-        # manual kernel is for none of the two previous kernels work. Then the artifact
-        # has to be manually selected by the user, in a pop up window that will automatically open.
-        for kernel in kernels:
-            print("Running resync with method = {}...".format(kernel))
+        # manual kernel is for none of the three previous methods work. Then the artifact
+            # has to be manually selected by the user, in a pop up window that will automatically open.
+        for method in methods:
+            print("Running resync with method = {}...".format(method))
             art_start_LFP = detect_artifacts_in_intracranial_recording(
                 session_ID=session_ID,
                 lfp_sig=lfp_sig,
                 sf_LFP=sf_LFP,
                 saving_path=saving_path,
-                kernel=kernel,
+                method=method
             )
             artifact_correct = _get_input_y_n(
                 "Is the intracranial DBS artifact properly selected ? "
             )
-            if artifact_correct == "y":
-                _update_and_save_params(
-                    key="ART_TIME_LFP",
-                    value=art_start_LFP,
-                    session_ID=session_ID,
-                    saving_path=saving_path,
-                )
-                _update_and_save_params(
-                    key="KERNEL",
-                    value=kernel,
-                    session_ID=session_ID,
-                    saving_path=saving_path,
-                )
+            if artifact_correct in ("y","Y"):
+                dictionary = {"ART_TIME_LFP": art_start_LFP, "METHOD": method}
+                _update_and_save_multiple_params(dictionary,session_ID,saving_path)
                 break
 
         # 3. SYNCHRONIZE RECORDINGS TOGETHER:
@@ -350,9 +318,8 @@ def main_batch(
 
         # OPTIONAL : check for packet loss:
         if CHECK_FOR_PACKET_LOSS:
-            json_filename = row["fname_json"]
             _update_and_save_params(
-                key="JSON_FILE",
+                key="JSON_FILENAME",
                 value=json_filename,
                 session_ID=session_ID,
                 saving_path=saving_path,
@@ -363,21 +330,19 @@ def main_batch(
             check_packet_loss(json_object=json_object)
 
 
-"""
-        # OPTIONAL : plot cardiac artifact:
-        ecg(
-            session_ID = session_ID, 
-            LFP_synchronized = LFP_synchronized, 
-            sf_LFP = sf_LFP, 
-            external_synchronized = external_synchronized, 
-            sf_external = sf_external, 
-            saving_path = saving_path, 
-            xmin = 0, 
-            xmax = 2
-            )
-
-"""
-
+    """
+            # OPTIONAL : plot cardiac artifact:
+            ecg(
+                session_ID = session_ID, 
+                LFP_synchronized = LFP_synchronized, 
+                sf_LFP = sf_LFP, 
+                external_synchronized = external_synchronized, 
+                sf_external = sf_external, 
+                saving_path = saving_path, 
+                xmin = 0.25, 
+                xmax = 0.36
+                )
+    """
 
 if __name__ == "__main__":
     main_batch()
