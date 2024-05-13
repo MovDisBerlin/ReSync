@@ -1,68 +1,3 @@
-"""
-main.py is the main function of ReSync for performing one-by-one session 
-analysis. Use main_batch.py for batch analysis. 
-
-Usage:
-1. complete all the parameters in the main function according to your needs
-	session_ID: string, name of the session to be analyzed
-
-	fname_lfp: string, name of the LFP file to be analyzed (csv or mat file)
-
-	ch_idx_lfp: int, index of the channel containing the stimulation artifacts
-				in the LFP file
-
-	fname_external: string, name of the external file to be analyzed (csv or 
-					Poly5 file)
-
-	BIP_ch_name: string, name of the channel containing the stimulation 
-				artifacts in the external file
-
-	saving_format: string, format of the output file (csv, pickle or mat)
-
-	json_filename: string, name of the JSON file containing the intracranial
-					recording. Only needed if CHECK_FOR_PACKET_LOSS is True. If
-					not, set to None
-
-	CROP_BOTH: boolean, if True, crop both LFP and external data to the shortest
-				if False, crop only the external data to match the intracranial
-
-	CHECK_FOR_TIMESHIFT: boolean, if True, perform timeshift analysis
-
-	CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
-
-    PREPROCESSING: string, 'Perceive' or 'DBScope'. The preprocessing toolbox used
-                    to preprocess the LFP data (convert the JSON file to a 
-                    Fieldtrip .mat file). If 'DBScope', the trial_idx_lfp parameter
-                    will be used to select the correct trial in the DBScope file.
-    
-    trial_idx_lfp: int, only used if PREPROCESSING is 'DBScope'. It corresponds to
-                    the number indicated in the DBScope viewer for Streamings, under
-                    "Select recording" - 1.
-
-
-2. run main.py
-
-Results:
-The results will be saved in the results folder, in a sub-folder named after the 
-session_ID parameter.
-8 figures are automatically generated and saved:
-- Fig 1: External bipolar channel raw plot (of the channel containing artifacts)
-- Fig 2: External bipolar channel with artifact detected
-- Fig 3: External bipolar channel - first artifact detected (zoom of Fig2)
-- Fig 4: Intracranial channel raw plot (of the channel containing artifacts)
-- Fig 5 : Intracranial channel with artifact detected - kernel ID (indicates which 
-kernel was used to detect the artifact properly)
-- Fig 6: Intracranial channel - first artifact detected - kernel ID (zoom of Fig5)
-- (Fig 7:Intracranial channel - first artifact corrected by user)
-Fig 7 is only generated when no automatic detection of the artifact was possible,
-and the user therefore had to manually select it (rare cases)
-- Fig 8: Intracranial and external recordings aligned
-
-IF the timeshift analysis is also performed, there will be one supplementary figure:
-- Fig A : Timeshift - Intracranial and external recordings aligned - last artifact
-
-"""
-
 import os
 from os.path import join
 
@@ -103,13 +38,80 @@ def main(
     trial_idx_lfp=3,
 ):
 
+    """
+    main.py is the main function of ReSync for performing one-by-one session 
+    analysis. Use main_batch.py for batch analysis. 
+
+    Parameters
+    ----------
+    session_ID: string, name of the session to be analyzed
+
+    fname_lfp: string, name of the LFP file to be analyzed (csv or mat file)
+
+    ch_idx_lfp: int, index of the channel containing the stimulation artifacts
+                in the LFP file
+
+    fname_external: string, name of the external file to be analyzed (csv or 
+                    Poly5 file)
+
+    BIP_ch_name: string, name of the channel containing the stimulation 
+                artifacts in the external file
+
+    saving_format: string, format of the output file (csv, pickle or mat)
+
+    json_filename: string, name of the JSON file containing the intracranial
+                    recording. Only needed if CHECK_FOR_PACKET_LOSS is True. If
+                    not, set to None
+
+    CROP_BOTH: boolean, if True, crop both LFP and external data to the shortest
+                if False, crop only the external data to match the intracranial
+
+    CHECK_FOR_TIMESHIFT: boolean, if True, perform timeshift analysis
+
+    CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
+
+    PREPROCESSING: string, 'Perceive' or 'DBScope'. The preprocessing toolbox used
+                    to preprocess the LFP data (convert the JSON file to a 
+                    Fieldtrip .mat file). If 'DBScope', the trial_idx_lfp parameter
+                    will be used to select the correct trial in the DBScope file.
+    
+    trial_idx_lfp: int, only used if PREPROCESSING is 'DBScope'. It corresponds to
+                    the number indicated in the DBScope viewer for Streamings, under
+                    "Select recording" - 1.
+
+    .................................................................................
+
+    Results
+    -------
+    The results will be saved in the results folder, in a sub-folder named after the 
+    session_ID parameter.
+    8 figures are automatically generated and saved:
+    - Fig 1: External bipolar channel raw plot (of the channel containing artifacts)
+    - Fig 2: External bipolar channel with artifact detected
+    - Fig 3: External bipolar channel - first artifact detected (zoom of Fig2)
+    - Fig 4: Intracranial channel raw plot (of the channel containing artifacts)
+    - Fig 5 : Intracranial channel with artifact detected - kernel ID (indicates which 
+    kernel was used to detect the artifact properly)
+    - Fig 6: Intracranial channel - first artifact detected - kernel ID (zoom of Fig5)
+    - (Fig 7:Intracranial channel - first artifact corrected by user)
+    Fig 7 is only generated when no automatic detection of the artifact was possible,
+    and the user therefore had to manually select it (rare cases)
+    - Fig 8: Intracranial and external recordings aligned
+
+    IF the timeshift analysis is also performed, there will be one supplementary figure:
+    - Fig A : Timeshift - Intracranial and external recordings aligned - last artifact
+
+    """
+    working_path = os.getcwd()
+
     #  Set saving path
-    saving_path = join("results", session_ID)
+    results_path = join(working_path, "results")
+    saving_path = join(results_path, session_ID)
     if not os.path.isdir(saving_path):
         os.makedirs(saving_path)
 
     #  Set source path
-    source_path = "sourcedata"
+    source_path = join(working_path, "sourcedata")
 
     #  1. LOADING DATASETS
 
