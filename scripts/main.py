@@ -2,18 +2,13 @@ import os
 from os.path import join
 
 from functions.loading_data import (
-    load_mat_file,
-    load_data_lfp,
-    load_data_lfp_DBScope,
-    load_TMSi_artifact_channel,
-    load_sourceJSON,
-    load_intracranial_csv_file,
-    load_external_csv_file,
+    load_intracranial,
+    load_external,
+    load_sourceJSON
 )
 from functions.plotting import plot_LFP_external, ecg
 from functions.timeshift import check_timeshift
 from functions.utils import _update_and_save_params, _get_input_y_n, _get_user_input
-from functions.tmsi_poly5reader import Poly5Reader
 from functions.resync_function import (
     detect_artifacts_in_external_recording,
     detect_artifacts_in_intracranial_recording,
@@ -115,42 +110,27 @@ def main(
 
     #  1. LOADING DATASETS
 
-    ##  Intracranial LFP (here Percept datas)
+    ##  Intracranial LFP
     # the resync function needs 4 information about the intracranial recording:
     # 1. the intracranial recording itself, containing all the recorded channels (LFP_array)
     # 2. the intracranial recording, but only the channel containing the stimulation artifacts (lfp_sig)
     # 3. the names of all the channels recorded intracerebrally (LFP_rec_ch_names)
     # 4. the sampling frequency of the intracranial recording (sf_LFP)
-    if fname_lfp.endswith(".mat") and PREPROCESSING == "Perceive":
-        dataset_lfp = load_mat_file(
-            session_ID=session_ID,
-            filename=fname_lfp,
-            saving_path=saving_path,
-            source_path=source_path,
-        )
-        (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_data_lfp(
-            session_ID=session_ID,
-            dataset_lfp=dataset_lfp,
-            ch_idx_lfp=ch_idx_lfp,
-            saving_path=saving_path,
-        )
-    if fname_lfp.endswith(".mat") and PREPROCESSING == "DBScope":
-        (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_data_lfp_DBScope(
-            session_ID=session_ID,
-            fname_lfp=fname_lfp,
-            ch_idx_lfp=ch_idx_lfp,
-            trial_idx_lfp=trial_idx_lfp,
-            source_path=source_path,
-            saving_path=saving_path,
-        )
-    if fname_lfp.endswith(".csv"):
-        (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(
-            session_ID=session_ID,
-            filename=fname_lfp,
-            ch_idx_lfp=ch_idx_lfp,
-            saving_path=saving_path,
-            source_path=source_path,
-        )
+
+    (
+        LFP_array, 
+        lfp_sig, 
+        LFP_rec_ch_names, 
+        sf_LFP
+    ) = load_intracranial(
+        session_ID=session_ID,
+        fname_lfp=fname_lfp,
+        ch_idx_lfp=ch_idx_lfp,
+        trial_idx_lfp=trial_idx_lfp,
+        saving_path=saving_path,
+        source_path=source_path,
+        PREPROCESSING=PREPROCESSING
+    )
 
         ##  External data recorder
     # the resync function needs 5 information about the external recording:
@@ -159,34 +139,19 @@ def main(
     # 3. the names of all the channels recorded externally (external_rec_ch_names)
     # 4. the sampling frequency of the external recording (sf_external)
     # 5. the index of the bipolar channel in the external recording (ch_index_external)
-    if fname_external.endswith(".Poly5"):
-        TMSi_data = Poly5Reader(join(source_path, fname_external))
-        (
-            external_file,
-            BIP_channel,
-            external_rec_ch_names,
-            sf_external,
-            ch_index_external,
-        ) = load_TMSi_artifact_channel(
+
+    (
+        external_file, 
+        BIP_channel, 
+        external_rec_ch_names, 
+        sf_external, 
+        ch_index_external
+        ) = load_external(
             session_ID=session_ID,
-            TMSi_data=TMSi_data,
             fname_external=fname_external,
             BIP_ch_name=BIP_ch_name,
             saving_path=saving_path,
-        )
-    if fname_external.endswith(".csv"):
-        (
-            external_file,
-            BIP_channel,
-            external_rec_ch_names,
-            sf_external,
-            ch_index_external,
-        ) = load_external_csv_file(
-            session_ID=session_ID,
-            filename=fname_external,
-            BIP_ch_name=BIP_ch_name,
-            saving_path=saving_path,
-            source_path=source_path,
+            source_path=source_path
         )
 
     #  2. FIND ARTIFACTS IN BOTH RECORDINGS:

@@ -4,8 +4,148 @@ from mne.io import read_raw_fieldtrip
 from os.path import join
 
 from functions.utils import _update_and_save_params
+from functions.tmsi_poly5reader import Poly5Reader
 
 #### LFP DATASET ####
+
+
+def load_intracranial(
+        session_ID,
+        fname_lfp,
+        ch_idx_lfp,
+        trial_idx_lfp,
+        saving_path,
+        source_path,
+        PREPROCESSING
+        ):
+    
+    """
+    Inputs:
+    ----------
+    session_ID: str, subject ID
+    fname_lfp: str, name of the LFP recording session
+    ch_idx_lfp: int, index of the channel of interest in the LFP recording
+    trial_idx_lfp: int, only used if PREPROCESSING is 'DBScope'. It corresponds to
+    the number indicated in the DBScope viewer for Streamings, under 
+    "Select recording" - 1.
+    saving_path: str, path to save the parameters
+    source_path: str, path to the source file
+    PREPROCESSING: str, "Perceive" or "DBScope" depending on which toolbox was 
+    used to extract the recording from the original json file
+
+    ............................................................................
+    
+    Outputs
+    -------
+    LFP_array: the intracranial recording itself, containing all the recorded channels
+    lfp_sig: the channel of the intracranial recording containing the stimulation artifacts
+    LFP_rec_ch_names: the names of all the channels recorded intracerebrally
+    sf_LFP: the sampling frequency of the intracranial recording
+
+    """
+    
+    if fname_lfp.endswith(".mat") and PREPROCESSING == "Perceive":
+        dataset_lfp = load_mat_file(
+            session_ID=session_ID,
+            filename=fname_lfp,
+            saving_path=saving_path,
+            source_path=source_path,
+        )
+        (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_data_lfp(
+            session_ID=session_ID,
+            dataset_lfp=dataset_lfp,
+            ch_idx_lfp=ch_idx_lfp,
+            saving_path=saving_path,
+        )
+    if fname_lfp.endswith(".mat") and PREPROCESSING == "DBScope":
+        (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_data_lfp_DBScope(
+            session_ID=session_ID,
+            fname_lfp=fname_lfp,
+            ch_idx_lfp=ch_idx_lfp,
+            trial_idx_lfp=trial_idx_lfp,
+            source_path=source_path,
+            saving_path=saving_path,
+        )
+    if fname_lfp.endswith(".csv"):
+        (LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP) = load_intracranial_csv_file(
+            session_ID=session_ID,
+            filename=fname_lfp,
+            ch_idx_lfp=ch_idx_lfp,
+            saving_path=saving_path,
+            source_path=source_path,
+        )    
+
+    return LFP_array, lfp_sig, LFP_rec_ch_names, sf_LFP
+
+
+
+def load_external(
+        session_ID,
+        fname_external,
+        BIP_ch_name,
+        saving_path,
+        source_path
+    ):
+
+    """
+    Inputs:
+    ----------
+    session_ID: str, subject ID
+    fname_external: str, name of the external recording session
+    BIP_ch_name: str, name of the external channel containing the sync artifacts
+    saving_path: str, path to save the parameters
+    source_path: str, path to the source file
+
+
+    ............................................................................
+    
+    Outputs
+    -------
+    external_file: np.ndarray, the external recording containing all recorded
+    channels
+    BIP_channel: np.ndarray, the channel of the external recording to be used
+    for synchronization (the one containing deep brain stimulation
+    artifacts = the	channel recorded with the bipolar electrode)
+    external_rec_ch_names: list, the names of all the channels recorded externally
+    sf_external: int, sampling frequency of external recording
+    ch_index_external: int, index of the bipolar channel in the external recording
+    (BIP_channel)
+
+    """
+
+    if fname_external.endswith(".Poly5"):
+        TMSi_data = Poly5Reader(join(source_path, fname_external))
+        (
+            external_file,
+            BIP_channel,
+            external_rec_ch_names,
+            sf_external,
+            ch_index_external,
+        ) = load_TMSi_artifact_channel(
+            session_ID=session_ID,
+            TMSi_data=TMSi_data,
+            fname_external=fname_external,
+            BIP_ch_name=BIP_ch_name,
+            saving_path=saving_path
+        )
+    if fname_external.endswith(".csv"):
+        (
+            external_file,
+            BIP_channel,
+            external_rec_ch_names,
+            sf_external,
+            ch_index_external,
+        ) = load_external_csv_file(
+            session_ID=session_ID,
+            filename=fname_external,
+            BIP_ch_name=BIP_ch_name,
+            saving_path=saving_path,
+            source_path=source_path,
+        )
+
+    return (external_file, BIP_channel, external_rec_ch_names, sf_external, ch_index_external)
+
+
 
 
 def load_sourceJSON(json_filename: str, source_path):
@@ -31,7 +171,7 @@ def load_mat_file(session_ID: str, filename: str, saving_path: str, source_path)
     Reads .mat-file in FieldTrip structure using mne-function
 
     Input:
-        - sub_ID: str
+        - session_ID: str
         - filename: str of only .mat-filename
                 - saving_path: str of path to save the parameters
                 - source_path: str of path to the source file
