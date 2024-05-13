@@ -166,12 +166,12 @@ def main(
     artifact_correct = _get_input_y_n(
         "Is the external DBS artifact properly selected ? "
     )
-    if artifact_correct == "y":
+    if artifact_correct in ("y", "Y"):
         _update_and_save_params(
             key="ART_TIME_BIP",
             value=art_start_BIP,
             session_ID=session_ID,
-            saving_path=saving_path,
+            saving_path=saving_path
         )
     else:
         # if there's an unrelated artifact or if the stimulation is ON at the beginning
@@ -216,7 +216,7 @@ def main(
         artifact_correct = _get_input_y_n(
             "Is the intracranial DBS artifact properly selected ? "
         )
-        if artifact_correct == "y":
+        if artifact_correct in ("y","Y"):
             dictionary = {"ART_TIME_LFP": art_start_LFP, "METHOD": method}
             _update_and_save_multiple_params(dictionary,session_ID,saving_path)
             break
