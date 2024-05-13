@@ -33,6 +33,25 @@ def _define_folders():
 parameters = {}
 
 
+def _update_and_save_multiple_params(dictionary, session_ID, saving_path):
+    """
+    This function is used to update the parameters dictionary and save it in a json file.
+
+    Inputs:
+        - dictionary: contains multiple keys and their values
+        - session_ID: the session identifier
+        - saving_path: the path where to save/find the json file
+    """
+    for key, value in dictionary.items():
+        parameters[key] = value
+    
+    parameter_filename = "parameters_" + str(session_ID) + ".json"
+    json_file_path = os.path.join(saving_path, parameter_filename)
+    with open(json_file_path, "w") as json_file:
+        json.dump(parameters, json_file, indent=4)
+
+
+
 def _update_and_save_params(key, value, session_ID, saving_path):
     """
     This function is used to update the parameters dictionary and save it in a json file.

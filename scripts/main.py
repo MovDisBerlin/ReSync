@@ -8,7 +8,7 @@ from functions.loading_data import (
 )
 from functions.plotting import plot_LFP_external, ecg
 from functions.timeshift import check_timeshift
-from functions.utils import _update_and_save_params, _get_input_y_n, _get_user_input
+from functions.utils import _update_and_save_params, _update_and_save_multiple_params, _get_input_y_n, _get_user_input
 from functions.resync_function import (
     detect_artifacts_in_external_recording,
     detect_artifacts_in_intracranial_recording,
@@ -19,7 +19,7 @@ from functions.packet_loss import check_packet_loss
 
 
 def main(
-    session_ID="test_dbscope",
+    session_ID="test2_dictionary",
     fname_lfp="_20230801T071013_Streaming_fieldtrip.mat",
     ch_idx_lfp=0,
     fname_external="sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5",
@@ -197,36 +197,28 @@ def main(
         )
 
         # 2.2. Find artifacts in intracranial recording:
-    kernels = ["thresh", "2", "1", "manual"]
+    methods = ["thresh", "2", "1", "manual"]
+    # thresh takes the last sample that lies within the value distribution of the 
+    # thres_window (aka: baseline window) before the threshold passing
     # kernel 1 only searches for the steep decrease
     # kernel 2 is more custom and takes into account the steep decrease and slow recover
-    # manual kernel is for none of the two previous kernels work. Then the artifact
+    # manual kernel is for none of the three previous methods work. Then the artifact
     # has to be manually selected by the user, in a pop up window that will automatically open.
-    for kernel in kernels:
-        print("Running resync with method = {}...".format(kernel))
+    for method in methods:
+        print("Running resync with method = {}...".format(method))
         art_start_LFP = detect_artifacts_in_intracranial_recording(
             session_ID=session_ID,
             lfp_sig=lfp_sig,
             sf_LFP=sf_LFP,
             saving_path=saving_path,
-            kernel=kernel,
+            kernel=method,
         )
         artifact_correct = _get_input_y_n(
             "Is the intracranial DBS artifact properly selected ? "
         )
         if artifact_correct == "y":
-            _update_and_save_params(
-                key="ART_TIME_LFP",
-                value=art_start_LFP,
-                session_ID=session_ID,
-                saving_path=saving_path,
-            )
-            _update_and_save_params(
-                key="KERNEL",
-                value=kernel,
-                session_ID=session_ID,
-                saving_path=saving_path,
-            )
+            dictionary = {"ART_TIME_LFP": art_start_LFP, "METHOD": method}
+            _update_and_save_multiple_params(dictionary,session_ID,saving_path)
             break
 
     # 3. SYNCHRONIZE RECORDINGS TOGETHER:
