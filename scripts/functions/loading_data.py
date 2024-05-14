@@ -546,42 +546,12 @@ def load_TMSi_artifact_channel(
     toMNE = True
     TMSi_rec = TMSi_data.read_data_MNE()
     external_rec_ch_names = TMSi_rec.ch_names
+    
+    assert BIP_ch_name in external_rec_ch_names, "{} is not in externally recorded channels. Please choose from the available channels: {}".format(BIP_ch_name, external_rec_ch_names)
+
     time_duration_TMSi_s = (TMSi_rec.n_times / TMSi_rec.info["sfreq"]).astype(float)
     sf_external = int(TMSi_rec.info["sfreq"])
     ch_index = TMSi_rec.ch_names.index(BIP_ch_name)
-
-    """
-    _update_and_save_params(
-        key="FNAME_EXTERNAL",
-        value=fname_external,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    _update_and_save_params(
-        key="EXTERNAL_REC_CH_NAMES",
-        value=external_rec_ch_names,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    _update_and_save_params(
-        key="EXTERNAL_REC_DURATION",
-        value=time_duration_TMSi_s,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    _update_and_save_params(
-        key="sf_EXTERNAL",
-        value=sf_external,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    _update_and_save_params(
-        key="CH_IDX_EXTERNAL",
-        value=ch_index,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    """
 
     dictionary = {
         "FNAME_EXTERNAL": fname_external, 
