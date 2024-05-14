@@ -1,48 +1,3 @@
-"""
-main_batch.py is the main function of ReSync for performing batch analysis of
-multiple sessions. Use main.py for one-by-one session analysis. 
-
-Usage:
-1. complete all the parameters in the main function according to your needs
-    excel_fname: string, name of the excel file containing the recording
-
-	saving_format: string, format of the output files (csv, pickle or mat)
-
-	CROP_BOTH: boolean, if True, crop both LFP and external data to the shortest
-				if False, crop only the external data to match the intracranial
-
-	CHECK_FOR_TIMESHIFT: boolean, if True, perform timeshift analysis
-
-	CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
-
-    PREPROCESSING: string, 'Perceive' or 'DBScope'. The preprocessing toolbox used
-                    to preprocess the LFP data (convert the JSON file to a 
-                    Fieldtrip .mat file). If 'DBScope', the trial_idx_lfp parameter
-                    will be used to select the correct trial in the DBScope file.
-
-2. run main_batch.py
-
-Results:
-The results will be saved in the results folder, in a sub-folder named after the 
-session_ID parameter.
-8 figures are automatically generated and saved:
-- Fig 1: External bipolar channel raw plot (of the channel containing artifacts)
-- Fig 2: External bipolar channel with artifact detected
-- Fig 3: External bipolar channel - first artifact detected (zoom of Fig2)
-- Fig 4: Intracranial channel raw plot (of the channel containing artifacts)
-- Fig 5 : Intracranial channel with artifact detected - kernel ID (indicates which 
-kernel was used to detect the artifact properly)
-- Fig 6: Intracranial channel - first artifact detected - kernel ID (zoom of Fig5)
-- (Fig 7:Intracranial channel - first artifact corrected by user)
-Fig 7 is only generated when no automatic detection of the artifact was possible,
-and the user therefore had to manually select it (rare cases)
-- Fig 8: Intracranial and external recordings aligned
-
-IF the timeshift analysis is also performed, there will be one supplementary figure:
-- Fig A : Timeshift - Intracranial and external recordings aligned - last artifact
-
-"""
-
 import os
 import pandas as pd
 from os.path import join
@@ -74,23 +29,62 @@ def main_batch(
     PREPROCESSING="Perceive",  # 'Perceive' or 'DBScope'
 ):
 
+    """
+    main_batch.py is the main function of ReSync for performing batch analysis of
+    multiple sessions. Use main.py for one-by-one session analysis. 
+
+    Parameters
+    ----------
+    excel_fname: string, name of the excel file containing the recording
+
+    saving_format: string, format of the output files (csv, pickle or mat)
+
+    CROP_BOTH: boolean, if True, crop both LFP and external data to the shortest
+                if False, crop only the external data to match the intracranial
+
+    CHECK_FOR_TIMESHIFT: boolean, if True, perform timeshift analysis
+
+    CHECK_FOR_PACKET_LOSS: boolean, if True, perform packet loss analysis
+
+    PREPROCESSING: string, 'Perceive' or 'DBScope'. The preprocessing toolbox used
+                    to preprocess the LFP data (convert the JSON file to a 
+                    Fieldtrip .mat file). If 'DBScope', the trial_idx_lfp parameter
+                    will be used to select the correct trial in the DBScope file.
+    ...............................................................................
+
+    Results
+    -------
+    The results will be saved in the results folder, in a sub-folder named after the 
+    session_ID parameter.
+    8 figures are automatically generated and saved:
+    - Fig 1: External bipolar channel raw plot (of the channel containing artifacts)
+    - Fig 2: External bipolar channel with artifact detected
+    - Fig 3: External bipolar channel - first artifact detected (zoom of Fig2)
+    - Fig 4: Intracranial channel raw plot (of the channel containing artifacts)
+    - Fig 5 : Intracranial channel with artifact detected - method ID (indicates which 
+    kernel was used to detect the artifact properly)
+    - Fig 6: Intracranial channel - first artifact detected - method ID (zoom of Fig5)
+    - (Fig 7:Intracranial channel - first artifact corrected by user)
+    Fig 7 is only generated when no automatic detection of the artifact was possible,
+    and the user therefore had to manually select it (rare cases)
+    - Fig 8: Intracranial and external recordings aligned
+
+    IF the timeshift analysis is also performed, there will be one supplementary figure:
+    - Fig A : Timeshift - Intracranial and external recordings aligned - last artifact
+
+    """
+
     excel_file_path = join("sourcedata", excel_fname)
     df = pd.read_excel(excel_file_path)
 
     # Loop for all recording sessions present in the file provided,
     # analyze one by one:
     for index, row in df.iterrows():
-        done = row["done"]
+        session_ID, fname_lfp, fname_external, ch_idx_lfp, trial_idx_lfp, BIP_ch_name, f_name_json, done  = row
         if done == "yes":
             continue
-        session_ID = row["session_ID"]
-        fname_lfp = row["fname_lfp"]
-        fname_external = row["fname_external"]
-        ch_idx_lfp = row["ch_idx_LFP"]
         if type(ch_idx_lfp) == float:
             ch_idx_lfp = int(ch_idx_lfp)
-        json_filename = row["fname_json"]
-        BIP_ch_name = row["BIP_ch_name"]
 
         SKIP = _check_for_empties(session_ID, fname_lfp, fname_external, ch_idx_lfp, BIP_ch_name, index)
         if SKIP:
@@ -107,36 +101,7 @@ def main_batch(
                 trial_idx_lfp = int(trial_idx_lfp)
         else: trial_idx_lfp = None
 
-        """
-        if pd.isna(session_ID):
-            print(
-                f"Skipping analysis for row {index + 2}" f"because session_ID is empty."
-            )
-            continue
-        if pd.isna(fname_lfp):
-            print(
-                f"Skipping analysis for row {index + 2}" f"because fname_lfp is empty."
-            )
-            continue
-        if pd.isna(fname_external):
-            print(
-                f"Skipping analysis for row {index + 2}"
-                f"because fname_external is empty."
-            )
-            continue
-        if pd.isna(ch_idx_lfp):
-            print(
-                f"Skipping analysis for row {index + 2}" f"because ch_idx_lfp is empty."
-            )
-            continue
-        if pd.isna(BIP_ch_name):
-            print(
-                f"Skipping analysis for row {index + 2}"
-                f"because BIP_ch_name is empty."
-            )
-            continue
-        """
-
+        # Set working directory
         working_path = os.getcwd()
 
         #  Set saving path

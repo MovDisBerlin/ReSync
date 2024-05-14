@@ -85,9 +85,9 @@ def main(
     - Fig 2: External bipolar channel with artifact detected
     - Fig 3: External bipolar channel - first artifact detected (zoom of Fig2)
     - Fig 4: Intracranial channel raw plot (of the channel containing artifacts)
-    - Fig 5 : Intracranial channel with artifact detected - kernel ID (indicates which 
+    - Fig 5 : Intracranial channel with artifact detected - method ID (indicates which 
     kernel was used to detect the artifact properly)
-    - Fig 6: Intracranial channel - first artifact detected - kernel ID (zoom of Fig5)
+    - Fig 6: Intracranial channel - first artifact detected - method ID (zoom of Fig5)
     - (Fig 7:Intracranial channel - first artifact corrected by user)
     Fig 7 is only generated when no automatic detection of the artifact was possible,
     and the user therefore had to manually select it (rare cases)
