@@ -68,12 +68,15 @@ def detect_artifacts_in_external_recording(
 
     # PLOT 1 :
     # plot the signal of the external channel used for artifact detection:
-    plot_BIP_artifact_channel(
+    plot_channel(
         session_ID=session_ID,
         timescale=external_timescale_s,
         data=filtered_external,
         color="darkcyan",
+        ylabel="External bipolar channel - voltage (mV)",
+        title="Fig1-External bipolar channel raw plot.png",
         saving_path=saving_path,
+        scatter=False
     )
     plt.close()
 
@@ -90,13 +93,13 @@ def detect_artifacts_in_external_recording(
         timescale=external_timescale_s,
         data=filtered_external,
         color="darkcyan",
+        ylabel="Artifact channel BIP (mV)", 
+        title="Fig2-External bipolar channel with artifact detected.png", 
+        saving_path=saving_path,
         scatter=False,
     )
-    plt.ylabel("Artifact channel BIP (mV)")
     plt.axvline(x=art_start_BIP, color="black", linestyle="dashed", alpha=0.3)
     plt.gcf()
-    filename = "Fig2-External bipolar channel with artifact detected.png"
-    plt.savefig(join(saving_path, filename), bbox_inches="tight")
     plt.show(block=False)
 
     # PLOT 3 :
@@ -106,14 +109,14 @@ def detect_artifacts_in_external_recording(
         timescale=external_timescale_s,
         data=filtered_external,
         color="darkcyan",
+        ylabel="Artifact channel BIP - Voltage (mV)",
+        title="Fig3-External bipolar channel - first artifact detected.png",
+        saving_path=saving_path,
         scatter=True,
     )
-    plt.ylabel("Artifact channel BIP - Voltage (mV)")
     plt.xlim(art_start_BIP - (60 / sf_external), art_start_BIP + (60 / sf_external))
     plt.axvline(x=art_start_BIP, color="black", linestyle="dashed", alpha=0.3)
     plt.gcf()
-    filename = "Fig3-External bipolar channel - first artifact detected.png"
-    plt.savefig(join(saving_path, filename), bbox_inches="tight")
     plt.show(block=False)
 
     return art_start_BIP
@@ -148,19 +151,22 @@ def detect_artifacts_in_intracranial_recording(
 
     # PLOT 4 :
     # raw signal of the intracranial channel used for artifact detection:
-    plot_LFP_artifact_channel(
+    plot_channel(
         session_ID=session_ID,
         timescale=LFP_timescale_s,
         data=lfp_sig,
         color="darkorange",
+        ylabel="Intracerebral LFP channel (µV)",
+        title="Fig4-Intracranial channel raw plot.png",
         saving_path=saving_path,
+        scatter=False
     )
     plt.close()
 
     ### DETECT ARTIFACTS ###
     if method in ["1", "2", "thresh"]:
         art_start_LFP = find_LFP_sync_artifact(
-            data=lfp_sig, sf_LFP=sf_LFP, use_kernel=method
+            data=lfp_sig, sf_LFP=sf_LFP, use_method=method
         )
 
         # PLOT 5 :
@@ -170,9 +176,11 @@ def detect_artifacts_in_intracranial_recording(
             timescale=LFP_timescale_s,
             data=lfp_sig,
             color="darkorange",
+            ylabel="Intracranial LFP channel (µV)",
+            title="Fig5-Intracranial channel with artifact detected - method " + str(method) + ".png",
+            saving_path=saving_path,
             scatter=False,
         )
-        plt.ylabel("Intracranial LFP channel (µV)")
         plt.axvline(
             x=art_start_LFP,
             ymin=min(lfp_sig),
@@ -182,12 +190,6 @@ def detect_artifacts_in_intracranial_recording(
             alpha=0.3,
         )
         plt.gcf()
-        filename = (
-            "Fig5-Intracranial channel with artifact detected - method "
-            + str(method)
-            + ".png"
-        )
-        plt.savefig(join(saving_path, filename), bbox_inches="tight")
         plt.show(block=False)
 
         # PLOT 6 :
@@ -197,9 +199,11 @@ def detect_artifacts_in_intracranial_recording(
             timescale=LFP_timescale_s,
             data=lfp_sig,
             color="darkorange",
+            ylabel="Intracranial LFP channel (µV)",
+            title="Fig6-Intracranial channel - first artifact detected - method " + str(method) + ".png",
+            saving_path=saving_path,
             scatter=True,
         )
-        plt.ylabel("Intracranial LFP channel (µV)")
         plt.xlim(art_start_LFP - 0.1, art_start_LFP + 0.3)
         plt.axvline(
             x=art_start_LFP,
@@ -210,12 +214,6 @@ def detect_artifacts_in_intracranial_recording(
             alpha=0.3,
         )
         plt.gcf()
-        filename = (
-            "Fig6-Intracranial channel - first artifact detected - method "
-            + str(method)
-            + ".png"
-        )
-        plt.savefig(join(saving_path, filename), bbox_inches="tight")
         plt.show(block=False)
 
     if method == "manual":
@@ -234,9 +232,11 @@ def detect_artifacts_in_intracranial_recording(
             timescale=LFP_timescale_s,
             data=lfp_sig,
             color="darkorange",
+            ylabel="Intracranial LFP channel (µV)",
+            title="Fig7-Intracranial channel - first artifact corrected by user.png",  
+            saving_path=saving_path,
             scatter=True,
         )
-        plt.ylabel("Intracranial LFP channel (µV)")
         plt.xlim(art_start_LFP - 0.1, art_start_LFP + 0.3)
         plt.axvline(
             x=art_start_LFP,
@@ -248,8 +248,6 @@ def detect_artifacts_in_intracranial_recording(
         )
 
         plt.gcf()
-        filename = "Fig7-Intracranial channel - first artifact corrected by user.png"
-        plt.savefig(join(saving_path, filename), bbox_inches="tight")
         plt.show(block=False)
 
     return art_start_LFP

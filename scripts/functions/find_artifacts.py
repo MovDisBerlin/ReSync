@@ -12,7 +12,8 @@ def find_external_sync_artifact(data: np.ndarray, sf_external: int, start_index=
     stimulation from 0 to 1mA without ramp.
     For correct functioning, the external data recording should
     start in stim-off, and typically short pulses are given
-    (without ramping).
+    (without ramping). The first 2 seconds are used for threshold calculation
+    and should therefore be free of any artifact.
     The signal must be pre-processed previously with a high-pass
     Butterworth filter (1Hz) to ensure removal of slow drifts
     and offset around 0.
@@ -47,12 +48,10 @@ def find_external_sync_artifact(data: np.ndarray, sf_external: int, start_index=
     thresh_BIP = -1.5 * (np.ptp(data[: int(sf_external * 2)]))
 
     # find indexes of artifacts
-    # the external sync artifact is a sharp downward reflexion repeated at a high
+    # the external sync artifact is a sharp downward deflexion repeated at a high
     # frequency (stimulation frequency). Therefore, the artifact is detected when
     # the signal is below the threshold, and when the signal is lower than the
-    # previous and next sample (first peak of the artifact). Once the artifact is
-    # detected, the function waits until the signal is above the threshold again
-    # and then starts looking for the next artifact.
+    # previous and next sample (first peak of the artifact).
 
     for q in range(start_index, len(data) - 2):
         if (
@@ -69,15 +68,17 @@ def find_external_sync_artifact(data: np.ndarray, sf_external: int, start_index=
 # Detection of artifacts in LFP
 
 
-def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_kernel: str):
+def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
     """
     Function that finds artifacts caused by
     augmenting-reducing stimulation from 0 to 1mA without ramp.
     For correct functioning, the LFP data should
     start in stim-off, and typically short pulses
     are given (without ramping).
-    The function uses a kernel which mimics the stimulation-
-    artifact. This kernel is multiplied with time-series
+    The function can use two different methods:
+    'thresh': a threshold computed on the baseline is used to detect the stim-artifact.
+    '1' & '2' are 2 versions of a method using kernels. A kernel mimics the 
+    stimulation artifact shape. This kernel is multiplied with time-series
     snippets of the same length. If the time-serie is
     similar to the kernel, the dot-product is high, and this
     indicates a stim-artifact.
@@ -87,7 +88,7 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_kernel: str):
             automatically inverts the signal if first a positive
             peak is found, this indicates an inverted signal)
         - sf_LFP (int): sampling frequency of intracranial recording
-        - use_kernel: str, '1' or '2' or 'thresh'. The kernel/method
+        - use_method: str, '1' or '2' or 'thresh'. The kernel/method
             used to detect the stim-artifact.
                 '1' is a simple kernel that only detects the steep decrease
             of the stim-artifact.
@@ -104,17 +105,18 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_kernel: str):
     signal_inverted = False  # defaults false
 
     # checks correct input for use_kernel variable
-    assert use_kernel in ["1", "2", "thresh"], "use_kernel incorrect"
+    assert use_method in ["1", "2", "thresh"], "use_method incorrect. Should be '1', '2' or 'thresh'"
 
-    if use_kernel in ["1", "2"]:
+    if use_method in ["1", "2"]:
         # kernel 1 only searches for the steep decrease
         # kernel 2 is more custom and takes into account the steep decrease and slow recover
         kernels = {
             "1": np.array([1, -1]),
             "2": np.array([1, 0, -1] + list(np.linspace(-1, 0, 20))),
         }
-        ker = kernels[use_kernel]
+        ker = kernels[use_method]
 
+        
         # get dot-products between kernel and time-serie snippets
         res = []  # store results of dot-products
         for i in np.arange(0, len(data) - len(ker)):
@@ -124,11 +126,14 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_kernel: str):
             # is very similar to the kernel
         res = np.array(res)  # convert list to array
 
-        # # normalise dot product results
+        # normalise dot product results
         res = res / max(res)
+        """
+        res = np.convolve(data, ker, mode='valid')
+        """
 
         # calculate a ratio between std dev and maximum during
-        # the first seconds to check whether an stim-artef was present
+        # the first seconds to check whether an stim-artifact was present
         ratio_max_sd = np.max(res[: sf_LFP * 30] / np.std(res[: sf_LFP * 5]))
 
         # find peak of kernel dot products
@@ -194,6 +199,8 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_kernel: str):
         stim_idx_all = list(compress(stim_idx, sel_idx))
         stim_idx = stim_idx_all[0]
 
+        
+
     else:
         thres_window = sf_LFP * 2
         thres = np.ptp(data[:thres_window])
@@ -206,7 +213,6 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_kernel: str):
         stim_idx = np.where(
             abs_data[:over_thres] <= np.percentile(abs_data[:over_thres], 95)
         )[0][-1]
-        # stim_idx = [artifact_idx]
 
     art_time_LFP = stim_idx / sf_LFP
 

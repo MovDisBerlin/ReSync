@@ -5,85 +5,60 @@ from matplotlib.pyplot import figure
 import mne
 from os.path import join
 import scipy
+import json
+
 
 import matplotlib
 
 matplotlib.use("Qt5Agg")
 
 
-def plot_LFP_artifact_channel(
-    session_ID: str,
-    timescale: np.ndarray,
-    data: np.ndarray,
-    color: str,
-    saving_path: str,
-    saving_folder=True,
-):
-    """
-    Plots the selected intracranial channel for
-    quick visualization (and saving).
-
-    Input:
-        - session_ID: str, the session ID
-        - timescale: np.ndarray, the timescale of the signal to be plotted
-        - data: np.ndarray, single channel containing datapoints
-        - color: str, the color of the signal on the plot
-        - saving_path: str, the folder where the plot has to be saved
-        - saving_folder: Boolean, default = True, plots are automatically saved
-    """
-
-    figure(figsize=(12, 6), dpi=80)
-    plt.plot(timescale, data, linewidth=1, color=color)
-    plt.xlabel("Time (s)")
-    plt.title(str(session_ID))
-    plt.ylabel("Intracerebral LFP channel (µV)")
-
-    if saving_folder:
-        plt.savefig(
-            (join(saving_path, "Fig4-Intracranial channel raw plot.png")),
-            bbox_inches="tight",
-        )
-
-
 ### Plot a single channel with its associated timescale ###
-
-
-def plot_BIP_artifact_channel(
-    session_ID: str,
-    timescale: np.ndarray,
-    data: np.ndarray,
-    color: str,
-    saving_path: str,
-    saving_folder=True,
+def plot_channel(
+    session_ID: str, 
+    timescale: np.ndarray, 
+    data: np.ndarray, 
+    color: str, 
+    ylabel:str, 
+    title:str, 
+    saving_path:str, 
+    scatter=False
 ):
     """
-    Plots the external bipolar channel for quick visualization (and saving).
+    Plots the selected channel for quick visualization (and saving).
 
     Input:
         - session_ID: str, the subject ID
         - timescale: np.ndarray, the timescale of the signal to be plotted
         - data: np.ndarray, single channel containing datapoints
         - color: str, the color of the signal on the plot
-        - saving_path: str, the folder where the plot has to be saved
-        - saving_folder: Boolean, default = True, plots automatically saved
+        - scatter: Boolean, if the user wants to see the
+        samples instead of a continuous line
+
+    Returns:
+        - the plotted signal
     """
 
-    figure(figsize=(12, 6), dpi=80)
-    plt.plot(timescale, data, linewidth=1, color=color)
+    fig = figure(figsize=(12, 6), dpi=80)
+    if scatter:
+        plt.scatter(timescale, data, color=color)
+    else:
+        plt.plot(timescale, data, linewidth=1, color=color)
     plt.xlabel("Time (s)")
+    plt.ylabel(ylabel)
     plt.title(str(session_ID))
-    plt.ylabel("External bipolar channel - voltage (mV)")
 
-    if saving_folder:
-        plt.savefig(
-            (join(saving_path, "Fig1-External bipolar channel raw plot.png")),
+    plt.savefig(
+            (join(saving_path, title)),
             bbox_inches="tight",
-        )
+        )    
+
+    return fig
+
+
 
 
 ### Plot both hemisphere LFP activity with stimulation amplitude ###
-
-
 def plot_LFP_stim(
     session_ID: str,
     timescale: np.ndarray,
@@ -141,37 +116,6 @@ def plot_LFP_stim(
         )
     return plt.gcf()
 
-
-### Plot a single channel with its associated timescale ###
-
-
-def plot_channel(
-    session_ID: str, timescale: np.ndarray, data: np.ndarray, color: str, scatter=False
-):
-    """
-    Plots the selected channel for quick visualization (and saving).
-
-    Input:
-        - session_ID: str, the subject ID
-        - timescale: np.ndarray, the timescale of the signal to be plotted
-        - data: np.ndarray, single channel containing datapoints
-        - color: str, the color of the signal on the plot
-        - scatter: Boolean, if the user wants to see the
-        samples instead of a continuous line
-
-    Returns:
-        - the plotted signal
-    """
-
-    figure(figsize=(12, 6), dpi=80)
-    if scatter:
-        plt.scatter(timescale, data, color=color)
-    else:
-        plt.plot(timescale, data, linewidth=1, color=color)
-    plt.xlabel("Time (s)")
-    plt.title(str(session_ID))
-
-    return plt.gcf()
 
 
 def plot_LFP_external(
@@ -254,8 +198,6 @@ def plot_LFP_external(
     plt.show(block=True)
 
 
-import json
-
 
 def ecg(
     session_ID: str,
@@ -304,10 +246,10 @@ def ecg(
     )
 
     # make plot on beginning of recordings:
-    fig, (ax1, ax2) = plt.subplots(2, 1)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(18, 6))
     fig.suptitle(str(loaded_dict["SUBJECT_ID"]))
-    fig.set_figheight(6)
-    fig.set_figwidth(18)
+    #fig.set_figheight(6)
+    #fig.set_figwidth(18)
     ax1.axes.xaxis.set_ticklabels([])
     ax2.set_xlabel("Time (s)")
     ax1.set_ylabel("Intracerebral LFP channel (µV)")

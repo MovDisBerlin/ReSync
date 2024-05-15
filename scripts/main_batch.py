@@ -6,16 +6,22 @@ from functions.loading_data import (
     load_intracranial,
     load_external,
     load_sourceJSON
-)
+    )
 from functions.plotting import plot_LFP_external, ecg
 from functions.timeshift import check_timeshift
-from functions.utils import _update_and_save_params, _update_and_save_multiple_params, _get_input_y_n, _get_user_input, _check_for_empties
+from functions.utils import (
+    _update_and_save_params, 
+    _update_and_save_multiple_params, 
+    _get_input_y_n, 
+    _get_user_input, 
+    _check_for_empties
+    )
 from functions.tmsi_poly5reader import Poly5Reader
 from functions.resync_function import (
     detect_artifacts_in_external_recording,
     detect_artifacts_in_intracranial_recording,
     synchronize_recordings,
-    save_synchronized_recordings,
+    save_synchronized_recordings
 )
 from functions.packet_loss import check_packet_loss
 
@@ -285,12 +291,12 @@ def main_batch(
         if CHECK_FOR_PACKET_LOSS:
             _update_and_save_params(
                 key="JSON_FILENAME",
-                value=json_filename,
+                value=f_name_json,
                 session_ID=session_ID,
                 saving_path=saving_path,
             )
             json_object = load_sourceJSON(
-                json_filename=json_filename, source_path=source_path
+                json_filename=f_name_json, source_path=source_path
             )
             check_packet_loss(json_object=json_object)
 

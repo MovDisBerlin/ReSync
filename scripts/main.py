@@ -25,7 +25,7 @@ def main(
     fname_external="sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5",
     BIP_ch_name="Bip25",
     saving_format="brainvision",
-    json_filename=None,
+    f_name_json=None,
     CROP_BOTH=True,
     CHECK_FOR_TIMESHIFT=False,
     CHECK_FOR_PACKET_LOSS=False,
@@ -280,12 +280,12 @@ def main(
     if CHECK_FOR_PACKET_LOSS:
         _update_and_save_params(
             key="JSON_FILENAME",
-            value=json_filename,
+            value=f_name_json,
             session_ID=session_ID,
             saving_path=saving_path,
         )
         json_object = load_sourceJSON(
-            json_filename=json_filename, source_path=source_path
+            json_filename=f_name_json, source_path=source_path
         )
         check_packet_loss(json_object=json_object)
 
