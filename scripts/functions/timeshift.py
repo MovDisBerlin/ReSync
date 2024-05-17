@@ -1,9 +1,7 @@
 import json
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from os.path import join
-import scipy
 
 from functions.interactive import select_sample
 from functions.utils import _update_and_save_multiple_params, _detrend_data
@@ -11,10 +9,10 @@ from functions.utils import _update_and_save_multiple_params, _detrend_data
 
 def check_timeshift(
     session_ID: str,
-    LFP_synchronized,
-    sf_LFP,
-    external_synchronized,
-    sf_external,
+    LFP_synchronized: np.ndarray,
+    sf_LFP: int,
+    external_synchronized: np.ndarray,
+    sf_external: int,
     saving_path: str,
 ):
     """
@@ -30,12 +28,12 @@ def check_timeshift(
 
     Inputs:
         - session_ID: str, the subject ID
-        - LFP_synchronized: pd.DataFrame, the intracranial recording containing all
+        - LFP_synchronized: np.ndarray, the intracranial recording containing all
         recorded channels
-        - sf_LFP: sampling frequency of intracranial recording
-        - external_synchronized: pd.DataFrame, the external recording containing all
+        - sf_LFP: int, sampling frequency of intracranial recording
+        - external_synchronized: np.ndarray, the external recording containing all
         recorded channels
-        - sf_external: sampling frequency of external recording
+        - sf_external: int, sampling frequency of external recording
         - saving_path: str, path to the folder where the parameters.json file is
         saved
 
@@ -73,21 +71,6 @@ def check_timeshift(
     )
 
     timeshift_ms = (last_artifact_external_x - last_artifact_lfp_x) * 1000
-
-    """
-    _update_and_save_params(
-        key="TIMESHIFT",
-        value=timeshift_ms,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    _update_and_save_params(
-        key="REC DURATION FOR TIMESHIFT",
-        value=last_artifact_external_x,
-        session_ID=session_ID,
-        saving_path=saving_path,
-    )
-    """
     
     dictionary = {"TIMESHIFT": timeshift_ms, "REC DURATION FOR TIMESHIFT": last_artifact_external_x}
     _update_and_save_multiple_params(dictionary, session_ID, saving_path)

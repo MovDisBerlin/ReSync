@@ -1,7 +1,3 @@
-from os.path import join, exists
-from os import listdir
-from mne.io import read_raw_fieldtrip
-import json
 import numpy as np
 
 

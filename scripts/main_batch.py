@@ -259,8 +259,7 @@ def main_batch(
             sf_LFP=sf_LFP,
             sf_external=sf_external,
             saving_format=saving_format,
-            saving_path=saving_path,
-            CROP_BOTH=CROP_BOTH,
+            saving_path=saving_path
         )
 
         # 5. PLOT SYNCHRONIZED RECORDINGS:

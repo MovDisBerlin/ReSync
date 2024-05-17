@@ -10,6 +10,15 @@ def select_sample(signal: np.ndarray, sf: int, color1: str, color2: str):
     the given signal with the sampling frequency provided.
     The user can zoom in and out, and the last click before answering
     y will be the selected sample.
+
+    Inputs:
+    signal: np.ndarray, the signal to plot
+    sf: int, the sampling frequency of the plotted signal
+    color1: str, the color to plot the signal as a line
+    color2: str, the color to plot the signal scattered
+
+    Returns:
+    closest_value: float, the manually selected sample
     """
 
     signal_timescale_s = np.arange(0, (len(signal) / sf), (1 / sf))
@@ -29,8 +38,7 @@ def select_sample(signal: np.ndarray, sf: int, color1: str, color2: str):
 def interaction(data: np.ndarray, timescale: np.ndarray, color1: str, color2: str):
     """
     This function draws an interactive plot representing the given data with
-    the timescale provided.The user can zoom in and out, and the last click
-    before answering y will be the selected sample.
+    the timescale provided. The user can zoom in and out.
     """
 
     # collecting the clicked x and y values

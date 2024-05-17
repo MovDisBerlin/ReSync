@@ -4,10 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import mne
 from os.path import join
-import scipy
 import json
-
-
 import matplotlib
 
 matplotlib.use("Qt5Agg")
@@ -52,6 +49,9 @@ def plot_channel(
         - timescale: np.ndarray, the timescale of the signal to be plotted
         - data: np.ndarray, single channel containing datapoints
         - color: str, the color of the signal on the plot
+        - ylabel: str, the label of the y-axis
+        - title: str, the title of the plot
+        - saving_path: str, the folder where the plot has to be saved
         - scatter: Boolean, if the user wants to see the
         samples instead of a continuous line
 

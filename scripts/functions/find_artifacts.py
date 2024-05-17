@@ -14,9 +14,9 @@ def find_external_sync_artifact(data: np.ndarray, sf_external: int, start_index=
     start in stim-off, and typically short pulses are given
     (without ramping). The first 2 seconds are used for threshold calculation
     and should therefore be free of any artifact.
-    The signal must be pre-processed previously with a high-pass
+    The signal are pre-processed previously with a high-pass
     Butterworth filter (1Hz) to ensure removal of slow drifts
-    and offset around 0.
+    and offset around 0 (using _detrend_data function in utils.py).
 
     Inputs:
         - data: np.ndarray, single external channel (from bipolar electrode)
@@ -43,6 +43,7 @@ def find_external_sync_artifact(data: np.ndarray, sf_external: int, start_index=
     if abs(max(data[:-1000])) > abs(min(data[:-1000])):
         print("external signal is reversed")
         data = data * -1
+        print("invertion undone")
 
     # define thresh_BIP as 1.5 times the difference between the max and min
     thresh_BIP = -1.5 * (np.ptp(data[: int(sf_external * 2)]))
@@ -66,8 +67,6 @@ def find_external_sync_artifact(data: np.ndarray, sf_external: int, start_index=
 
 
 # Detection of artifacts in LFP
-
-
 def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
     """
     Function that finds artifacts caused by
@@ -84,10 +83,9 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
     indicates a stim-artifact.
 
     Input:
-        - data: single channel as np.ndarray (the function
-            automatically inverts the signal if first a positive
-            peak is found, this indicates an inverted signal)
-        - sf_LFP (int): sampling frequency of intracranial recording
+        - data: np.ndarray, single data channel of intracranial recording, containing
+            the stimulation artifact
+        - sf_LFP: int, sampling frequency of intracranial recording
         - use_method: str, '1' or '2' or 'thresh'. The kernel/method
             used to detect the stim-artifact.
                 '1' is a simple kernel that only detects the steep decrease
@@ -98,18 +96,31 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
             the stim-artifact.
 
     Returns:
-        - art_time_LFP: the timestamp where the artifact starts in
+        - art_time_LFP: the timestamp where the artifact starts in the
         intracranial recording.
     """
-
-    signal_inverted = False  # defaults false
 
     # checks correct input for use_kernel variable
     assert use_method in ["1", "2", "thresh"], "use_method incorrect. Should be '1', '2' or 'thresh'"
 
-    if use_method in ["1", "2"]:
-        # kernel 1 only searches for the steep decrease
-        # kernel 2 is more custom and takes into account the steep decrease and slow recover
+    if use_method == "thresh":
+        thres_window = sf_LFP * 2
+        thres = np.ptp(data[:thres_window])
+        # Compute absolute value to be invariant to the polarity of the signal
+        abs_data = np.abs(data)
+        # Check where the data exceeds the threshold
+        over_thres = np.where(abs_data > thres)[0][0]
+        # Take last sample that lies within the value distribution of the thres_window before the threshold passing
+        # The percentile is something that can be varied
+        stim_idx = np.where(
+            abs_data[:over_thres] <= np.percentile(abs_data[:over_thres], 95)
+        )[0][-1]
+
+
+
+    else:
+        signal_inverted = False  # defaults false
+
         kernels = {
             "1": np.array([1, -1]),
             "2": np.array([1, 0, -1] + list(np.linspace(-1, 0, 20))),
@@ -128,17 +139,23 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
 
         # normalise dot product results
         res = res / max(res)
-        """
-        res = np.convolve(data, ker, mode='valid')
-        """
 
         # calculate a ratio between std dev and maximum during
         # the first seconds to check whether an stim-artifact was present
         ratio_max_sd = np.max(res[: sf_LFP * 30] / np.std(res[: sf_LFP * 5]))
 
         # find peak of kernel dot products
+        # pos_idx contains all the positive peaks, neg_idx all the negative peaks
         pos_idx = find_peaks(x=res, height=0.3 * max(res), distance=sf_LFP)[0]
         neg_idx = find_peaks(x=-res, height=-0.3 * min(res), distance=sf_LFP)[0]
+
+        # check warn if NO STIM artifacts are suspected
+        if (len(neg_idx) > 20 and ratio_max_sd < 8) or (len(pos_idx) > 20 and ratio_max_sd < 8):
+            print(
+                "WARNING: probably the LFP signal did NOT"
+                " contain any artifacts. Many incorrect timings"
+                " could be returned"
+            )
 
         # check whether signal is inverted
         if neg_idx[0] < pos_idx[0]:
@@ -174,19 +191,9 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
         elif signal_inverted:
             stim_idx = neg_idx
 
-        # check warn if NO STIM artifacts are suspected
-        if len(stim_idx) > 20 and ratio_max_sd < 8:
-            print(
-                "WARNING: probably the LFP signal did NOT"
-                " contain any artifacts. Many incorrect timings"
-                " could be returned"
-            )
-
         # filter out inconsistencies in peak heights (assuming sync-stim-artifacts are stable)
         abs_heights = [max(abs(data[i - 5 : i + 5])) for i in stim_idx]
-        # diff_median = np.array([abs(p - np.median(abs_heights)) for p in abs_heights])
-        # sel_idx = diff_median < (np.median(abs_heights)*.66)
-        # stim_idx = list(compress(stim_idx, sel_idx))
+
         # check polarity of peak
         if not signal_inverted:
             sel_idx = np.array([min(data[i - 5 : i + 5]) for i in stim_idx]) < (
@@ -198,21 +205,6 @@ def find_LFP_sync_artifact(data: np.ndarray, sf_LFP: int, use_method: str):
             )
         stim_idx_all = list(compress(stim_idx, sel_idx))
         stim_idx = stim_idx_all[0]
-
-        
-
-    else:
-        thres_window = sf_LFP * 2
-        thres = np.ptp(data[:thres_window])
-        # Compute absolute value to be invariant to the polarity of the signal
-        abs_data = np.abs(data)
-        # Check where the data exceeds the threshold
-        over_thres = np.where(abs_data > thres)[0][0]
-        # Take last sample that lies within the value distribution of the thres_window before the threshold passing
-        # The percentile is something that can be varied
-        stim_idx = np.where(
-            abs_data[:over_thres] <= np.percentile(abs_data[:over_thres], 95)
-        )[0][-1]
 
     art_time_LFP = stim_idx / sf_LFP
 

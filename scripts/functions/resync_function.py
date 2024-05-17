@@ -1,10 +1,8 @@
 # import librairies
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from os.path import join
 import pickle
-import scipy
 from scipy.io import savemat
 from pybv import write_brainvision
 
@@ -19,20 +17,20 @@ from functions.utils import _detrend_data
 def detect_artifacts_in_external_recording(
     session_ID: str,
     BIP_channel: np.ndarray,
-    sf_external,
+    sf_external: int,
     saving_path: str,
     start_index: int = 0,
 ):
     """
-    This function synchronizes the intracranial recording with
-    the external recording of the same session.
+    This function detects the artifacts in the external recording and plots it
+    for verification.
 
     Inputs:
         - session_ID: str, session identifier
         - BIP_channel: np.ndarray, the channel of the external recording to be
         used for synchronization (the one containing deep brain stimulation
         artifacts = the channel recorded with the bipolar electrode)
-        - sf_external: sampling frequency of external recording
+        - sf_external: int, sampling frequency of external recording
         - saving_path: str, path to the folder where the figures will be saved
         - start_index: default is 0 when recording is properly started in StimOff,
         but it can be changed when this is not the case (back-up option)
@@ -62,7 +60,7 @@ def detect_artifacts_in_external_recording(
         saving_path=saving_path,
         scatter=False
     )
-    #plt.close()
+    plt.close()
 
     ### DETECT ARTIFACTS ###
 
@@ -83,7 +81,6 @@ def detect_artifacts_in_external_recording(
         scatter=False,
     )
     plt.axvline(x=art_start_BIP, color="black", linestyle="dashed", alpha=0.3)
-    #plt.gcf()
     plt.show(block=False)
 
     # PLOT 3 :
@@ -100,26 +97,23 @@ def detect_artifacts_in_external_recording(
         saving_path=saving_path,
         scatter=True,
     )
-    #plt.xlim(art_start_BIP - (60 / sf_external), art_start_BIP + (60 / sf_external))
     plt.axvline(x=art_start_BIP, color="black", linestyle="dashed", alpha=0.3)
-    #plt.gcf()
     plt.show(block=False)
 
     return art_start_BIP
 
 
 def detect_artifacts_in_intracranial_recording(
-    session_ID: str, lfp_sig: np.ndarray, sf_LFP, saving_path: str, method: str
+    session_ID: str, lfp_sig: np.ndarray, sf_LFP: int, saving_path: str, method: str
 ):
     """
-    This function synchronizes the intracranial recording with
-    the external recording of the same session.
+    This function detects the first artifact in the intracranial recording and plots it.
 
     Inputs:
         - session_ID: str, session identifier
         - lfp_sig: np.ndarray, the channel of the intracranial recording to be
         used for synchronization (the one containing deep brain stimulation artifacts)
-        - sf_LFP: sampling frequency of intracranial recording
+        - sf_LFP: int, sampling frequency of intracranial recording
         - saving_path: str, path to the folder where the figures will be saved
         - method: str, method used for artifact detection in intracranial recording
         (1, 2, thresh, manual)
@@ -180,8 +174,8 @@ def detect_artifacts_in_intracranial_recording(
 
         # PLOT 6 :
         # plot the first artifact detected in intracranial channel (verification of sample choice):
-        idx_start = np.where(LFP_timescale_s == art_start_LFP - 0.1)[0][0]
-        idx_end = np.where(LFP_timescale_s == art_start_LFP + 0.3)[0][0]    
+        idx_start = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] - (0.1*sf_LFP))
+        idx_end = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] + (0.3*sf_LFP))
         plot_channel(
             session_ID=session_ID,
             timescale=LFP_timescale_s[idx_start:idx_end],
@@ -192,7 +186,6 @@ def detect_artifacts_in_intracranial_recording(
             saving_path=saving_path,
             scatter=True,
         )
-        #plt.xlim(art_start_LFP - 0.1, art_start_LFP + 0.3)
         plt.axvline(
             x=art_start_LFP,
             ymin=min(lfp_sig),
@@ -201,7 +194,6 @@ def detect_artifacts_in_intracranial_recording(
             linestyle="dashed",
             alpha=0.3,
         )
-        #plt.gcf()
         plt.show(block=False)
 
     if method == "manual":
@@ -215,17 +207,18 @@ def detect_artifacts_in_intracranial_recording(
         )
 
         # PLOT 7 : plot the artifact adjusted by user in the intracranial channel:
+        idx_start = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] - (0.1*sf_LFP))
+        idx_end = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] + (0.3*sf_LFP))
         plot_channel(
             session_ID=session_ID,
-            timescale=LFP_timescale_s,
-            data=lfp_sig,
+            timescale=LFP_timescale_s[idx_start:idx_end],
+            data=lfp_sig[idx_start:idx_end],
             color="darkorange",
             ylabel="Intracranial LFP channel (µV)",
             title="Fig7-Intracranial channel - first artifact corrected by user.png",  
             saving_path=saving_path,
             scatter=True,
         )
-        plt.xlim(art_start_LFP - 0.1, art_start_LFP + 0.3)
         plt.axvline(
             x=art_start_LFP,
             ymin=min(lfp_sig),
@@ -243,12 +236,12 @@ def detect_artifacts_in_intracranial_recording(
 
 def synchronize_recordings(
     LFP_array: np.ndarray,
-    external_file,
-    art_start_LFP,
-    art_start_BIP,
-    sf_LFP,
-    sf_external,
-    CROP_BOTH,
+    external_file: np.ndarray,
+    art_start_LFP: float,
+    art_start_BIP: float,
+    sf_LFP: int,
+    sf_external: int,
+    CROP_BOTH: bool,
 ):
     """
     This function synchronizes the intracranial recording with
@@ -257,10 +250,10 @@ def synchronize_recordings(
     Inputs:
         - LFP_array: np.ndarray, intracranial recording
         - external_file: np.ndarray, external recording
-        - art_start_LFP: the timestamp when the artifact starts in intracranial recording
-        - art_start_BIP: the timestamp when the artifact starts in external recording
-        - sf_LFP: sampling frequency of intracranial recording
-        - sf_external: sampling frequency of external recording
+        - art_start_LFP: float, the timestamp when the artifact starts in intracranial recording
+        - art_start_BIP: float, the timestamp when the artifact starts in external recording
+        - sf_LFP: int, sampling frequency of intracranial recording
+        - sf_external: int, sampling frequency of external recording
         - CROP_BOTH: bool, if True, both recordings are cropped 1 second before
         first artifact. If False, only external recording is cropped to match
         intracranial recording
@@ -270,22 +263,10 @@ def synchronize_recordings(
         - external_synchronized: np.ndarray, external recording synchronized with intracranial recording
     """
 
-    if CROP_BOTH:
-        """
-        # crop intracranial and external recordings 1 second before first artifact
-        (LFP_synchronized, external_synchronized) = sync_by_cropping_both(
-            LFP_array=LFP_array,
-            external_file=external_file,
-            art_start_LFP=art_start_LFP,
-            art_start_BIP=art_start_BIP,
-            sf_LFP=sf_LFP,
-            sf_external=sf_external,
-        )
-        """    
+    if CROP_BOTH: 
         ## Intracranial ##
         # Crop beginning of LFP intracranial recording 1 second before first artifact:
         index_start_LFP = (art_start_LFP - 1) * sf_LFP
-
         LFP_cropped = LFP_array[:, int(index_start_LFP) :].T
 
         ## External ##
@@ -317,18 +298,6 @@ def synchronize_recordings(
         )
 
     else:
-        """
-        # only crop beginning and end of external recording to match LFP recording:
-        (LFP_synchronized, external_synchronized) = align_external_on_LFP(
-            LFP_array=LFP_array,
-            external_file=external_file,
-            art_start_LFP=art_start_LFP,
-            art_start_BIP=art_start_BIP,
-            sf_LFP=sf_LFP,
-            sf_external=sf_external,
-        )
-        """
-
         # find the timestamp in the external recording corresponding to the start of LFP recording :
         time_start_external = art_start_BIP - art_start_LFP
         index_start_external = time_start_external * sf_external
@@ -358,18 +327,20 @@ def synchronize_recordings(
 
 
 def save_synchronized_recordings(
-    session_ID,
-    LFP_synchronized,
-    external_synchronized,
-    LFP_rec_ch_names,
-    external_rec_ch_names,
-    sf_LFP,
-    sf_external,
-    saving_format,
-    saving_path,
+    session_ID: str,
+    LFP_synchronized: np.ndarray,
+    external_synchronized: np.ndarray,
+    LFP_rec_ch_names: list,
+    external_rec_ch_names: list,
+    sf_LFP: int,
+    sf_external: int,
+    saving_format: str,
+    saving_path: str,
 ):
     """
     This function saves the synchronized intracranial and external recordings.
+    Available saving formats are: csv, mat, pickle, brainvision.
+    Both recordings are saved in a separate file.
 
     Inputs:
         - session_ID: str, session identifier
@@ -377,8 +348,8 @@ def save_synchronized_recordings(
         - external_synchronized: np.ndarray, external recording synchronized with intracranial recording
         - LFP_rec_ch_names: list, names of the intracranial recording channels
         - external_rec_ch_names: list, names of the external recording channels
-        - sf_LFP: sampling frequency of intracranial recording
-        - sf_external: sampling frequency of external recording
+        - sf_LFP: int, sampling frequency of intracranial recording
+        - sf_external: int, sampling frequency of external recording
         - saving_format: str, format in which the recordings will be saved
         - saving_path: str, path to the folder where the recordings will be saved
 
@@ -471,135 +442,3 @@ def save_synchronized_recordings(
             overwrite=True,
         )
         print("Data saved in brainvision format")
-
-    """
-    if CROP_BOTH:
-        LFP_df_offset = pd.DataFrame(LFP_synchronized)
-        LFP_df_offset.columns = LFP_rec_ch_names
-        external_df_offset = pd.DataFrame(external_synchronized)
-        external_df_offset.columns = external_rec_ch_names
-
-        if saving_format == "csv":
-            LFP_df_offset["sf_LFP"] = sf_LFP
-            external_df_offset["sf_external"] = sf_external
-            LFP_df_offset.to_csv(
-                join(saving_path, ("Intracranial_LFP_" + str(session_ID) + ".csv")),
-                index=False,
-            )
-            external_df_offset.to_csv(
-                join(saving_path, ("External_data_" + str(session_ID) + ".csv")),
-                index=False,
-            )
-
-        if saving_format == "pickle":
-            LFP_df_offset["sf_LFP"] = sf_LFP
-            external_df_offset["sf_external"] = sf_external
-            LFP_filename = join(
-                saving_path, ("Intracranial_LFP_" + str(session_ID) + ".pkl")
-            )
-            external_filename = join(
-                saving_path, ("External_data_" + str(session_ID) + ".pkl")
-            )
-            # Save the dataset to a pickle file
-            with open(LFP_filename, "wb") as file:
-                pickle.dump(LFP_df_offset, file)
-            with open(external_filename, "wb") as file:
-                pickle.dump(external_df_offset, file)
-
-        if saving_format == "mat":
-            LFP_filename = join(
-                saving_path, ("Intracranial_LFP_" + str(session_ID) + ".mat")
-            )
-            external_filename = join(
-                saving_path, ("External_data_" + str(session_ID) + ".mat")
-            )
-            savemat(
-                LFP_filename,
-                {
-                    "data": LFP_df_offset.T,
-                    "fsample": sf_LFP,
-                    "label": np.array(
-                        LFP_df_offset.columns.tolist(), dtype=object
-                    ).reshape(-1, 1),
-                },
-            )
-            savemat(
-                external_filename,
-                {
-                    "data": external_df_offset.T,
-                    "fsample": sf_external,
-                    "label": np.array(
-                        external_df_offset.columns.tolist(), dtype=object
-                    ).reshape(-1, 1),
-                },
-            )
-
-        if saving_format == "brainvision":
-            LFP_filename = "Intracranial_LFP_" + str(session_ID)
-            write_brainvision(
-                data=LFP_synchronized.T,
-                sfreq=float(sf_LFP),
-                ch_names=LFP_rec_ch_names,
-                fname_base=LFP_filename,
-                folder_out=saving_path,
-                overwrite=True,
-            )
-            external_filename = "External_data_" + str(session_ID)
-            write_brainvision(
-                data=external_synchronized.T,
-                sfreq=float(sf_external),
-                ch_names=external_rec_ch_names,
-                fname_base=external_filename,
-                folder_out=saving_path,
-                overwrite=True,
-            )
-
-
-
-    else:
-        external_df_offset = pd.DataFrame(external_synchronized)
-        external_df_offset.columns = external_rec_ch_names
-
-        if saving_format == "csv":
-            external_df_offset["sf_external"] = sf_external
-            external_df_offset.to_csv(
-                join(saving_path, ("External_data_" + str(session_ID) + ".csv")),
-                index=False,
-            )
-
-        if saving_format == "pickle":
-            external_df_offset["sf_external"] = sf_external
-            external_filename = join(
-                saving_path, ("External_data_" + str(session_ID) + ".pkl")
-            )
-            # Save the dataset to a pickle file
-            with open(external_filename, "wb") as file:
-                pickle.dump(external_df_offset, file)
-
-        if saving_format == "mat":
-            external_filename = join(
-                saving_path, ("External_data_" + str(session_ID) + ".mat")
-            )
-            savemat(
-                external_filename,
-                {
-                    "data": external_df_offset.T,
-                    "fsample": sf_external,
-                    "label": np.array(
-                        external_df_offset.columns.tolist(), dtype=object
-                    ).reshape(-1, 1),
-                },
-            )
-
-        if saving_format == "brainvision":
-            external_filename = "External_data_" + str(session_ID)
-            write_brainvision(
-                data=external_synchronized.T,
-                sfreq=sf_external,
-                ch_names=external_rec_ch_names,
-                fname_base=external_filename,
-                folder_out=saving_path,
-                overwrite=True,
-            )
-    """
-

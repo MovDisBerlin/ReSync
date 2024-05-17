@@ -8,8 +8,6 @@ from functions.utils import _update_and_save_multiple_params
 from functions.tmsi_poly5reader import Poly5Reader
 
 #### LFP DATASET ####
-
-
 def load_intracranial(
         session_ID,
         fname_lfp,
@@ -38,10 +36,10 @@ def load_intracranial(
     
     Outputs
     -------
-    LFP_array: the intracranial recording itself, containing all the recorded channels
-    lfp_sig: the channel of the intracranial recording containing the stimulation artifacts
-    LFP_rec_ch_names: the names of all the channels recorded intracerebrally
-    sf_LFP: the sampling frequency of the intracranial recording
+    LFP_array: np.ndarray, the intracranial recording itself, containing all the recorded channels
+    lfp_sig: np.ndarray, the channel of the intracranial recording containing the stimulation artifacts
+    LFP_rec_ch_names: list, the names of all the channels recorded intracerebrally
+    sf_LFP: int, the sampling frequency of the intracranial recording
 
     """
     
@@ -144,17 +142,18 @@ def load_external(
             source_path=source_path,
         )
 
-    return (external_file, BIP_channel, external_rec_ch_names, sf_external, ch_index_external)
+    return external_file, BIP_channel, external_rec_ch_names, sf_external, ch_index_external
 
 
 
 
-def load_sourceJSON(json_filename: str, source_path):
+def load_sourceJSON(json_filename: str, source_path: str):
     """
     Reads source JSON file
 
     Input:
-        - fname: str of JSON filename
+        - json_filename: str of JSON filename
+        - source_path: str of path to the source file
 
     Returns:
         - json_object: loaded JSON file
@@ -167,15 +166,20 @@ def load_sourceJSON(json_filename: str, source_path):
     return json_object
 
 
-def load_mat_file(session_ID: str, filename: str, saving_path: str, source_path):
-    """ "
+def load_mat_file(
+        session_ID: str, 
+        filename: str, 
+        saving_path: str, 
+        source_path: str
+        ):
+    """
     Reads .mat-file in FieldTrip structure using mne-function
 
     Input:
         - session_ID: str
-        - filename: str of only .mat-filename
-                - saving_path: str of path to save the parameters
-                - source_path: str of path to the source file
+        - filename: str, .mat-filename
+        - saving_path: str, path to save the parameters
+        - source_path: str, path to the source file
 
     Returns:
         - data: mne-object of .mat file
@@ -197,8 +201,13 @@ def load_mat_file(session_ID: str, filename: str, saving_path: str, source_path)
 
 
 def load_intracranial_csv_file(
-    session_ID: str, filename: str, ch_idx_lfp: int, saving_path: str, source_path
-):
+    session_ID: str, 
+    filename: str, 
+    ch_idx_lfp: int, 
+    saving_path: str, 
+    source_path: str
+    ):
+
     """
     Takes a .csv file containing the LFP recording and extracts the LFP signal
     from the channel of interest. It also returns the whole LFP recording (in an
@@ -242,8 +251,13 @@ def load_intracranial_csv_file(
 
 
 def load_external_csv_file(
-    session_ID: str, filename: str, BIP_ch_name: str, saving_path: str, source_path
-):
+    session_ID: str, 
+    filename: str, 
+    BIP_ch_name: str, 
+    saving_path: str, 
+    source_path: str
+    ):
+    
     """
     Takes a .csv file containing the external recording and extracts the channel
     containing the artifacts, which will be used for synchronization.
@@ -301,7 +315,13 @@ def load_external_csv_file(
 
 
 # extract variables from LFP recording:
-def load_data_lfp(session_ID: str, dataset_lfp, ch_idx_lfp: int, saving_path: str):
+def load_data_lfp(
+        session_ID: str, 
+        dataset_lfp, 
+        ch_idx_lfp: int, 
+        saving_path: str
+        ):
+    
     """
     Takes a .mat file containing the LFP recording and extracts the LFP signal
     from the channel of interest. It also returns the whole LFP recording (in an
@@ -354,6 +374,33 @@ def load_data_lfp_DBScope(
     source_path: str,
     saving_path: str,
 ):
+    
+    """
+    Takes a .mat file containing the LFP recording and extracts the LFP signal
+    from the channel of interest. It also returns the whole LFP recording (in an
+    array), the names of all the channels recorded, the sampling frequency of the
+    LFP recording and the index of the channel of interest in the LFP recording.
+
+    Inputs:
+            - session_ID: str, subject ID
+            - fname_lfp: str, name of the LFP recording session
+            - ch_idx_lfp: int, index of the channel of interest in the LFP recording
+            - trial_idx_lfp: int, only used if PREPROCESSING is 'DBScope'. It corresponds to
+            the number indicated in the DBScope viewer for Streamings, under 
+            "Select recording" - 1.
+            - source_path: str, path to the source file
+            - saving_path: str, path to save the parameters
+
+    Returns:
+            - LFP_array: np.ndarray, the LFP recording containing
+                    all recorded channels
+            - lfp_sig: np.ndarray, the LFP signal from the channel
+                    of interest
+            - LFP_rec_ch_names: list, the names of all the channels
+                    recorded
+            - sf_LFP: int, sampling frequency of LFP recording
+    """
+
 
     if type(ch_idx_lfp) == float:
         ch_idx_lfp = int(ch_idx_lfp)
@@ -392,8 +439,13 @@ def load_data_lfp_DBScope(
 
 
 def load_TMSi_artifact_channel(
-    session_ID: str, TMSi_data, fname_external: str, BIP_ch_name: str, saving_path: str
-):
+    session_ID: str, 
+    TMSi_data, 
+    fname_external: str, 
+    BIP_ch_name: str, 
+    saving_path: str
+    ):
+
     """
     Takes a poly5 object containing all the external channels recorded.
     It extracts the channel containing the artifacts, which will be used for
@@ -410,12 +462,12 @@ def load_TMSi_artifact_channel(
             - saving_path: str, path to save the parameters
 
     Returns:
+            - external_file: np.ndarray, the external recording
+        containing all recorded channels
             - BIP_channel: np.ndarray, the channel of the external
         recording to be used for synchronization (the one containing deep brain
         stimulation artifacts = the channel recorded with the bipolar
         electrode)
-            - external_file: np.ndarray, the external recording
-        containing all recorded channels
             - external_rec_ch_names: list, the names of all the channels
         recorded externally
             - sf_external: int, sampling frequency of external recording
@@ -445,4 +497,4 @@ def load_TMSi_artifact_channel(
         }
     _update_and_save_multiple_params(dictionary, session_ID, saving_path)
 
-    return (external_file, BIP_channel, external_rec_ch_names, sf_external, ch_index)
+    return external_file, BIP_channel, external_rec_ch_names, sf_external, ch_index

@@ -6,41 +6,24 @@ import os
 import json
 from tkinter.filedialog import askdirectory
 import scipy
-import numpy as np
 import operator
-
-
-def _define_folders():
-    """
-    This function is used only in the notebook, if the user hasn't already define
-    the saving path in the config.json file (back up function).
-    """
-
-    # import settings
-    json_path = os.path.join(os.getcwd(), "config")
-    json_filename = "config.json"
-    with open(os.path.join(json_path, json_filename), "r") as f:
-        loaded_dict = json.load(f)
-
-    saving_folder = askdirectory(title="Select Saving Folder")
-    saving_path = os.path.join(saving_folder, loaded_dict["subject_ID"])
-    if not os.path.isdir(saving_path):
-        os.makedirs(saving_path)
-
-    return saving_path
+import pandas as pd
+import numpy as np
 
 
 parameters = {}
-
-
-def _update_and_save_multiple_params(dictionary, session_ID, saving_path):
+def _update_and_save_multiple_params(
+        dictionary: dict, 
+        session_ID: str, 
+        saving_path: str
+        ):
     """
     This function is used to update the parameters dictionary and save it in a json file.
 
     Inputs:
-        - dictionary: contains multiple keys and their values
-        - session_ID: the session identifier
-        - saving_path: the path where to save/find the json file
+        - dictionary: dict, contains multiple keys and their values
+        - session_ID: str, the session identifier
+        - saving_path: str, the path where to save/find the json file
     """
     for key, value in dictionary.items():
         parameters[key] = value
@@ -52,15 +35,15 @@ def _update_and_save_multiple_params(dictionary, session_ID, saving_path):
 
 
 
-def _update_and_save_params(key, value, session_ID, saving_path):
+def _update_and_save_params(key, value, session_ID: str, saving_path: str):
     """
     This function is used to update the parameters dictionary and save it in a json file.
 
     Inputs:
         - key: the key of the parameter to update
         - value: the new value of the parameter
-        - session_ID: the session identifier
-        - saving_path: the path where to save/find the json file
+        - session_ID: str, the session identifier
+        - saving_path: str, the path where to save/find the json file
     """
 
     parameters[key] = value
@@ -70,8 +53,31 @@ def _update_and_save_params(key, value, session_ID, saving_path):
         json.dump(parameters, json_file, indent=4)
 
 
-import pandas as pd
-def _check_for_empties(session_ID, fname_lfp, fname_external, ch_idx_lfp, BIP_ch_name, index):
+
+def _check_for_empties(
+        session_ID: str, 
+        fname_lfp: str, 
+        fname_external: str, 
+        ch_idx_lfp: int, 
+        BIP_ch_name: str, 
+        index: int
+        ):
+    """
+    This function checks if the input parameters are empty and prints a message
+    if they are. It returns a boolean value to indicate if the analysis should be skipped.
+
+    Inputs:
+        - session_ID: str, the subject ID
+        - fname_lfp: str, the filename of the LFP file
+        - fname_external: str, the filename of the external file
+        - ch_idx_lfp: int, the index of the LFP channel
+        - BIP_ch_name: str, the name of the external channel
+        - index: int, the index of the row in the dataframe
+
+    Returns:
+        - SKIP: bool, indicates if the analysis should be skipped
+    """
+
     SKIP = False
     if pd.isna(session_ID):
         print(
@@ -103,7 +109,20 @@ def _check_for_empties(session_ID, fname_lfp, fname_external, ch_idx_lfp, BIP_ch
     return SKIP
 
 
-def _is_channel_in_list(channel_array, desired_channel_name):
+def _is_channel_in_list(
+        channel_array, 
+        desired_channel_name
+        ):
+    """
+    This function checks if the desired channel name is in the list of channels.
+
+    Inputs:
+        - channel_array: the list of channels
+        - desired_channel_name: str, the desired channel name
+
+    Returns:
+        - bool, indicates if the channel is in the list
+    """
 
     if desired_channel_name.lower() in (channel.lower() for channel in channel_array):
         return True
@@ -153,8 +172,38 @@ def _get_user_input(message: str) -> int:
     return user_input
 
 
-def _detrend_data(data):
+def _detrend_data(data: np.ndarray):
+    """
+    This function is used to detrend the data using a high-pass filter.
+
+    Inputs:
+        - data: np.ndarray, the data to detrend
+
+    Returns:
+        - detrended_data: np.ndarray, the detrended data
+    """
+
     b, a = scipy.signal.butter(1, 0.05, "highpass")
     detrended_data = scipy.signal.filtfilt(b, a, data)
 
     return detrended_data
+
+
+def _define_folders():
+    """
+    This function is used only in the notebook, if the user hasn't already define
+    the saving path in the config.json file (back up function).
+    """
+
+    # import settings
+    json_path = os.path.join(os.getcwd(), "config")
+    json_filename = "config.json"
+    with open(os.path.join(json_path, json_filename), "r") as f:
+        loaded_dict = json.load(f)
+
+    saving_folder = askdirectory(title="Select Saving Folder")
+    saving_path = os.path.join(saving_folder, loaded_dict["subject_ID"])
+    if not os.path.isdir(saving_path):
+        os.makedirs(saving_path)
+
+    return saving_path

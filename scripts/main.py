@@ -249,7 +249,6 @@ def main(
         sf_external=sf_external,
         saving_format=saving_format,
         saving_path=saving_path,
-        CROP_BOTH=CROP_BOTH,
     )
 
     # 5. PLOT SYNCHRONIZED RECORDINGS:
