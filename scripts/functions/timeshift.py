@@ -6,7 +6,7 @@ from os.path import join
 import scipy
 
 from functions.interactive import select_sample
-from functions.utils import _update_and_save_multiple_params
+from functions.utils import _update_and_save_multiple_params, _detrend_data
 
 
 def check_timeshift(
@@ -58,8 +58,7 @@ def check_timeshift(
     )
 
     # detrend external recording with high-pass filter before processing:
-    b, a = scipy.signal.butter(1, 0.05, "highpass")
-    filtered_external_offset = scipy.signal.filtfilt(b, a, BIP_channel_offset)
+    filtered_external_offset = _detrend_data(BIP_channel_offset)
 
     print("Select the first sample of the last artifact in the intracranial recording")
     last_artifact_lfp_x = select_sample(

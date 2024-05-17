@@ -12,6 +12,8 @@ import matplotlib
 
 matplotlib.use("Qt5Agg")
 
+from functions.utils import _detrend_data
+
 
 ## set font sizes and other parameters for the figures
 SMALL_SIZE = 12
@@ -173,8 +175,7 @@ def plot_LFP_external(
     BIP_channel_offset = external_synchronized[:, ch_index_external]
 
     # pre-processing of external bipolar channel :
-    b, a = scipy.signal.butter(1, 0.05, "highpass")
-    filtered_external_offset = scipy.signal.filtfilt(b, a, BIP_channel_offset)
+    filtered_external_offset = _detrend_data(BIP_channel_offset)
 
     # Generate new timescales:
     LFP_timescale_offset_s = np.arange(

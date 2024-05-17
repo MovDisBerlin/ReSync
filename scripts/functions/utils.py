@@ -151,3 +151,10 @@ def _get_user_input(message: str) -> int:
             print("Input must be an integer. Please provide a valid input.")
 
     return user_input
+
+
+def _detrend_data(data):
+    b, a = scipy.signal.butter(1, 0.05, "highpass")
+    detrended_data = scipy.signal.filtfilt(b, a, data)
+
+    return detrended_data

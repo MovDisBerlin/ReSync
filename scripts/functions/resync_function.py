@@ -11,8 +11,8 @@ from pybv import write_brainvision
 # import custom-made functions
 from functions.find_artifacts import *
 from functions.plotting import *
-from functions.sync import sync_by_cropping_both, align_external_on_LFP
 from functions.interactive import select_sample
+from functions.utils import _detrend_data
 
 
 
@@ -48,8 +48,7 @@ def detect_artifacts_in_external_recording(
     )
 
     # apply a highpass filter at 1Hz to the external bipolar channel (detrending)
-    b, a = scipy.signal.butter(1, 0.05, "highpass")
-    filtered_external = scipy.signal.filtfilt(b, a, BIP_channel)
+    filtered_external = _detrend_data(BIP_channel)
 
     # PLOT 1 :
     # plot the signal of the external channel used for artifact detection:
@@ -285,8 +284,7 @@ def synchronize_recordings(
         """    
         ## Intracranial ##
         # Crop beginning of LFP intracranial recording 1 second before first artifact:
-        time_start_LFP_0 = art_start_LFP - 1  # 1s before first artifact
-        index_start_LFP = time_start_LFP_0 * (sf_LFP)
+        index_start_LFP = (art_start_LFP - 1) * sf_LFP
 
         LFP_cropped = LFP_array[:, int(index_start_LFP) :].T
 
@@ -300,17 +298,14 @@ def synchronize_recordings(
         # Check which recording is the longest,
         # crop it to give it the same duration as the other one:
         LFP_rec_duration = len(LFP_cropped) / sf_LFP
-
         external_rec_duration = len(external_cropped) / sf_external
 
         if LFP_rec_duration > external_rec_duration:
-            rec_duration = external_rec_duration
-            index_stop_LFP = rec_duration * sf_LFP
+            index_stop_LFP = external_rec_duration * sf_LFP
             LFP_synchronized = LFP_cropped[: int(index_stop_LFP), :]
             external_synchronized = external_cropped
         elif external_rec_duration > LFP_rec_duration:
-            rec_duration = LFP_rec_duration
-            index_stop_external = rec_duration * sf_external
+            index_stop_external = LFP_rec_duration * sf_external
             external_synchronized = external_cropped[: int(index_stop_external), :]
             LFP_synchronized = LFP_cropped
         else:
