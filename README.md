@@ -16,7 +16,6 @@ This repo is structured as follows:
 │   │   ├── packet_loss
 │   │   ├── plotting
 │   │   ├── resync_function
-│   │   ├── sync
 │   │   ├── timeshift
 │   │   ├── tmsi_poly5reader
 │   │   └── utils    
@@ -76,7 +75,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 * **Juliette Vivien** - *Initial work* -
 
-*  **Alessia Cavallo** - *Contributor* 
+*  **Alessia Cavallo** - *Contributor/Code review* 
 
 * **Jeroen Habets** - *Contributor* - https://github.com/jgvhabets
 
