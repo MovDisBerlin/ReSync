@@ -58,6 +58,8 @@ def detect_artifacts_in_external_recording(
         ylabel="External bipolar channel - voltage (mV)",
         title="Fig1-External bipolar channel raw plot.png",
         saving_path=saving_path,
+        vertical_line=False,
+        art_time=None,
         scatter=False
     )
     plt.close()
@@ -78,9 +80,10 @@ def detect_artifacts_in_external_recording(
         ylabel="Artifact channel BIP (mV)", 
         title="Fig2-External bipolar channel with artifact detected.png", 
         saving_path=saving_path,
+        vertical_line=True,
+        art_time=art_start_BIP,
         scatter=False,
     )
-    plt.axvline(x=art_start_BIP, color="black", linestyle="dashed", alpha=0.3)
     plt.show(block=False)
 
     # PLOT 3 :
@@ -95,9 +98,10 @@ def detect_artifacts_in_external_recording(
         ylabel="Artifact channel BIP - Voltage (mV)",
         title="Fig3-External bipolar channel - first artifact detected.png",
         saving_path=saving_path,
+        vertical_line=True,
+        art_time=art_start_BIP,
         scatter=True,
     )
-    plt.axvline(x=art_start_BIP, color="black", linestyle="dashed", alpha=0.3)
     plt.show(block=False)
 
     return art_start_BIP
@@ -139,6 +143,8 @@ def detect_artifacts_in_intracranial_recording(
         ylabel="Intracerebral LFP channel (µV)",
         title="Fig4-Intracranial channel raw plot.png",
         saving_path=saving_path,
+        vertical_line=False,
+        art_time=None,
         scatter=False
     )
     plt.close()
@@ -159,17 +165,10 @@ def detect_artifacts_in_intracranial_recording(
             ylabel="Intracranial LFP channel (µV)",
             title="Fig5-Intracranial channel with artifact detected - method " + str(method) + ".png",
             saving_path=saving_path,
+            vertical_line=True,
+            art_time=art_start_LFP,
             scatter=False,
         )
-        plt.axvline(
-            x=art_start_LFP,
-            ymin=min(lfp_sig),
-            ymax=max(lfp_sig),
-            color="black",
-            linestyle="dashed",
-            alpha=0.3,
-        )
-        plt.gcf()
         plt.show(block=False)
 
         # PLOT 6 :
@@ -184,15 +183,9 @@ def detect_artifacts_in_intracranial_recording(
             ylabel="Intracranial LFP channel (µV)",
             title="Fig6-Intracranial channel - first artifact detected - method " + str(method) + ".png",
             saving_path=saving_path,
+            vertical_line=True,
+            art_time=art_start_LFP,
             scatter=True,
-        )
-        plt.axvline(
-            x=art_start_LFP,
-            ymin=min(lfp_sig),
-            ymax=max(lfp_sig),
-            color="black",
-            linestyle="dashed",
-            alpha=0.3,
         )
         plt.show(block=False)
 
@@ -217,18 +210,10 @@ def detect_artifacts_in_intracranial_recording(
             ylabel="Intracranial LFP channel (µV)",
             title="Fig7-Intracranial channel - first artifact corrected by user.png",  
             saving_path=saving_path,
+            vertical_line=True,
+            art_time=art_start_LFP,
             scatter=True,
         )
-        plt.axvline(
-            x=art_start_LFP,
-            ymin=min(lfp_sig),
-            ymax=max(lfp_sig),
-            color="black",
-            linestyle="dashed",
-            alpha=0.3,
-        )
-
-        plt.gcf()
         plt.show(block=False)
 
     return art_start_LFP

@@ -39,7 +39,9 @@ def plot_channel(
     ylabel:str, 
     title:str, 
     saving_path:str, 
-    scatter=False
+    vertical_line,
+    art_time,
+    scatter
 ):
     """
     Plots the selected channel for quick visualization (and saving).
@@ -52,6 +54,8 @@ def plot_channel(
         - ylabel: str, the label of the y-axis
         - title: str, the title of the plot
         - saving_path: str, the folder where the plot has to be saved
+        - vertical_line: Boolean, if the user wants to see a vertical line
+        - art_time: float, the time of the vertical line
         - scatter: Boolean, if the user wants to see the
         samples instead of a continuous line
 
@@ -67,6 +71,8 @@ def plot_channel(
     plt.xlabel("Time (s)")
     plt.ylabel(ylabel)
     plt.title(str(session_ID))
+    if vertical_line:
+        plt.axvline(x=art_time, color="black", linestyle="dashed", alpha=0.3)
 
     plt.savefig(
             (join(saving_path, title)),
@@ -74,6 +80,7 @@ def plot_channel(
         )    
 
     return fig
+
 
 
 
