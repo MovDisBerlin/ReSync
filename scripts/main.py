@@ -19,17 +19,17 @@ from functions.packet_loss import check_packet_loss
 
 
 def main(
-    session_ID="test2_dictionary",
-    fname_lfp="_20230801T071013_Streaming_fieldtrip.mat",
+    session_ID="dataset_test_1",
+    fname_lfp="Intracerebral_LFP_dataset1_250Hz.csv",
     ch_idx_lfp=0,
-    fname_external="sub036_18mfu_M0S0_BrStr_RestTap_run2 - 20230801T100354.DATA.Poly5",
-    BIP_ch_name="Bip25",
-    saving_format="brainvision",
+    fname_external="External_data_dataset1_4096Hz.csv",
+    BIP_ch_name="BIP 01",
+    saving_format="pickle",
     f_name_json=None,
-    CROP_BOTH=True,
-    CHECK_FOR_TIMESHIFT=False,
+    CROP_BOTH=False,
+    CHECK_FOR_TIMESHIFT=True,
     CHECK_FOR_PACKET_LOSS=False,
-    PREPROCESSING="DBScope",
+    PREPROCESSING="Perceive",
     trial_idx_lfp=3,
 ):
 

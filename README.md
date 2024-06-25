@@ -36,7 +36,7 @@ This repo is structured as follows:
 
 ```sourcedata``` contains 2 example datasets to try the toolbox and have a look at the output: each dataset contains one intracerebral channel and one external channel, both with stimulation artifacts. NOTE: These example datasets were generated and saved as .csv files. Expected datasets from real recordings are usually .mat for intracerebral recordings and .Poly5 for external recordings. 
 To obtain these formats:
-* we record our external datas with a TMSi SAGA data recorder, from which the output file is either a .Poly5 or .xdf file
+* we record our external datas with a TMSi SAGA data recorder, from which the output file is a .Poly5 file
 * we preprocess the .json files obtained after streaming from intracerebral DBS electrodes to obtain FieldTrip .mat files. To do so, there are two possibilities:
     - the open source “Perceive” toolbox (https://github.com/neuromodulation/perceive) for MATLAB
     - the open source "DBScope" toolbox (https://github.com/NCN-Lab/DBScope) for MATLAB
@@ -58,7 +58,7 @@ These instructions will get you a copy of the project up and running on your loc
     - ```conda activate resync```
     - ```git init```
  
-* If for some reason this method is not working, try these lines in the Anaconda Prompt (it can happen for Mac users):
+* If this method is not working for you, you can alsp try these lines in the Anaconda Prompt (can happen for Mac users):
     - navigate to repo directory, e.g.: ```cd Users/USERNAME/Research/ReSync```
     - ```conda create --name resync python==3.10.9 pandas==1.5.3 scipy==1.10.0 numpy==1.23.5 openpyxl==3.0.10 jupyter==1.0.0```
     - ```conda activate resync```

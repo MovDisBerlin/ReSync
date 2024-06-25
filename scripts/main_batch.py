@@ -27,7 +27,7 @@ from functions.packet_loss import check_packet_loss
 
 
 def main_batch(
-    excel_fname="recording_information_personal.xlsx",
+    excel_fname="recording_information.xlsx",
     saving_format="brainvision",
     CROP_BOTH=False,
     CHECK_FOR_TIMESHIFT=True,
@@ -192,7 +192,7 @@ def main_batch(
             start_later = _get_user_input(
                 "How many seconds in the beginning should be ignored "
             )
-            start_later_index = start_later * sf_external
+            start_later_index = start_later * round(sf_external)
             art_start_BIP = detect_artifacts_in_external_recording(
                 session_ID=session_ID,
                 BIP_channel=BIP_channel,
@@ -211,9 +211,9 @@ def main_batch(
         methods = ["thresh", "2", "1", "manual"]
         # thresh takes the last sample that lies within the value distribution of the 
             # thres_window (aka: baseline window) before the threshold passing
-        # kernel 1 only searches for the steep decrease
-        # kernel 2 is more custom and takes into account the steep decrease and slow recover
-        # manual kernel is for none of the three previous methods work. Then the artifact
+            # kernel 1 only searches for the steep decrease
+            # kernel 2 is more custom and takes into account the steep decrease and slow recovery
+            # manual kernel is when none of the three previous methods work. Then the artifact
             # has to be manually selected by the user, in a pop up window that will automatically open.
         for method in methods:
             print("Running resync with method = {}...".format(method))
