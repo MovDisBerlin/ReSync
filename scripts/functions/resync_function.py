@@ -129,9 +129,8 @@ def detect_artifacts_in_intracranial_recording(
     """
 
     # Generate timescale:
-    LFP_timescale_s = np.arange(
-        start=0, stop=(len(lfp_sig) / sf_LFP), step=(1 / sf_LFP)
-    )
+    LFP_timescale_s = np.round(np.arange(0, len(lfp_sig) / sf_LFP, 1 / sf_LFP), decimals=3)
+
 
     # PLOT 4 :
     # raw signal of the intracranial channel used for artifact detection:
@@ -154,7 +153,7 @@ def detect_artifacts_in_intracranial_recording(
         art_start_LFP = find_LFP_sync_artifact(
             data=lfp_sig, sf_LFP=sf_LFP, use_method=method
         )
-
+        
         # PLOT 5 :
         # plot the intracranial channel with its artifacts detected:
         plot_channel(
@@ -172,9 +171,9 @@ def detect_artifacts_in_intracranial_recording(
         plt.show(block=False)
 
         # PLOT 6 :
-        # plot the first artifact detected in intracranial channel (verification of sample choice):
-        idx_start = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] - (0.1*sf_LFP))
-        idx_end = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] + (0.3*sf_LFP))
+        # plot the first artifact detected in intracranial channel (verification of sample choice):        
+        idx_start = round(np.where(LFP_timescale_s == art_start_LFP)[0][0] - (0.1*sf_LFP))
+        idx_end = round(np.where(LFP_timescale_s == art_start_LFP)[0][0] + (0.3*sf_LFP))
         plot_channel(
             session_ID=session_ID,
             timescale=LFP_timescale_s[idx_start:idx_end],
@@ -200,8 +199,8 @@ def detect_artifacts_in_intracranial_recording(
         )
 
         # PLOT 7 : plot the artifact adjusted by user in the intracranial channel:
-        idx_start = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] - (0.1*sf_LFP))
-        idx_end = round(np.where(LFP_timescale_s == (art_start_LFP))[0][0] + (0.3*sf_LFP))
+        idx_start = round(np.where(LFP_timescale_s == art_start_LFP)[0][0] - (0.1*sf_LFP))
+        idx_end = round(np.where(LFP_timescale_s == art_start_LFP)[0][0] + (0.3*sf_LFP))
         plot_channel(
             session_ID=session_ID,
             timescale=LFP_timescale_s[idx_start:idx_end],
